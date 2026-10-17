@@ -1,11 +1,11 @@
 # DUI (World-space UI)
 
-DUI renders a web page into a runtime texture that is drawn in the 3D world (floating plant cards, holograms). Each DUI is a full browser instance: expensive. Pool them.
+DUI renders a web page into a runtime texture that is drawn in the 3D world (floating world cards, holograms). Each DUI is a full browser instance: expensive. Pool them.
 
-## Pool Pattern (from 1nfx_growth_garden)
+## Pool Pattern
 
 ```lua
-function GrowthGarden:GetFreeDUISlot()
+function Name:GetFreeDUISlot()
     local slots = self.PlayerState.duiSlots
     for _, slot in ipairs(slots) do
         if slot.loaded and not slot.entity then
@@ -26,7 +26,7 @@ function GrowthGarden:GetFreeDUISlot()
     return nil
 end
 
-function GrowthGarden:ReleaseDUISlot(entity)
+function Name:ReleaseDUISlot(entity)
     local slot = entity.duiSlot
     if slot and slot.entity == entity then
         slot.entity = nil
@@ -42,7 +42,7 @@ end
 ## Messaging
 
 ```lua
-entity.dui:sendMessage({ action = "update", growth = growthPct })
+entity.dui:sendMessage({ action = "update", progress = progressPct })
 ```
 
 - Throttle per entity (`entity.nextUiUpdate = GetGameTimer() + 1000`).
@@ -71,4 +71,3 @@ self.PlayerState.duiSlots = {}
 ```
 
 Run on `onResourceStop`.
-

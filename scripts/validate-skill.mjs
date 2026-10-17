@@ -11,13 +11,10 @@ const REQUIRED = [
     "CLAUDE.md",
     "README.md",
     "LICENSE",
-    "NOTICE.md",
-    "CHANGELOG.md",
     "install.ps1",
     "agents/openai.yaml",
     ".claude-plugin/marketplace.json",
     ".claude-plugin/plugin.json",
-    "skills.sh.json",
     ".github/workflows/validate.yml",
     "skills/common/style.md",
     "skills/common/architecture.md",
@@ -37,9 +34,7 @@ const REQUIRED = [
     "skills/ui/react-vite.md",
     "skills/ui/dui.md",
     "references/esx-api.md",
-    "references/1nfx-ui-api.md",
     "references/pnotify-api.md",
-    "references/links.md",
     "rules/contracts.md",
     "memory/README.md",
     "memory/native-gotchas.md",
@@ -162,9 +157,9 @@ try {
 }
 
 try {
-    JSON.parse(read("skills.sh.json"));
+    JSON.parse(read(".claude-plugin/plugin.json"));
 } catch (error) {
-    failures.push(`skills.sh.json invalid JSON: ${error.message}`);
+    failures.push(`.claude-plugin/plugin.json invalid JSON: ${error.message}`);
 }
 
 const openai = read("agents/openai.yaml");

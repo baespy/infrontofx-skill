@@ -3,7 +3,7 @@ game "gta5"
 lua54 "yes"
 use_experimental_fxv2_oal "yes"
 
-name "1nfx_template"
+name "infrontofx_template"
 author "infrontofx"
 version "1.0.0"
 
@@ -34,4 +34,3 @@ dependencies {
     "ox_lib",
     "es_extended",
 }
-

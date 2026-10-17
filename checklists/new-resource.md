@@ -1,6 +1,6 @@
 # New Resource Checklist
 
-1. Scaffold: `powershell -File scripts/new-resource.ps1 -Name 1nfx_<name> -Destination <resources folder>`.
+1. Scaffold: `powershell -File scripts/new-resource.ps1 -Name <name> -Destination <resources folder>`.
 2. Rename check: client table `Name`, server table `NameServer`, no author prefix.
 3. `fxmanifest.lua`: lua54, `use_experimental_fxv2_oal`, `@ox_lib/init.lua` first, config before `core/sh_config.lua`, `config/function/*` before `core/*`, `files { "html/**" }`.
 4. `config/config.lua`: `Config.General` (snake_case), `Config.Text` for every player string, commands configurable.
@@ -13,4 +13,3 @@
 11. Persistence (if any): `install.sql`, dirty save, await on stop.
 12. Run `node scripts/lint-resource.mjs <resource>` - zero errors.
 13. Test: start, restart twice (no duplicate blips/points), spam the action, disconnect mid-action, wrong bucket, far distance.
-

@@ -24,7 +24,7 @@ SendNUIMessage({ action = "open", data = payload })
 
 UI -> Lua, `fetch` POST to `https://<resource>/<callback>` with JSON, response `{ ok = boolean, ... }`.
 
-Name UI actions in camelCase, optionally namespaced (`"gardenMenu:open"`) when one page hosts several apps.
+Name UI actions in camelCase, optionally namespaced (`"shopMenu:open"`) when one page hosts several apps.
 
 ## Ready Handshake
 
@@ -112,7 +112,7 @@ end)
 
 ## XSS
 
-Any string another player controls (names, plant labels renamed by players, chat) must be rendered as text:
+Any string another player controls (names, custom labels, chat) must be rendered as text:
 
 - Vanilla: `el.textContent = value`. Never `innerHTML` with data.
 - React/Vue/Svelte: `{value}` binding. Never `dangerouslySetInnerHTML`, `v-html`, `{@html}` with data.
@@ -124,7 +124,7 @@ Injected script in NUI can call every `RegisterNUICallback` as the victim.
 
 - Send on change, not per frame. Batch rapid updates (one message per 100-250 ms max).
 - Keep the page idle when hidden: stop timers/animations, `hidden` attribute instead of opacity-only hiding.
-- All JS/CSS/fonts local; no CDN at runtime.
+- All JS/CSS local; no CDN at runtime.
 
 ## Cleanup
 
@@ -136,4 +136,3 @@ AddEventHandler("onResourceStop", function(resource)
     SetNuiFocus(false, false)
 end)
 ```
-

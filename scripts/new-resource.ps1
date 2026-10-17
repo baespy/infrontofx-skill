@@ -11,7 +11,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $template = Join-Path $root "templates\resource"
 
 if (-not $Controller) {
-    $core = $Name -replace "^(1nfx|xff|infrontofx)[_-]", ""
+    $core = $Name -replace "^infrontofx[_-]", ""
     $Controller = ($core -split "[_\-\s]+" | Where-Object { $_ } | ForEach-Object {
         $_.Substring(0, 1).ToUpper() + $_.Substring(1)
     }) -join ""
@@ -33,7 +33,7 @@ Get-ChildItem -Path $target -Recurse -File -Include *.lua, *.html, *.js, *.css, 
     $text = [System.IO.File]::ReadAllText($_.FullName)
     $new = $text -creplace "TemplateServer", "${Controller}Server"
     $new = $new -creplace "\bTemplate\b", $Controller
-    $new = $new -creplace "1nfx_template", $Name
+    $new = $new -creplace "infrontofx_template", $Name
     if ($new -ne $text) {
         [System.IO.File]::WriteAllText($_.FullName, $new, $utf8)
     }

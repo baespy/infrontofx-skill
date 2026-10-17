@@ -1,16 +1,16 @@
 # Architecture
 
-Standard layout and load order for an infrontofx FiveM resource.
+Standard layout and load order for an `infrontofx` FiveM resource.
 
 ## Layout
 
 ```text
-1nfx_<name>/
+<resource_name>/
 ├── fxmanifest.lua
 ├── install.sql                       (only when the resource owns tables)
 ├── config/
 │   ├── config.lua                    Config = {}, Config.General, Config.Text
-│   ├── config.<domain>.lua           Config.<Domain> datasets (shops, plants, zones)
+│   ├── config.<domain>.lua           Config.<Domain> datasets (shops, zones, items)
 │   ├── config.server.lua             server-only values (rewards, drop rates) - optional
 │   └── function/
 │       ├── config.function.client.lua   FC client adapters + hooks
@@ -25,8 +25,7 @@ Standard layout and load order for an infrontofx FiveM resource.
 ├── html/                             NUI (ui_page)
 │   ├── index.html
 │   ├── css/style.css
-│   ├── js/app.js
-│   └── fonts/
+│   └── js/app.js
 └── dui/                              DUI pages rendered on world entities (optional)
 ```
 
@@ -41,7 +40,7 @@ game "gta5"
 lua54 "yes"
 use_experimental_fxv2_oal "yes"
 
-name "1nfx_name"
+name "infrontofx_template"
 author "infrontofx"
 version "1.0.0"
 
@@ -140,4 +139,3 @@ end)
 
 - The controller table is global inside the resource environment, so `sv_db.lua` and `sv_main.lua` share `NameServer` without exports.
 - Globals are per resource in FXServer; they do not leak to other resources. Other resources use exports or events only (`rules/contracts.md`).
-

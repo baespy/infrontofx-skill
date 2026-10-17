@@ -54,11 +54,16 @@ FC.GetMoney = function(accountName)
 end
 
 FC.ShowTextUI = function(text)
-    exports["1nfx_textui"]:ShowHelpNotificationToggle(text)
+    if not text or text == "" then
+        return
+    end
+    BeginTextCommandDisplayHelp("STRING")
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayHelp(0, false, true, -1)
 end
 
 FC.HideTextUI = function()
-    exports["1nfx_textui"]:ClearHelpNotification()
+    ClearAllHelpMessages()
 end
 
 FC.CanOpenShop = function(shop)

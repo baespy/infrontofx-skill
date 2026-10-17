@@ -1,11 +1,11 @@
 ---
 name: infrontofx-skill
-description: infrontofx (1nfx) standard for writing, reviewing, refactoring, and optimizing FiveM Lua resources and NUI/DUI UIs. Enforces the single-table OOP controller (Name / NameServer with ServerState and PlayerState), the Config + config/function FC adapter split (config.function.client.lua / config.function.server.lua wrapping ESX, pNotify, 1nfx_textui, 1nfx_processbar, 1nfx_serverlogs and gameplay hooks), dynamic event names (scriptname .. ":SV:action" / ":CL:action"), ESX via exports, ox_lib for callbacks/points/zones/cache only (no lib.notify, progress, textui), server authority and give-value hardening, OneSync validation, oxmysql/KVP persistence, hot-path performance, cleanup, and fast NUI (vanilla JS class or React/Vite) with the 1nfx design system.
+description: infrontofx standard for writing, reviewing, refactoring, and optimizing FiveM Lua resources and NUI/DUI UIs. Enforces the single-table OOP controller (Name / NameServer with ServerState and PlayerState), the Config + config/function FC adapter split (config.function.client.lua / config.function.server.lua wrapping ESX, pNotify, and gameplay hooks), dynamic event names (scriptname .. ":SV:action" / ":CL:action"), ESX via exports, ox_lib for callbacks/points/zones/cache only (no lib.notify, progress, textui), server authority and give-value hardening, OneSync validation, oxmysql/KVP persistence, hot-path performance, cleanup, and fast NUI (vanilla JS class or React/Vite) with the infrontofx design system.
 ---
 
 # infrontofx Skill
 
-Use this skill for any FiveM Lua resource or in-game UI work in the infrontofx / `1nfx_*` ecosystem. The defaults below apply to every task. Open the referenced files lazily, only when the task touches that area.
+Use this skill for any FiveM Lua resource or in-game UI work in the `infrontofx` ecosystem. The defaults below apply to every task. Open the referenced files lazily, only when the task touches that area.
 
 ## Operating Workflow
 
@@ -38,7 +38,7 @@ Use this skill for any FiveM Lua resource or in-game UI work in the infrontofx /
 | Plain HTML/JS UI | `skills/ui/vanilla-ui.md` |
 | React / Vite / TypeScript UI | `skills/ui/react-vite.md` |
 | 3D world UI via `lib.dui` | `skills/ui/dui.md` |
-| Notifications, text UI, progress, logs | `references/1nfx-ui-api.md`, `references/pnotify-api.md` |
+| Notifications | `references/pnotify-api.md` |
 | Cross-resource exports and events | `rules/contracts.md` |
 | Code review | `checklists/review.md` |
 
@@ -55,7 +55,7 @@ local scriptname = GetCurrentResourceName()
 
 ### Single-Table OOP Controller
 
-- One global controller table per side. Name it in PascalCase from the resource name without the author prefix: `1nfx_growth_garden` -> `GrowthGarden` / `GrowthGardenServer`, `1nfx_shop` -> `Shop` / `ShopServer`. Never prefix with `1nfx`, `Xff`, or an author tag.
+- One global controller table per side. Name it in PascalCase from the clean resource name without author prefix: `shop` -> `Shop` / `ShopServer`, `airdrop` -> `Airdrop` / `AirdropServer`. Never prefix with author tags.
 - Client: `Name = { ServerState = {}, PlayerState = {} }`. Server: `NameServer = { ServerState = {} }`.
 - All behaviour is colon methods on that table: `function Name:Method(...)`. Use `self` inside methods.
 - Extra runtime maps (caches, indexes, pools) live as fields of the same table, never as loose globals.
@@ -126,4 +126,4 @@ local scriptname = GetCurrentResourceName()
 
 - `memory/native-gotchas.md` - verified native quirks.
 - `memory/security-exploits.md` - exploit classes seen in practice.
-- `memory/patterns.md` - proven 1nfx implementation patterns (wire encoding, KVP snapshot, DUI pool, owner cache).
+- `memory/patterns.md` - proven implementation patterns (wire encoding, KVP snapshot, DUI pool, owner cache).

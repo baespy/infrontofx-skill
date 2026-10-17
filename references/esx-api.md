@@ -58,3 +58,4 @@ Client values from `ESX.GetPlayerData()` are a local cache for UX display only. 
 
 - Client: `esx:playerLoaded`, `esx:onPlayerLogout`, `esx:setJob`, `esx:onPlayerDeath`, `esx:onPlayerSpawn`
 - Server: `esx:playerLoaded`, `esx:playerDropped`, `esx:setJob`
+

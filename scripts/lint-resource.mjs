@@ -149,12 +149,6 @@ function lintLua(file, rel) {
         if (FORBIDDEN_OXLIB.test(line)) {
             add(rel, ln, "error", "forbidden-oxlib", "use FC.Notify / FC.Progress / FC.ShowTextUI instead of ox_lib UI modules");
         }
-        if (/exports\s*\[\s*["'](1nfx_utilities|xff_utilities)["']\s*\]/.test(original) && !comments.has(ln)) {
-            add(rel, ln, "warn", "no-utilities", "use standard ESX inside FC adapters instead of 1nfx_utilities/xff_utilities");
-        }
-        if (!isFc && !isManifest && /exports\s*\[\s*["'](1nfx_textui|1nfx_processbar|1nfx_serverlogs)["']\s*\]/.test(original) && !comments.has(ln)) {
-            add(rel, ln, "warn", "use-fc", "call external resources through FC adapters in config/function");
-        }
         if (!isFc && /["']pNotify:SendNotification["']/.test(original) && !comments.has(ln)) {
             add(rel, ln, "warn", "use-fc", "use FC.Notify instead of triggering pNotify directly");
         }

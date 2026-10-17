@@ -61,7 +61,7 @@ export async function fetchNui<R = unknown, T = unknown>(eventName: string, data
 }
 ```
 
-Resolve the resource name at runtime instead of hardcoding it (improves on the hardcoded default in HTPH's utility).
+Resolve the resource name at runtime via `GetParentResourceName()` instead of hardcoding it.
 
 ## useNuiEvent
 
@@ -142,4 +142,3 @@ export function debugData<T>(events: { action: string; data: T }[], delay = 300)
 - Memoize big lists (`React.memo`, keyed rows); virtualize > 300 rows.
 - Keep the bundle small: no moment.js, no full icon packs (import single icons).
 - Build before commit: `npm run build`; commit `web/dist` if the server pulls resources from git.
-

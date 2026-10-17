@@ -74,11 +74,9 @@ for _, item in ipairs(shop.items) do
 end
 ```
 
-Then `shop.itemIndex[name]` instead of a loop. Same for sessions by identifier, entities by id, plants by owner.
+Then `shop.itemIndex[name]` instead of a loop. Same for sessions by identifier, entities by id, objects by owner.
 
 ## Streaming Many World Entities
-
-Pattern from `1nfx_growth_garden`:
 
 - Server keeps all entities in `ServerState.entities`; clients only spawn the ones within `streaming.distance`.
 - Grid cells (`cell_size = 150.0`) index entities by `floor(x / cell)`, `floor(y / cell)` so a scan touches 9 cells, not every entity.
@@ -117,4 +115,3 @@ Pattern from `1nfx_growth_garden`:
 
 - `resmon 1` in F8 for client ms; `profiler record 500` / `profiler view` for hot functions.
 - Server: `txAdmin` resource monitor or `profiler` in server console.
-

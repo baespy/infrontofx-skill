@@ -19,7 +19,7 @@
 
 ## Hashes
 
-- `` `prop_wateringcan` `` (compile-time joaat) or `joaat("prop_wateringcan")`.
+- `` `prop_box_wood01a` `` (compile-time joaat) or `joaat("prop_box_wood01a")`.
 - Compare hashes to hashes. Material hashes and model hashes can be negative ints; store them as given in config.
 
 ## Asset Loading
@@ -36,7 +36,7 @@ lib.requestNamedPtfxAsset(asset, 5000)
 ## Entities
 
 - Local prop: `CreateObject(model, x, y, z, false, false, false)` then `FreezeEntityPosition(obj, true)`, `SetEntityCollision` as needed.
-- Ground placement: `GetGroundZFor_3dCoord(x, y, z + 1.0, false)` or a shape test; validate material with `GetLastMaterialHitByShapeTest`-style results against `Config` material hash sets.
+- Ground placement: `GetGroundZFor_3dCoord(x, y, z + 1.0, false)` or a shape test; validate material against `Config` material hash sets.
 - Delete: `if DoesEntityExist(obj) then DeleteEntity(obj) end` (multi-line in real code).
 
 ## Server-side Natives
@@ -45,4 +45,4 @@ Server Lua has a reduced native set (OneSync server natives): `GetEntityCoords`,
 
 ## Verify Before Use
 
-When unsure of a native's parameters or game-build availability, check the docs page or the full native dump in the b3sty191/b3sty-skill repository (references/natives, FiveM GTA5 file). Record confirmed quirks in `memory/native-gotchas.md`.
+When unsure of a native's parameters or game-build availability, check https://docs.fivem.net/natives/ and record confirmed quirks in `memory/native-gotchas.md`.

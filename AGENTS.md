@@ -9,9 +9,9 @@ Whenever you create, edit, refactor, review, debug, or optimize a FiveM Lua reso
    ESX = exports["es_extended"]:getSharedObject()
    local scriptname = GetCurrentResourceName()
    ```
-2. One controller table per side, PascalCase from the resource name without author prefix: `GrowthGarden` / `GrowthGardenServer`. Fields `ServerState`, `PlayerState`. Colon methods only.
+2. One controller table per side, PascalCase from the resource name without author prefix: `Shop` / `ShopServer`. Fields `ServerState`, `PlayerState`. Colon methods only.
 3. `Config` in `config/config.lua` (`Config.General`, `Config.Text`), datasets in `config/config.<domain>.lua`, validation in `core/sh_config.lua`.
-4. All framework/external calls and owner hooks in `config/function/config.function.client.lua` / `config.function.server.lua` via `FC` (wrapping standard `ESX` + `pNotify` + UI/log exports). Client `FC.Notify(label, type)`, server `FC.Notify(source, label, type)`.
+4. All framework/external calls and owner hooks in `config/function/config.function.client.lua` / `config.function.server.lua` via `FC` (wrapping standard `ESX` + `pNotify` + UI/log hooks). Client `FC.Notify(label, type)`, server `FC.Notify(source, label, type)`.
 5. Events: `scriptname .. ":SV:action"` / `scriptname .. ":CL:action"`. `local src = source` first line of every server handler.
 6. ox_lib allowed for callback/points/zones/cache/table/cron/dui. Forbidden: `lib.notify`, `lib.progressBar`, `lib.progressCircle`, `lib.showTextUI`, `lib.hideTextUI`.
 7. Multi-line `if` only. No comments in Lua. 4 spaces. Double quotes.
@@ -23,7 +23,7 @@ Whenever you create, edit, refactor, review, debug, or optimize a FiveM Lua reso
 
 - `skills/common/` - Lua rules (style, architecture, config, FC, events, security, performance, networking, database, natives, ox_lib, debugging).
 - `skills/ui/` - NUI bridge, design system, vanilla UI, React/Vite, DUI.
-- `references/` - APIs of ESX (`references/esx-api.md`), 1nfx UI resources, pNotify, external links.
+- `references/` - APIs of ESX (`references/esx-api.md`) and pNotify (`references/pnotify-api.md`).
 - `rules/contracts.md` - cross-resource rules.
 - `memory/` - learned quirks, exploits, patterns (Date + Game build per entry).
 - `checklists/` - new resource and review checklists.

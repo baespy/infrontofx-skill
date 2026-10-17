@@ -1,6 +1,6 @@
 # Style
 
-House style for every infrontofx Lua file. Match it exactly; it is what keeps 70+ `1nfx_*` resources readable side by side.
+House style for every `infrontofx` Lua file. Match it exactly to keep all resources consistent and readable.
 
 ## Core Principles
 
@@ -30,18 +30,18 @@ local GetGameTimer = GetGameTimer
 
 | Resource | Client table | Server table |
 | --- | --- | --- |
-| `1nfx_growth_garden` | `GrowthGarden` | `GrowthGardenServer` |
-| `1nfx_shop` | `Shop` | `ShopServer` |
-| `1nfx_serverlogs` | `ServerLogs` | `ServerLogsServer` |
-| `1nfx_processbar` | `ProcessBar` | `ProcessBarServer` |
+| `shop` | `Shop` | `ShopServer` |
+| `airdrop` | `Airdrop` | `AirdropServer` |
+| `serverlogs` | `ServerLogs` | `ServerLogsServer` |
+| `defender` | `Defender` | `DefenderServer` |
 
-- Strip the author prefix (`1nfx_`, `xff_`, `azael_`), split on `_` / `-`, PascalCase each word.
-- Never `XffServerLogs`, `InfxGarden`, or `Main`.
+- Strip any author prefix, split on `_` / `-`, PascalCase each word.
+- Never prepend author tags or use generic names like `Main`.
 
 ## Controller Shape
 
 ```lua
-GrowthGarden = {
+Shop = {
     ServerState = {
         entities = {},
         serverTimeOffset = 0,
@@ -50,11 +50,11 @@ GrowthGarden = {
         busy = false,
         targetEntity = nil,
     },
-    ActivePoints = {},
-    LoadedPtfxAssets = {},
+    Points = {},
+    Blips = {},
 }
 
-function GrowthGarden:GetServerTime()
+function Shop:GetServerTime()
     return GetCloudTimeAsInt() + self.ServerState.serverTimeOffset
 end
 ```
@@ -62,7 +62,7 @@ end
 - `ServerState` = data that came from (or mirrors) the server.
 - `PlayerState` = local player/session state (busy flags, UI open, target).
 - Other top-level fields = runtime registries (points, blips, pools, caches, indexes).
-- Server tables use `ServerState` only (`playerSessions`, `cooldowns`, `inFlight`, `entities`).
+- Server tables use `ServerState` only (`playerSessions`, `throttle`, `inFlight`, `entities`).
 
 ## Formatting
 
@@ -113,7 +113,7 @@ Produced Lua contains no `--` or `--[[ ]]`. If a block needs a comment, rename v
 - Methods: `function Name:Method(arg)`.
 - `FC` entries: `FC.Name = function(arg) ... end`.
 - Exports: global wrapper + `exports("Name", Name)` (see `skills/common/events.md`).
-- Local helpers only for pure, file-private math or encoding (`local function effect(value, offsetZ)` in `sh_config.lua`).
+- Local helpers only for pure, file-private math or encoding in `sh_config.lua`.
 
 ## CfxLua Operators
 
@@ -124,8 +124,8 @@ Produced Lua contains no `--` or `--[[ ]]`. If a block needs a comment, rename v
 
 - Locals and methods: camelCase locals, PascalCase methods (`self:GetFreeDUISlot()`).
 - Config keys: snake_case (`render_distance`, `interval_sec`).
-- Data keys sent to NUI: camelCase (`ownerName`, `feedSum`).
-- Constants: `UPPER_SNAKE` locals (`local KVP_PLANTS_SNAPSHOT = "growth_garden:plants_snapshot:v1"`).
+- Data keys sent to NUI: camelCase (`ownerName`, `maxAmount`).
+- Constants: `UPPER_SNAKE` locals (`local KVP_SNAPSHOT = "resource:entities_snapshot:v1"`).
 
 ## Return Shape
 
@@ -135,4 +135,3 @@ Produced Lua contains no `--` or `--[[ ]]`. If a block needs a comment, rename v
   return true, { count = count, limit = limit }
   ```
 - NUI callbacks respond with `{ ok = boolean, ... }`.
-

@@ -127,7 +127,7 @@ end
 
 ## Permissions
 
-- Admin actions: `IsPlayerAceAllowed(src, "1nfx.admin")` on the server.
+- Admin actions: `IsPlayerAceAllowed(src, "infrontofx.admin")` on the server.
 - Job gates: read job on the server (`FC.GetJob(src)`), never from the payload.
 - A UI flag like `isAdmin` means nothing; the server re-checks.
 
@@ -153,4 +153,3 @@ end
 ## Third-party Resources
 
 Red flags: obfuscated Lua, `load()` of HTTP responses, `PerformHttpRequest` to unknown hosts, `os.execute`, `io.popen`, large base64 blobs. Do not run leaked resources.
-

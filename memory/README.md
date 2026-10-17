@@ -1,26 +1,23 @@
 # Memory
 
-Learned facts from real work. Rules live in `skills/`; memory records verified quirks, exploits, and proven patterns with evidence.
+Confirmed engine quirks, exploit classes, and reusable patterns discovered while building resources.
 
 ## Files
 
-- `memory/native-gotchas.md` - native and runtime quirks.
-- `memory/security-exploits.md` - exploit classes observed and their fixes.
-- `memory/patterns.md` - reusable 1nfx implementation patterns.
+- `memory/native-gotchas.md` - native return types, subtype quirks, crash triggers.
+- `memory/security-exploits.md` - exploit classes and fixes.
+- `memory/patterns.md` - reusable implementation patterns.
 
-## Entry Template
+## Adding An Entry
 
-Copy for every new entry:
+Every entry needs `Date:` and `Game build:` so stale workarounds can be retired when FXServer updates:
 
 ```markdown
-### Title
+### Short title
 
-- Date: YYYY-MM-DD
-- Game build: 3258 (or "any")
-- Resource: 1nfx_name
-- Symptom:
-- Cause:
-- Fix:
-- Rule link: skills/common/<file>.md -> Section
+- Date: 2026-10-18
+- Game build: 3258
+- Symptom: what went wrong
+- Cause: why
+- Fix: exact code or rule
 ```
-

@@ -1,6 +1,6 @@
 # ox_lib
 
-ox_lib is always present in infrontofx resources (`"@ox_lib/init.lua"` first in `shared_scripts`). Use it for performance primitives, not for UI.
+ox_lib is always present in `infrontofx` resources (`"@ox_lib/init.lua"` first in `shared_scripts`). Use it for performance primitives, not for UI.
 
 ## Allowed
 
@@ -23,9 +23,9 @@ ox_lib is always present in infrontofx resources (`"@ox_lib/init.lua"` first in 
 | Do not use | Use instead |
 | --- | --- |
 | `lib.notify` | `FC.Notify` (pNotify) |
-| `lib.progressBar`, `lib.progressCircle` | `FC.Progress` (`1nfx_processbar`) |
-| `lib.showTextUI`, `lib.hideTextUI` | `FC.ShowTextUI` / `FC.HideTextUI` (`1nfx_textui`) |
-| `lib.registerContext`, `lib.inputDialog`, `lib.alertDialog` | resource NUI or `1nfx_dialogui` via `FC` |
+| `lib.progressBar`, `lib.progressCircle` | `FC.Progress` |
+| `lib.showTextUI`, `lib.hideTextUI` | `FC.ShowTextUI` / `FC.HideTextUI` |
+| `lib.registerContext`, `lib.inputDialog`, `lib.alertDialog` | resource NUI via `FC` |
 
 ## Points Cleanup
 
@@ -41,4 +41,3 @@ for _, point in ipairs(self.Points) do
 end
 self.Points = {}
 ```
-

@@ -22,7 +22,7 @@ FC = FC or {}
 Core code always calls hooks at the documented moment and respects the return value:
 
 ```lua
-if not FC.OnCollecting(entity) then
+if not FC.CanOpenShop(shop) then
     return
 end
 ```
@@ -108,31 +108,22 @@ FC.GetJob = function()
 end
 
 FC.ShowTextUI = function(text)
-    exports["1nfx_textui"]:ShowHelpNotificationToggle(text)
+    if not text or text == "" then
+        return
+    end
+    BeginTextCommandDisplayHelp("STRING")
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayHelp(0, false, true, -1)
 end
 
 FC.HideTextUI = function()
-    exports["1nfx_textui"]:ClearHelpNotification()
+    ClearAllHelpMessages()
 end
 
 FC.Progress = function(data, onFinish)
-    exports["1nfx_processbar"]:Progress({
-        name = data.name,
-        duration = data.duration,
-        label = data.label,
-        useWhileDead = false,
-        canCancel = data.canCancel ~= false,
-        controlDisables = data.controlDisables or {
-            disableMovement = true,
-            disableCarMovement = true,
-            disableMouse = false,
-            disableCombat = true,
-        },
-        animation = data.animation,
-        prop = data.prop,
-    }, function(cancelled)
-        onFinish(not cancelled)
-    end)
+    if onFinish then
+        onFinish(true)
+    end
 end
 ```
 
@@ -226,13 +217,7 @@ FC.CountJob = function(jobName)
     return #ESX.GetExtendedPlayers("job", jobName)
 end
 
-FC.Log = function(source, event, content, fields)
-    exports["1nfx_serverlogs"]:insertData({
-        source = source,
-        event = event,
-        content = content,
-        fields = fields,
-    })
+FC.Log = function(source, event, content)
 end
 ```
 
@@ -241,14 +226,11 @@ end
 Client:
 
 ```lua
-FC.OnEntityProductReady = function(entity)
-    if GrowthGarden:IsPlantOwner(entity) then
-        FC.Notify(("พืชผล #%s พร้อมเก็บเกี่ยวแล้ว"):format(entity.id), "info")
-    end
+FC.CanOpenShop = function(shop)
+    return not IsPedDeadOrDying(cache.ped, true) and not IsPedInAnyVehicle(cache.ped, false)
 end
 
-FC.OnCollecting = function(entity)
-    return GrowthGarden:IsPlantOwner(entity)
+FC.OnPurchased = function(shop, item, amount)
 end
 ```
 
@@ -276,6 +258,6 @@ end
 
 - Argument order: client `FC.Notify(label, notifyType)`, server `FC.Notify(source, label, notifyType)`. Server adapters always take `source` first.
 - Adapters call ESX and exports directly; no `GetResourceState` guards (`rules/contracts.md`).
-- Hooks may read the controller table (`GrowthGarden:IsPlantOwner`) but must not mutate core state.
+- Hooks may read the controller table (`Shop:IsOpen()`) but must not mutate core state.
 - Server hooks are the only hooks that can grant value. Client hooks are UX only.
-- Swapping inventory/notify (for example to `ox_inventory`) is done by editing these two files only. See `references/esx-api.md` for the default contract.
+- Swapping inventory/notify/textui/progress/logging is done by editing these two files only. See `references/esx-api.md` for the default contract.

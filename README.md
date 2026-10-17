@@ -1,8 +1,6 @@
 # infrontofx-skill
 
-มาตรฐานการเขียน **FiveM Lua + NUI/DUI** สำหรับ resource ตระกูล `1nfx_*` ใช้เป็น Skill ให้ AI (**Antigravity**, **Claude Code**, **OpenAI Codex**) เขียนโค้ดออกมาเป็นสไตล์เดียวกันทุกตัว: OOP table เดียว, `Config` + `config/function` (FC ครอบ ESX มาตรฐาน + pNotify), ปลอดภัย, ลื่น, UI สวยและเบา
-
-> รวบรวมและปรับจาก [b3sty191/b3sty-skill](https://github.com/b3sty191/b3sty-skill), [jxeqoz/fivem-mcp](https://github.com/jxeqoz/fivem-mcp), [HTPH/FiveM-Utilities-NUI-and-Lua](https://github.com/HTPH/FiveM-Utilities-NUI-and-Lua) และโค้ดจริงของ `1nfx_growth_garden` ดูเครดิตใน [NOTICE.md](NOTICE.md)
+มาตรฐานการเขียน **FiveM Lua + NUI/DUI** สำหรับ `infrontofx` ใช้เป็น Skill ให้ AI (**Antigravity**, **Claude Code**, **OpenAI Codex**) เขียนโค้ดออกมาเป็นสไตล์เดียวกันทุกตัว: OOP table เดียว, `Config` + `config/function` (`FC` ครอบ ESX มาตรฐาน + pNotify), ปลอดภัย, ลื่น, UI สวยและเบา
 
 ---
 
@@ -46,15 +44,15 @@ Use $skill-installer to install from repo {{OWNER}}/infrontofx-skill path . with
 | หัวข้อ | มาตรฐาน |
 | --- | --- |
 | Header | `ESX = exports["es_extended"]:getSharedObject()` + `local scriptname = GetCurrentResourceName()` |
-| OOP | Table เดียวต่อฝั่ง: `GrowthGarden = { ServerState = {}, PlayerState = {} }` / `GrowthGardenServer = { ServerState = {} }` ใช้ `function GrowthGarden:Method()` ชื่อไม่ใส่ prefix `1nfx`/`Xff` |
+| OOP | Table เดียวต่อฝั่ง: `Shop = { ServerState = {}, PlayerState = {} }` / `ShopServer = { ServerState = {} }` ใช้ `function Shop:Method()` ชื่อไม่ใส่ prefix ผู้เขียน |
 | Config | `config/config.lua` → `Config.General` (snake_case), `Config.Text` (ข้อความทั้งหมด), ข้อมูลใหญ่แยก `config/config.<domain>.lua`, ตรวจ+สร้าง index ใน `core/sh_config.lua` |
-| config.function | `FC` ใน `config/function/config.function.client.lua` / `.server.lua` = จุดเดียวที่เรียก `ESX` (`ESX.GetPlayerData`, `RunStaticPlayerMethod`), `pNotify`, `1nfx_textui`, `1nfx_processbar`, `1nfx_serverlogs` และ hook (`FC.CanXxx`, `FC.OnXxx`) |
+| config.function | `FC` ใน `config/function/config.function.client.lua` / `.server.lua` = จุดเดียวที่เรียก `ESX` (`ESX.GetPlayerData`, `RunStaticPlayerMethod`), `pNotify` และ hook (`FC.CanXxx`, `FC.OnXxx`) |
 | Event | `scriptname .. ":SV:action"` / `scriptname .. ":CL:action"`, ใช้ `lib.callback` เป็นหลัก, `local src = source` บรรทัดแรก |
 | ox_lib | ใช้ได้: callback, points, zones, cache, table, cron, dui — **ห้าม**: `lib.notify`, `lib.progressBar/Circle`, `lib.showTextUI/hideTextUI` |
 | รูปแบบโค้ด | `if` หลายบรรทัดเสมอ, **ไม่มีคอมเมนต์** ใน Lua, 4 spaces, double quotes |
 | ความปลอดภัย | Server ตัดสินทุกอย่าง (ราคา/ของ/เงิน), ตรวจ type/range/ระยะ/bucket, throttle, in-flight lock, log |
 | ความลื่น | ไม่มี `Wait(0)` ตอน idle, ใช้ `lib.points`, `cache.ped`, index แทน loop, ส่ง event แบบ scoped, ล้างทุกอย่างตอน stop |
-| UI | `{ action, data }`, handshake `uiReady`, `cb` ครั้งเดียว, `textContent` (กัน XSS), สเกล `--px` 1920x1080, ฟอนต์ Bai Jamjuree, ธีมแดง-ดำ |
+| UI | `{ action, data }`, handshake `uiReady`, `cb` ครั้งเดียว, `textContent` (กัน XSS), สเกล `--px` 1920x1080, ธีมแดง-ดำ |
 
 รายละเอียดเต็มอยู่ใน [SKILL.md](SKILL.md) และโฟลเดอร์ `skills/`
 
@@ -73,7 +71,7 @@ infrontofx-skill/
 │   ├── common/              style, architecture, config, fc-adapters, events, security,
 │   │                        performance, networking, database, natives, ox-lib, debugging
 │   └── ui/                  nui-bridge, design-system, vanilla-ui, react-vite, dui
-├── references/              API ของ ESX (esx-api.md), 1nfx UI, pNotify, ลิงก์อ้างอิง
+├── references/              API ของ ESX (esx-api.md) และ pNotify (pnotify-api.md)
 ├── rules/contracts.md       กฎการเรียกข้าม resource
 ├── memory/                  บันทึกบั๊ก native / ช่องโหว่ / pattern ที่พิสูจน์แล้ว
 ├── checklists/              เช็กลิสต์สร้าง resource ใหม่ + รีวิวโค้ด
@@ -91,7 +89,7 @@ infrontofx-skill/
 สร้าง resource ใหม่:
 
 ```powershell
-.\scripts\new-resource.ps1 -Name 1nfx_fishing -Destination "C:\server\resources\[1nfx]"
+.\scripts\new-resource.ps1 -Name fishing -Destination "C:\server\resources"
 ```
 
 ได้ `Fishing` / `FishingServer` พร้อม config, FC (ESX + pNotify), NUI ใช้งานได้ทันที
@@ -99,11 +97,11 @@ infrontofx-skill/
 ตรวจโค้ด (ต้องมี Node.js):
 
 ```powershell
-node .\scripts\lint-resource.mjs "C:\server\resources\[1nfx]\1nfx_fishing"
+node .\scripts\lint-resource.mjs "C:\server\resources\fishing"
 ```
 
 ---
 
 ## License
 
-MIT — ดู [LICENSE](LICENSE) / ฟอนต์ Bai Jamjuree ใน template ใช้สัญญาอนุญาต SIL OFL 1.1
+MIT — ดู [LICENSE](LICENSE)

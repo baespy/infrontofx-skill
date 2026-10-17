@@ -55,13 +55,7 @@ FC.RemoveMoney = function(source, accountName, amount)
     return exports["es_extended"]:RunStaticPlayerMethod(source, "removeAccountMoney", accountName or "money", amount)
 end
 
-FC.Log = function(source, event, content, fields)
-    exports["1nfx_serverlogs"]:insertData({
-        source = source,
-        event = event,
-        content = content,
-        fields = fields,
-    })
+FC.Log = function(source, event, content)
 end
 
 FC.CanPurchase = function(source, shop, item, amount)

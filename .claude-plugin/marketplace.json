@@ -5,10 +5,9 @@
         {
             "name": "infrontofx-skill",
             "source": "./",
-            "description": "infrontofx (1nfx) FiveM Lua + NUI standard: single-table OOP controllers, Config + FC adapters, server authority, performance, cleanup, and the 1nfx UI design system.",
+            "description": "infrontofx FiveM Lua + NUI/DUI standard: single-table OOP controllers, Config + FC adapters, server authority, performance, cleanup, and the infrontofx UI design system.",
             "skills": ["./"],
             "strict": false
         }
     ]
 }
-

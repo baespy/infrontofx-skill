@@ -1,6 +1,6 @@
 # Patterns
 
-Proven implementations from shipped 1nfx resources. Copy the shape, keep house style.
+Proven implementations for high-performance FiveM resources. Copy the shape, keep house style.
 
 ## Contents
 
@@ -17,7 +17,6 @@ Proven implementations from shipped 1nfx resources. Copy the shape, keep house s
 
 Large snapshots repeat the same keys thousands of times. Replace string keys with negative indexes plus a key dictionary; decode on the client. Falls back to plain events when encoding is not smaller.
 
-- Resource: 1nfx_growth_garden (`core/sh_wire.lua`)
 - Use when: snapshot of 100+ entities with identical shape.
 
 ```lua
@@ -54,11 +53,9 @@ Server sends `scriptname .. ":wireSnapshot"` with `(event, encoded, keys)`; clie
 
 Fast restart without a full table scan.
 
-- Resource: 1nfx_growth_garden (`core/sv_db.lua`)
-
 1. On change, encode all entities to JSON and `SetResourceKvp(KVP_SNAPSHOT, encoded)` only if the string changed.
-2. Store a signature `count:feedSum:maxTimestamp` when every entity is clean, otherwise `"dirty"`.
-3. On start: if signature is `"dirty"`, trust the snapshot. Otherwise compare against `SELECT COUNT(*), SUM(feed), MAX(timestamp)`; equal -> load snapshot, different -> full SELECT.
+2. Store a signature `count:stateSum:maxTimestamp` when every entity is clean, otherwise `"dirty"`.
+3. On start: if signature is `"dirty"`, trust the snapshot. Otherwise compare against `SELECT COUNT(*), SUM(state), MAX(timestamp)`; equal -> load snapshot, different -> full SELECT.
 
 ## Owner Name TTL Cache
 
@@ -93,10 +90,10 @@ See `skills/ui/dui.md`.
 ## Exports Wrapper
 
 ```lua
-function GetItemCount(playerId, name, itemType)
-    return UtilitiesServer:GetItemCount(playerId, name, itemType)
+function GetZoneState(zoneId)
+    return NameServer:GetZoneState(zoneId)
 end
-exports("GetItemCount", GetItemCount)
+exports("GetZoneState", GetZoneState)
 ```
 
 ## Hook-gated Actions
@@ -104,19 +101,9 @@ exports("GetItemCount", GetItemCount)
 Core asks `FC` before and after every owner-customizable action:
 
 ```lua
-if not FC.OnCollecting(session, entity) then
+if not FC.CanExecute(src, entity) then
     return false
 end
 local rewards = self:RollRewards(entity)
-FC.OnCollected(session, entity, rewards)
+FC.OnExecuted(src, entity, rewards)
 ```
-
-## Template
-
-- Pattern:
-- Resource:
-- Use when:
-- Avoid when:
-- Example:
-- Notes:
-

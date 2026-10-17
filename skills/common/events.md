@@ -3,7 +3,7 @@
 ## Naming
 
 ```lua
-scriptname .. ":SV:collect"
+scriptname .. ":SV:execute"
 scriptname .. ":SV:getShop"
 scriptname .. ":CL:syncState"
 scriptname .. ":CL:removeEntity"
@@ -95,10 +95,10 @@ Clear `self.ServerState.throttle[src]` on `playerDropped`.
 ## Exports
 
 ```lua
-function GetPlantCount(identifier)
-    return GrowthGardenServer:GetPlantCount(identifier)
+function GetZoneState(zoneId)
+    return NameServer:GetZoneState(zoneId)
 end
-exports("GetPlantCount", GetPlantCount)
+exports("GetZoneState", GetZoneState)
 ```
 
 - Global wrapper with the same name, delegating to the controller. Keep wrappers in `core/sv_exports.lua` / `core/cl_exports.lua` when there are several.
@@ -124,4 +124,3 @@ end, true)
 ## Client Key Binds
 
 Use `lib.addKeybind` or `RegisterKeyMapping` + command so players can rebind; read `IsControlJustReleased` only inside `point:nearby()` or an active-state loop.
-

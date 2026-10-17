@@ -1,6 +1,6 @@
 # Design System
 
-The 1nfx visual language: dark glass panels, one red accent, Bai Jamjuree, everything scaled from a 1920x1080 artboard.
+The `infrontofx` visual language: dark glass panels, one red accent, Bai Jamjuree, everything scaled from a 1920x1080 artboard.
 
 ## Resolution Scaling
 
@@ -48,16 +48,7 @@ Change the accent per resource by overriding `--red` only.
 
 ## Typography
 
-```css
-@font-face {
-    font-family: "Bai Jamjuree";
-    src: url("../fonts/BaiJamjuree-600.ttf") format("truetype");
-    font-weight: 600;
-    font-display: swap;
-}
-```
-
-- Ship 400/500/600/700 locally in `html/fonts/` (Thai + Latin coverage).
+- Use `"Bai Jamjuree", "Segoe UI", sans-serif` (Thai + Latin coverage).
 - Sizes: title 15, body 12-13, meta 10.5 (all `* var(--px)`).
 - Titles uppercase with letter-spacing `calc(1 * var(--px))`.
 
@@ -80,7 +71,7 @@ html,
 body {
     background: transparent !important;
     overflow: hidden;
-    font-family: "Bai Jamjuree", sans-serif;
+    font-family: "Bai Jamjuree", "Segoe UI", sans-serif;
     color: var(--text);
 }
 ```
@@ -113,7 +104,7 @@ Body must be transparent; the game renders behind it.
 - Every interactive element is a `<button type="button">`.
 - `:focus-visible` outline in red at 65% alpha.
 - ESC closes dialogs first, then the panel. Tab cycles inside an open dialog.
-- Disable buttons while `busy`; show progress text ("กำลังลบ...").
+- Disable buttons while `busy`; show progress text.
 - Thai copy for player text; numbers formatted with `toLocaleString("th-TH")`.
 
 ## Performance
@@ -121,4 +112,3 @@ Body must be transparent; the game renders behind it.
 - One stylesheet, no CSS frameworks at runtime unless the UI is built (Tailwind via Vite build is fine).
 - Prefer `hidden` toggles to unmounting heavy lists; use `replaceChildren()` for list re-render.
 - Images as SVG where possible; set explicit width/height.
-

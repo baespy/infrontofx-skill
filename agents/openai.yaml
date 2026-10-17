@@ -1,5 +1,4 @@
 interface:
-  display_name: "infrontofx FiveM Lua + NUI"
-  short_description: "1nfx FiveM resource and UI standard"
-  default_prompt: "Use $infrontofx-skill to implement, review, or optimize a FiveM Lua resource or NUI with the 1nfx controller table, Config + FC adapters, server authority, performance, and cleanup rules."
-
+  display_name: "infrontofx Skill"
+  short_description: "infrontofx FiveM resource and UI standard"
+  default_prompt: "Use $infrontofx-skill to implement, review, or optimize a FiveM Lua resource or NUI with the infrontofx controller table, Config + FC adapters, server authority, performance, and cleanup rules."

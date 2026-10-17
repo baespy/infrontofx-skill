@@ -27,8 +27,4 @@ ensure oxmysql
 ensure ox_lib
 ensure es_extended
 ensure pNotify
-ensure 1nfx_textui
-ensure 1nfx_processbar
-ensure 1nfx_serverlogs
-ensure [1nfx]
 ```

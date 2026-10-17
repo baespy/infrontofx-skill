@@ -11,10 +11,10 @@
 ## API Shape
 
 ```lua
-local rows = MySQL.query.await("SELECT id, owner, type FROM 1nfx_growth_garden WHERE owner = ?", { identifier })
+local rows = MySQL.query.await("SELECT id, owner, state FROM resource_entities WHERE owner = ?", { identifier })
 local row = MySQL.single.await("SELECT money FROM users WHERE identifier = ?", { identifier })
-local id = MySQL.insert.await("INSERT INTO 1nfx_growth_garden (owner, type) VALUES (?, ?)", { identifier, plantType })
-local affected = MySQL.update.await("UPDATE 1nfx_growth_garden SET feed = ? WHERE id = ?", { feed, id })
+local id = MySQL.insert.await("INSERT INTO resource_entities (owner, state) VALUES (?, ?)", { identifier, state })
+local affected = MySQL.update.await("UPDATE resource_entities SET state = ? WHERE id = ?", { state, id })
 local ok = MySQL.transaction.await({
     { query = "UPDATE users SET money = money - ? WHERE identifier = ? AND money >= ?", values = { cost, identifier, cost } },
     { query = "INSERT INTO purchases (identifier, item, amount) VALUES (?, ?, ?)", values = { identifier, item, amount } },
@@ -35,7 +35,7 @@ function NameServer:SaveDirty()
     local batch = {}
     for _, entity in pairs(self.ServerState.entities) do
         if entity.dirty then
-            batch[#batch + 1] = { query = "UPDATE 1nfx_name SET data = ? WHERE id = ?", values = { json.encode(entity.data), entity.id } }
+            batch[#batch + 1] = { query = "UPDATE resource_entities SET data = ? WHERE id = ?", values = { json.encode(entity.data), entity.id } }
             entity.dirty = false
         end
     end
@@ -59,7 +59,7 @@ end
 Good for: fast-start snapshots, small server caches (owner names), client UI preferences.
 
 ```lua
-local KVP_SNAPSHOT = "growth_garden:plants_snapshot:v1"
+local KVP_SNAPSHOT = "resource:entities_snapshot:v1"
 
 local ok, encoded = pcall(json.encode, list)
 if ok and encoded and self.ServerState.lastSnapshot ~= encoded then
@@ -71,7 +71,7 @@ end
 - Version keys (`:v1`) and bump when the shape changes.
 - `pcall(json.decode, raw)` and type-check the result.
 - Skip writes when the encoded string did not change.
-- Pair a snapshot with a signature (`count:feedSum:maxTimestamp`) and compare against a cheap `SELECT COUNT(*) ...` on start to decide whether the snapshot is still valid (see `memory/patterns.md` -> KVP Snapshot With Signature).
+- Pair a snapshot with a signature (`count:stateSum:maxTimestamp`) and compare against a cheap `SELECT COUNT(*) ...` on start to decide whether the snapshot is still valid (see `memory/patterns.md` -> KVP Snapshot With Signature).
 - Never store authority (money, items) only in client KVP.
 
 ## Schema
@@ -79,4 +79,3 @@ end
 - Use `INT UNSIGNED AUTO_INCREMENT` ids, `VARCHAR(60)` identifiers, index every `WHERE` column.
 - Timestamps as `INT` unix seconds when compared in Lua (`os.time()`).
 - Store flexible data as `LONGTEXT` JSON only when it is never queried by field.
-

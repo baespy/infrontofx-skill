@@ -26,7 +26,7 @@
 ### SetPedHeadBlendData + mask components crash
 
 - Date: 2026-10-18
-- Game build: tested on recent builds (source: b3sty memory)
+- Game build: any
 - Symptom: client crash when applying freemode head blend and certain masks in one bulk sequence.
 - Fix: apply in steps, gate risky masks, provide fallback.
 
@@ -41,7 +41,5 @@
 
 - Date: 2026-10-18
 - Game build: any
-- Resource: 1nfx_growth_garden
-- Symptom: hitch when many plants play effects.
+- Symptom: hitch when many world objects play effects simultaneously.
 - Fix: cache loaded assets on the controller (`LoadedPtfxAssets`) and re-request only when `HasNamedPtfxAssetLoaded` is false.
-

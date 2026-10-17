@@ -15,7 +15,7 @@
 
 | Use local props (`CreateObject(..., false, false, false)`) | Use server-created networked entities |
 | --- | --- |
-| plants, decorations, markers, previews, attached cosmetics | vehicles, pickups that must collide for everyone, mission peds |
+| world props, decorations, markers, previews, attached cosmetics | vehicles, pickups that must collide for everyone, mission peds |
 | anything rebuilt from server state | anything whose physics must be shared |
 
 Local props are cheaper (no sync) and cannot be abused as network entities. The server keeps the state; each client renders.
@@ -37,7 +37,7 @@ Delete with `DeleteEntity` on cleanup and drop from the registry.
 
 - Store `bucket` on every server entity and session.
 - Filter syncs by bucket: players only receive entities in their bucket.
-- On bucket change (`1nfx_dimension`), resend the snapshot for the new bucket.
+- On bucket change, resend the snapshot for the new bucket.
 - Validate `GetPlayerRoutingBucket(src)` against the entity bucket in every interaction.
 
 ## Sending To Clients
@@ -75,5 +75,4 @@ Clients fire `:SV:ready` after `ESX.IsPlayerLoaded()` and their own init, so the
 ## Time
 
 - Server time is authority: send `os.time()` once and keep `serverTimeOffset` on the client (`GetCloudTimeAsInt()` + offset) for countdowns.
-- Never trust client time for cooldowns or growth.
-
+- Never trust client time for cooldowns or timers.
