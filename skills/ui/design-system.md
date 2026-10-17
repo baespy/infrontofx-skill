@@ -90,7 +90,8 @@ Body must be transparent; the game renders behind it.
 | Secondary button | text `--text2`, bg white 4%, border `--border-white` |
 | Scrollbar | 4px, track white 2%, thumb red 25% |
 | Confirm dialog | absolute overlay inside the panel, dark backdrop, card with two-column actions |
-| Error line | `#ffaaa8`, 11px, under the action |
+
+Never render notifications, toasts, or error banners inside the UI; all notifications go through `FC.Notify` (`pNotify:SendNotification`) on the Lua side. Produced HTML, CSS, JS, TS, TSX, and Vue files must contain zero comments.
 
 ## Motion
 

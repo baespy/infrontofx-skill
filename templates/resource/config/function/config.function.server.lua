@@ -12,11 +12,13 @@ FC.Notify = function(source, label, notifyType)
 end
 
 FC.GetIdentifier = function(source)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "getIdentifier")
+    local xPlayer = ESX.GetPlayerFromId(source)
+    return xPlayer and xPlayer.getIdentifier() or nil
 end
 
 FC.GetItem = function(source, itemName)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "getInventoryItem", itemName)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    return xPlayer and xPlayer.getInventoryItem(itemName) or nil
 end
 
 FC.GetItemLabel = function(source, itemName)
@@ -31,7 +33,8 @@ FC.GetItemLabel = function(source, itemName)
 end
 
 FC.GetAccount = function(source, accountName)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "getAccount", accountName or "money")
+    local xPlayer = ESX.GetPlayerFromId(source)
+    return xPlayer and xPlayer.getAccount(accountName or "money") or nil
 end
 
 FC.GetMoney = function(source, accountName)
@@ -44,15 +47,37 @@ FC.CheckMoney = function(source, accountName, amount)
 end
 
 FC.CanCarryItem = function(source, itemName, count)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "canCarryItem", itemName, count or 1) == true
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then
+        return false
+    end
+    if xPlayer.canCarryItem then
+        return xPlayer.canCarryItem(itemName, count or 1) == true
+    end
+    local item = xPlayer.getInventoryItem(itemName)
+    if not item then
+        return false
+    end
+    local limit = item.limit or -1
+    return limit == -1 or (item.count or 0) + (count or 1) <= limit
 end
 
 FC.AddItem = function(source, itemName, count)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "addInventoryItem", itemName, count)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then
+        return false
+    end
+    xPlayer.addInventoryItem(itemName, count)
+    return true
 end
 
 FC.RemoveMoney = function(source, accountName, amount)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "removeAccountMoney", accountName or "money", amount)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then
+        return false
+    end
+    xPlayer.removeAccountMoney(accountName or "money", amount)
+    return true
 end
 
 FC.Log = function(source, event, content)

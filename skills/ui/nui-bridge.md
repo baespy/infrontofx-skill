@@ -125,6 +125,8 @@ Injected script in NUI can call every `RegisterNUICallback` as the victim.
 - Send on change, not per frame. Batch rapid updates (one message per 100-250 ms max).
 - Keep the page idle when hidden: stop timers/animations, `hidden` attribute instead of opacity-only hiding.
 - All JS/CSS local; no CDN at runtime.
+- Never display toasts, notifications, or error banners inside the NUI page; trigger notifications on the Lua side via `FC.Notify`.
+- Produced UI files (`HTML`, `CSS`, `JS`, `TS`, `TSX`, `Vue`) contain zero comments.
 
 ## Cleanup
 

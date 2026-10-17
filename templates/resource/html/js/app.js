@@ -6,7 +6,6 @@ class ShopMenu {
         this.list = document.getElementById("item-list");
         this.amountInput = document.getElementById("amount-input");
         this.buyButton = document.getElementById("buy-button");
-        this.error = document.getElementById("shop-error");
         this.items = [];
         this.selected = null;
         this.maxAmount = 1;
@@ -50,7 +49,6 @@ class ShopMenu {
         this.title.textContent = String(data.label || "SHOP");
         this.setMoney(data.money);
         this.setAmount(1);
-        this.error.hidden = true;
         this.root.hidden = false;
         this.render();
     }
@@ -85,7 +83,6 @@ class ShopMenu {
                 return;
             }
             this.selected = item.name;
-            this.error.hidden = true;
             this.render();
         });
         return button;
@@ -118,13 +115,7 @@ class ShopMenu {
             if (result && result.money !== undefined) {
                 this.setMoney(result.money);
             }
-            if (!result || !result.ok) {
-                this.error.textContent = "ซื้อไม่สำเร็จ";
-                this.error.hidden = false;
-            }
         } catch {
-            this.error.textContent = "เชื่อมต่อไม่สำเร็จ กรุณาลองใหม่";
-            this.error.hidden = false;
         } finally {
             this.busy = false;
             this.render();

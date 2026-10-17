@@ -46,7 +46,7 @@ Use $skill-installer to install from repo baespy/infrontofx-skill path . with na
 | Header | `ESX = exports["es_extended"]:getSharedObject()` + `local scriptname = GetCurrentResourceName()` |
 | OOP | Table เดียวต่อฝั่ง: `Shop = { ServerState = {}, PlayerState = {} }` / `ShopServer = { ServerState = {} }` ใช้ `function Shop:Method()` ชื่อไม่ใส่ prefix ผู้เขียน |
 | Config | `config/config.lua` → `Config.General` (snake_case), `Config.Text` (ข้อความทั้งหมด), ข้อมูลใหญ่แยก `config/config.<domain>.lua`, ตรวจ+สร้าง index ใน `core/sh_config.lua` |
-| config.function | `FC` ใน `config/function/config.function.client.lua` / `.server.lua` = จุดเดียวที่เรียก `ESX` (`ESX.GetPlayerData`, `RunStaticPlayerMethod`), `pNotify` และ hook (`FC.CanXxx`, `FC.OnXxx`) |
+| config.function | `FC` ใน `config/function/config.function.client.lua` / `.server.lua` = จุดเดียวที่เรียก `ESX` (`ESX.GetPlayerData`, `ESX.GetPlayerFromId`), `pNotify` และ hook (`FC.CanXxx`, `FC.OnXxx`) |
 | Event | `scriptname .. ":SV:action"` / `scriptname .. ":CL:action"`, ใช้ `lib.callback` เป็นหลัก, `local src = source` บรรทัดแรก |
 | ox_lib | ใช้ได้: callback, points, zones, cache, table, cron, dui — **ห้าม**: `lib.notify`, `lib.progressBar/Circle`, `lib.showTextUI/hideTextUI` |
 | รูปแบบโค้ด | `if` หลายบรรทัดเสมอ, **ไม่มีคอมเมนต์** ใน Lua, 4 spaces, double quotes |

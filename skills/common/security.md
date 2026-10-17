@@ -22,7 +22,7 @@ Every client is hostile. A mod menu can call any `RegisterNetEvent`, any `lib.ca
 | --- | --- |
 | net event / callback args | `source` |
 | NUI callback data | `Config` read on the server |
-| export args from other resources | ESX player via `RunStaticPlayerMethod` |
+| export args from other resources | ESX player via `ESX.GetPlayerFromId(src)` |
 | client-sent coords, net IDs, entity handles | server registries (`ServerState.entities`) |
 | state bag writes from clients | identifiers from `GetPlayerIdentifierByType(src, "license")` |
 

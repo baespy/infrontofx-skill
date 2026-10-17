@@ -2,7 +2,7 @@
 
 ## Exports
 
-- Call exports directly inside `FC` adapters: `exports["es_extended"]:RunStaticPlayerMethod(src, "getInventoryItem", name)`.
+- Call exports directly inside `FC` adapters: `ESX = exports["es_extended"]:getSharedObject()`.
 - Do not wrap calls in `GetResourceState` checks. Declare the provider in `dependencies {}` and fix start order in `server.cfg` instead.
 - Call exports at use time, not once at load (a cached export reference goes stale when the provider restarts).
 - All external exports are reached through `FC` adapters, so a provider swap touches only `config/function/*`.

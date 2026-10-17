@@ -16,7 +16,7 @@ FC = FC or {}
 
 ## Two Kinds Of Entries
 
-1. **Adapters** - thin wrappers over ESX and external resources.
+1. **Adapters** - thin wrappers over standard ESX and external resources.
 2. **Hooks** - owner-editable gameplay decisions. `FC.CanXxx` returns boolean (gate), `FC.OnXxx` reacts (side effect, return ignored unless documented).
 
 Core code always calls hooks at the documented moment and respects the return value:
@@ -144,20 +144,24 @@ FC.Notify = function(source, label, notifyType)
 end
 
 FC.GetIdentifier = function(source)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "getIdentifier")
+    local xPlayer = ESX.GetPlayerFromId(source)
+    return xPlayer and xPlayer.getIdentifier() or nil
 end
 
 FC.GetPlayerName = function(source)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "getName") or GetPlayerName(source) or "Unknown"
+    local xPlayer = ESX.GetPlayerFromId(source)
+    return (xPlayer and xPlayer.getName()) or GetPlayerName(source) or "Unknown"
 end
 
 FC.GetJob = function(source)
-    local job = exports["es_extended"]:RunStaticPlayerMethod(source, "getJob")
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local job = xPlayer and xPlayer.getJob()
     return job and job.name or nil
 end
 
 FC.GetItem = function(source, itemName)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "getInventoryItem", itemName)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    return xPlayer and xPlayer.getInventoryItem(itemName) or nil
 end
 
 FC.GetItemCount = function(source, itemName)
@@ -181,11 +185,24 @@ FC.CheckItem = function(source, itemName, count)
 end
 
 FC.CanCarryItem = function(source, itemName, count)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "canCarryItem", itemName, count or 1) == true
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then
+        return false
+    end
+    if xPlayer.canCarryItem then
+        return xPlayer.canCarryItem(itemName, count or 1) == true
+    end
+    local item = xPlayer.getInventoryItem(itemName)
+    if not item then
+        return false
+    end
+    local limit = item.limit or -1
+    return limit == -1 or (item.count or 0) + (count or 1) <= limit
 end
 
 FC.GetAccount = function(source, accountName)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "getAccount", accountName or "money")
+    local xPlayer = ESX.GetPlayerFromId(source)
+    return xPlayer and xPlayer.getAccount(accountName or "money") or nil
 end
 
 FC.GetMoney = function(source, accountName)
@@ -198,19 +215,39 @@ FC.CheckMoney = function(source, accountName, amount)
 end
 
 FC.AddItem = function(source, itemName, count)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "addInventoryItem", itemName, count)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then
+        return false
+    end
+    xPlayer.addInventoryItem(itemName, count)
+    return true
 end
 
 FC.RemoveItem = function(source, itemName, count)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "removeInventoryItem", itemName, count)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then
+        return false
+    end
+    xPlayer.removeInventoryItem(itemName, count)
+    return true
 end
 
 FC.AddMoney = function(source, accountName, amount)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "addAccountMoney", accountName or "money", amount)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then
+        return false
+    end
+    xPlayer.addAccountMoney(accountName or "money", amount)
+    return true
 end
 
 FC.RemoveMoney = function(source, accountName, amount)
-    return exports["es_extended"]:RunStaticPlayerMethod(source, "removeAccountMoney", accountName or "money", amount)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then
+        return false
+    end
+    xPlayer.removeAccountMoney(accountName or "money", amount)
+    return true
 end
 
 FC.CountJob = function(jobName)
@@ -257,6 +294,7 @@ end
 ## Rules
 
 - Argument order: client `FC.Notify(label, notifyType)`, server `FC.Notify(source, label, notifyType)`. Server adapters always take `source` first.
+- Use standard `ESX.GetPlayerFromId(source)` inside server `FC` adapters; never use non-standard fork methods like `RunStaticPlayerMethod`.
 - Adapters call ESX and exports directly; no `GetResourceState` guards (`rules/contracts.md`).
 - Hooks may read the controller table (`Shop:IsOpen()`) but must not mutate core state.
 - Server hooks are the only hooks that can grant value. Client hooks are UX only.

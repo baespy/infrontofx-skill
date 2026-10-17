@@ -12,32 +12,35 @@ ESX = exports["es_extended"]:getSharedObject()
 
 Never use `TriggerEvent("esx:getSharedObject", ...)`.
 
-## Server Static Player Methods
+## Server Player Methods (`xPlayer = ESX.GetPlayerFromId(source)`)
 
-Prefer `exports["es_extended"]:RunStaticPlayerMethod(source, method, ...)` in server `FC` adapters. It runs the method inside `es_extended` without serializing the full `xPlayer` table across resource boundaries.
+Always resolve `local xPlayer = ESX.GetPlayerFromId(source)` in server `FC` adapters using standard ESX methods so the resource works on any standard ESX server:
 
 | Method | Signature | Returns |
 | --- | --- | --- |
-| `getIdentifier` | `RunStaticPlayerMethod(source, "getIdentifier")` | license/identifier string or nil |
-| `getName` | `RunStaticPlayerMethod(source, "getName")` | character name string |
-| `getJob` | `RunStaticPlayerMethod(source, "getJob")` | `{ name, label, grade, grade_name, grade_salary }` |
-| `getInventory` | `RunStaticPlayerMethod(source, "getInventory")` | array of `{ name, count, label, limit, ... }` |
-| `getInventoryItem` | `RunStaticPlayerMethod(source, "getInventoryItem", itemName)` | `{ name, count, label, limit }` or nil |
-| `canCarryItem` | `RunStaticPlayerMethod(source, "canCarryItem", itemName, count)` | boolean |
-| `addInventoryItem` | `RunStaticPlayerMethod(source, "addInventoryItem", itemName, count)` | - |
-| `removeInventoryItem` | `RunStaticPlayerMethod(source, "removeInventoryItem", itemName, count)` | - |
-| `getAccounts` | `RunStaticPlayerMethod(source, "getAccounts")` | array of `{ name, money, label }` |
-| `getAccount` | `RunStaticPlayerMethod(source, "getAccount", accountName)` | `{ name, money, label }` or nil |
-| `addAccountMoney` | `RunStaticPlayerMethod(source, "addAccountMoney", accountName, amount)` | - |
-| `removeAccountMoney` | `RunStaticPlayerMethod(source, "removeAccountMoney", accountName, amount)` | - |
-| `hasWeapon` | `RunStaticPlayerMethod(source, "hasWeapon", weaponName)` | boolean |
-| `getWeapon` | `RunStaticPlayerMethod(source, "getWeapon", weaponName)` | loadNum, weaponTable |
+| `getIdentifier` | `xPlayer.getIdentifier()` | license/identifier string |
+| `getName` | `xPlayer.getName()` | character name string |
+| `getJob` | `xPlayer.getJob()` | `{ name, label, grade, grade_name, grade_salary }` |
+| `getInventory` | `xPlayer.getInventory()` | array of `{ name, count, label, limit, ... }` |
+| `getInventoryItem` | `xPlayer.getInventoryItem(itemName)` | `{ name, count, label, limit }` or nil |
+| `canCarryItem` | `xPlayer.canCarryItem(itemName, count)` | boolean |
+| `addInventoryItem` | `xPlayer.addInventoryItem(itemName, count)` | - |
+| `removeInventoryItem` | `xPlayer.removeInventoryItem(itemName, count)` | - |
+| `getAccounts` | `xPlayer.getAccounts()` | array of `{ name, money, label }` |
+| `getAccount` | `xPlayer.getAccount(accountName)` | `{ name, money, label }` or nil |
+| `addAccountMoney` | `xPlayer.addAccountMoney(accountName, amount)` | - |
+| `removeAccountMoney` | `xPlayer.removeAccountMoney(accountName, amount)` | - |
+| `getMoney` | `xPlayer.getMoney()` | integer |
+| `addMoney` | `xPlayer.addMoney(amount)` | - |
+| `removeMoney` | `xPlayer.removeMoney(amount)` | - |
+| `hasWeapon` | `xPlayer.hasWeapon(weaponName)` | boolean |
+| `getWeapon` | `xPlayer.getWeapon(weaponName)` | loadNum, weaponTable |
 
 ## Server Shared Object Helpers
 
 | Call | Returns |
 | --- | --- |
-| `ESX.GetPlayerFromId(source)` | full `xPlayer` (use only when multiple fields are needed in one call) |
+| `ESX.GetPlayerFromId(source)` | `xPlayer` object or nil |
 | `ESX.GetExtendedPlayers(key?, val?)` | list of online `xPlayer` objects (`ESX.GetExtendedPlayers("job", "police")`) |
 | `ESX.GetItemLabel(itemName)` | item label string |
 | `ESX.GetWeaponLabel(weaponName)` | weapon label string |
@@ -58,4 +61,3 @@ Client values from `ESX.GetPlayerData()` are a local cache for UX display only. 
 
 - Client: `esx:playerLoaded`, `esx:onPlayerLogout`, `esx:setJob`, `esx:onPlayerDeath`, `esx:onPlayerSpawn`
 - Server: `esx:playerLoaded`, `esx:playerDropped`, `esx:setJob`
-
