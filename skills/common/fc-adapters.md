@@ -1,0 +1,281 @@
+# FC Adapters
+
+`FC` (Config Function) is the only place a resource touches frameworks, inventories, notifications, text UI, progress bars, logs, or owner-customizable gameplay rules. Core code calls `FC.*` and stays portable.
+
+## Files
+
+- `config/function/config.function.client.lua` - loaded in `client_scripts` before `core/cl_*`.
+- `config/function/config.function.server.lua` - loaded in `server_scripts` before `core/sv_*`.
+
+Both start with:
+
+```lua
+ESX = exports["es_extended"]:getSharedObject()
+FC = FC or {}
+```
+
+## Two Kinds Of Entries
+
+1. **Adapters** - thin wrappers over ESX and external resources.
+2. **Hooks** - owner-editable gameplay decisions. `FC.CanXxx` returns boolean (gate), `FC.OnXxx` reacts (side effect, return ignored unless documented).
+
+Core code always calls hooks at the documented moment and respects the return value:
+
+```lua
+if not FC.OnCollecting(entity) then
+    return
+end
+```
+
+## Standard Client Adapters
+
+```lua
+ESX = exports["es_extended"]:getSharedObject()
+FC = FC or {}
+
+FC.Notify = function(label, notifyType)
+    if not label or label == "" then
+        return
+    end
+    TriggerEvent("pNotify:SendNotification", {
+        text = label,
+        type = notifyType or "info",
+    })
+end
+
+FC.GetItem = function(itemName)
+    local playerData = ESX.GetPlayerData()
+    for _, item in pairs(playerData and playerData.inventory or {}) do
+        if item and item.name == itemName then
+            return item
+        end
+    end
+    return nil
+end
+
+FC.GetItemCount = function(itemName)
+    local item = FC.GetItem(itemName)
+    return item and (item.count or 0) or 0
+end
+
+FC.GetItemLabel = function(itemName)
+    if ESX.GetItemLabel then
+        local label = ESX.GetItemLabel(itemName)
+        if label and label ~= "" then
+            return label
+        end
+    end
+    local item = FC.GetItem(itemName)
+    return item and item.label or itemName
+end
+
+FC.CheckItem = function(itemName, count)
+    return FC.GetItemCount(itemName) >= (count or 1)
+end
+
+FC.CanCarryItem = function(itemName, count)
+    local item = FC.GetItem(itemName)
+    if not item then
+        return false
+    end
+    local limit = item.limit or -1
+    return limit == -1 or (item.count or 0) + (count or 1) <= limit
+end
+
+FC.GetAccount = function(accountName)
+    local target = accountName or "money"
+    local playerData = ESX.GetPlayerData()
+    for _, account in pairs(playerData and playerData.accounts or {}) do
+        if account and account.name == target then
+            return account
+        end
+    end
+    return nil
+end
+
+FC.GetMoney = function(accountName)
+    local account = FC.GetAccount(accountName)
+    return account and (account.money or 0) or 0
+end
+
+FC.CheckMoney = function(accountName, amount)
+    return FC.GetMoney(accountName) >= (amount or 1)
+end
+
+FC.GetJob = function()
+    local playerData = ESX.GetPlayerData()
+    return playerData and playerData.job and playerData.job.name or nil
+end
+
+FC.ShowTextUI = function(text)
+    exports["1nfx_textui"]:ShowHelpNotificationToggle(text)
+end
+
+FC.HideTextUI = function()
+    exports["1nfx_textui"]:ClearHelpNotification()
+end
+
+FC.Progress = function(data, onFinish)
+    exports["1nfx_processbar"]:Progress({
+        name = data.name,
+        duration = data.duration,
+        label = data.label,
+        useWhileDead = false,
+        canCancel = data.canCancel ~= false,
+        controlDisables = data.controlDisables or {
+            disableMovement = true,
+            disableCarMovement = true,
+            disableMouse = false,
+            disableCombat = true,
+        },
+        animation = data.animation,
+        prop = data.prop,
+    }, function(cancelled)
+        onFinish(not cancelled)
+    end)
+end
+```
+
+## Standard Server Adapters
+
+```lua
+ESX = exports["es_extended"]:getSharedObject()
+FC = FC or {}
+
+FC.Notify = function(source, label, notifyType)
+    if not label or label == "" then
+        return
+    end
+    TriggerClientEvent("pNotify:SendNotification", source, {
+        text = label,
+        type = notifyType or "info",
+    })
+end
+
+FC.GetIdentifier = function(source)
+    return exports["es_extended"]:RunStaticPlayerMethod(source, "getIdentifier")
+end
+
+FC.GetPlayerName = function(source)
+    return exports["es_extended"]:RunStaticPlayerMethod(source, "getName") or GetPlayerName(source) or "Unknown"
+end
+
+FC.GetJob = function(source)
+    local job = exports["es_extended"]:RunStaticPlayerMethod(source, "getJob")
+    return job and job.name or nil
+end
+
+FC.GetItem = function(source, itemName)
+    return exports["es_extended"]:RunStaticPlayerMethod(source, "getInventoryItem", itemName)
+end
+
+FC.GetItemCount = function(source, itemName)
+    local item = FC.GetItem(source, itemName)
+    return item and (item.count or 0) or 0
+end
+
+FC.GetItemLabel = function(source, itemName)
+    if ESX.GetItemLabel then
+        local label = ESX.GetItemLabel(itemName)
+        if label and label ~= "" then
+            return label
+        end
+    end
+    local item = FC.GetItem(source, itemName)
+    return item and item.label or itemName
+end
+
+FC.CheckItem = function(source, itemName, count)
+    return FC.GetItemCount(source, itemName) >= (count or 1)
+end
+
+FC.CanCarryItem = function(source, itemName, count)
+    return exports["es_extended"]:RunStaticPlayerMethod(source, "canCarryItem", itemName, count or 1) == true
+end
+
+FC.GetAccount = function(source, accountName)
+    return exports["es_extended"]:RunStaticPlayerMethod(source, "getAccount", accountName or "money")
+end
+
+FC.GetMoney = function(source, accountName)
+    local account = FC.GetAccount(source, accountName)
+    return account and (account.money or 0) or 0
+end
+
+FC.CheckMoney = function(source, accountName, amount)
+    return FC.GetMoney(source, accountName) >= (amount or 1)
+end
+
+FC.AddItem = function(source, itemName, count)
+    return exports["es_extended"]:RunStaticPlayerMethod(source, "addInventoryItem", itemName, count)
+end
+
+FC.RemoveItem = function(source, itemName, count)
+    return exports["es_extended"]:RunStaticPlayerMethod(source, "removeInventoryItem", itemName, count)
+end
+
+FC.AddMoney = function(source, accountName, amount)
+    return exports["es_extended"]:RunStaticPlayerMethod(source, "addAccountMoney", accountName or "money", amount)
+end
+
+FC.RemoveMoney = function(source, accountName, amount)
+    return exports["es_extended"]:RunStaticPlayerMethod(source, "removeAccountMoney", accountName or "money", amount)
+end
+
+FC.CountJob = function(jobName)
+    return #ESX.GetExtendedPlayers("job", jobName)
+end
+
+FC.Log = function(source, event, content, fields)
+    exports["1nfx_serverlogs"]:insertData({
+        source = source,
+        event = event,
+        content = content,
+        fields = fields,
+    })
+end
+```
+
+## Hook Examples
+
+Client:
+
+```lua
+FC.OnEntityProductReady = function(entity)
+    if GrowthGarden:IsPlantOwner(entity) then
+        FC.Notify(("พืชผล #%s พร้อมเก็บเกี่ยวแล้ว"):format(entity.id), "info")
+    end
+end
+
+FC.OnCollecting = function(entity)
+    return GrowthGarden:IsPlantOwner(entity)
+end
+```
+
+Server:
+
+```lua
+FC.IsVip = function(source)
+    local vip = Config.General.vip
+    if vip.method == "statebag" then
+        return Player(source).state[vip.statebag] == true
+    end
+    return FC.GetItemCount(source, vip.item) > 0
+end
+
+FC.CanPurchase = function(source, shop, item, amount)
+    return true
+end
+
+FC.OnPurchased = function(source, shop, item, amount, cost)
+    FC.Log(source, "Shop", ("%s x%d (%d)"):format(item.name, amount, cost))
+end
+```
+
+## Rules
+
+- Argument order: client `FC.Notify(label, notifyType)`, server `FC.Notify(source, label, notifyType)`. Server adapters always take `source` first.
+- Adapters call ESX and exports directly; no `GetResourceState` guards (`rules/contracts.md`).
+- Hooks may read the controller table (`GrowthGarden:IsPlantOwner`) but must not mutate core state.
+- Server hooks are the only hooks that can grant value. Client hooks are UX only.
+- Swapping inventory/notify (for example to `ox_inventory`) is done by editing these two files only. See `references/esx-api.md` for the default contract.

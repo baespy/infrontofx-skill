@@ -1,0 +1,10 @@
+{
+    "name": "infrontofx-skill",
+    "version": "2.0.0",
+    "description": "infrontofx (1nfx) FiveM Lua + NUI/DUI standard: single-table OOP controllers, Config + FC adapters (ESX + pNotify), server authority, performance, cleanup, and the 1nfx UI design system.",
+    "author": {
+        "name": "infrontofx"
+    },
+    "license": "MIT",
+    "skills": ["./"]
+}

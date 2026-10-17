@@ -1,0 +1,14 @@
+{
+    "name": "infrontofx",
+    "owner": { "name": "infrontofx" },
+    "plugins": [
+        {
+            "name": "infrontofx-skill",
+            "source": "./",
+            "description": "infrontofx (1nfx) FiveM Lua + NUI standard: single-table OOP controllers, Config + FC adapters, server authority, performance, cleanup, and the 1nfx UI design system.",
+            "skills": ["./"],
+            "strict": false
+        }
+    ]
+}
+
