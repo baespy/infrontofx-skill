@@ -9,7 +9,7 @@
 ### Windows (คลิกเดียว)
 
 ```powershell
-git clone https://github.com/{{OWNER}}/infrontofx-skill.git
+git clone https://github.com/baespy/infrontofx-skill.git
 cd infrontofx-skill
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
@@ -27,14 +27,14 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ### Claude Code (plugin marketplace)
 
 ```text
-/plugin marketplace add {{OWNER}}/infrontofx-skill
+/plugin marketplace add baespy/infrontofx-skill
 /plugin install infrontofx-skill@infrontofx
 ```
 
 ### OpenAI Codex (skill-installer)
 
 ```text
-Use $skill-installer to install from repo {{OWNER}}/infrontofx-skill path . with name infrontofx-skill
+Use $skill-installer to install from repo baespy/infrontofx-skill path . with name infrontofx-skill
 ```
 
 ---
