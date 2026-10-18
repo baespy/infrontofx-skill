@@ -10,18 +10,17 @@ Standard layout and load order for an `infrontofx` FiveM resource.
 ├── install.sql                       (only when the resource owns tables)
 ├── config/
 │   ├── config.lua                    Config = {}, Config.General, Config.Text
-│   ├── config.<domain>.lua           Config.<Domain> datasets (shops, zones, items)
+│   ├── config.<domain>.lua           Config.<Domain> datasets (optional)
 │   ├── config.server.lua             server-only values (rewards, drop rates) - optional
 │   └── function/
 │       ├── config.function.client.lua   FC client adapters + hooks
 │       └── config.function.server.lua   FC server adapters + hooks
 ├── core/
-│   ├── sh_config.lua                 validate + normalize Config once
 │   ├── cl_main.lua                   client controller table + methods
-│   ├── cl_<feature>.lua              more client methods on the same table
+│   ├── cl_<feature>.lua              more client methods on the same table (optional)
 │   ├── sv_main.lua                   server controller table + methods
-│   ├── sv_db.lua                     persistence methods on the same table
-│   └── sv_exports.lua / cl_exports.lua  export wrappers
+│   ├── sv_db.lua                     persistence methods on the same table (optional)
+│   └── sv_exports.lua / cl_exports.lua  export wrappers (optional)
 ├── html/                             NUI (ui_page)
 │   ├── index.html
 │   ├── css/style.css
@@ -30,6 +29,7 @@ Standard layout and load order for an `infrontofx` FiveM resource.
 ```
 
 - `core/` holds logic, `config/` holds what server owners edit. Owners should never need to open `core/`.
+- Do not create `core/sh_config.lua`. Read `Config` directly from `config/*.lua`.
 - The file that creates the controller table loads first on its side (`cl_main.lua` / `sv_main.lua` or `sv_db.lua`).
 
 ## Manifest
@@ -47,7 +47,6 @@ shared_scripts {
     "@ox_lib/init.lua",
     "config/config.lua",
     "config/config.shop.lua",
-    "core/sh_config.lua",
 }
 
 client_scripts {
@@ -75,7 +74,7 @@ dependencies {
 Load order rules:
 
 1. `@ox_lib/init.lua` first in shared.
-2. Config files before `core/sh_config.lua`.
+2. `config/config.lua` before any `config/config.<domain>.lua`.
 3. `config/function/*` before `core/*` on each side (core calls `FC` at load).
 4. Server-only config (`config.server.lua`) in `server_scripts` so clients never download it.
 5. Declare exports in `exports {}` / `server_exports {}` when other resources consume them.
@@ -88,7 +87,6 @@ Load order rules:
 | --- | --- |
 | `config/*.lua` | values server owners tune |
 | `config/function/*` (`FC`) | framework/inventory/notify/textui/progress/log calls + gameplay hooks |
-| `core/sh_*` | validation, normalization, shared pure helpers |
 | `core/cl_*` | input, points/zones, rendering, local props, NUI/DUI |
 | `core/sv_*` | authority: validation, economy, persistence, sync |
 | `html/` | display only, sends intent |

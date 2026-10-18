@@ -13,7 +13,7 @@ Use this skill for FiveM Lua and in-game UI work in the `infrontofx` ecosystem. 
 2. Read the local implementation and its manifest load order before editing.
 3. Open only the matching references below.
 4. Treat client-reachable events, callbacks, commands, exports, and NUI callbacks as untrusted boundaries.
-5. Apply the house structure without adding speculative helpers, comments, wrappers, or guards.
+5. Write direct, minimal code. Do not add speculative helpers, comments, fallback chains, formatting bloat, wrappers, or guards.
 6. Verify behavior, lifecycle cleanup, event names, server authority, and hot paths. Run `node scripts/lint-resource.mjs <resource>`.
 7. Add only verified recurring quirks to `memory/`, including date and game build.
 
@@ -23,7 +23,7 @@ Use this skill for FiveM Lua and in-game UI work in the `infrontofx` ecosystem. 
 | --- | --- |
 | New resource, layout, manifest | `skills/common/architecture.md`, `checklists/new-resource.md` |
 | Controller, naming, formatting, guard policy | `skills/common/style.md` |
-| Config and normalization | `skills/common/config.md` |
+| Config structure | `skills/common/config.md` |
 | ESX, pNotify, owner hooks, `FC` | `skills/common/fc-adapters.md`, `references/esx-api.md`, `references/pnotify-api.md` |
 | Events, callbacks, commands, exports | `skills/common/events.md` |
 | Threads, yields, source lifetime, resource restarts | `skills/common/runtime.md` |
@@ -61,7 +61,7 @@ local scriptname = GetCurrentResourceName()
 ### Config And Integrations
 
 - `config/config.lua` defines `Config`, `Config.General`, and `Config.Text` with snake_case keys.
-- Put large datasets in `config/config.<domain>.lua`. Validate once and build indexes in `core/sh_config.lua`.
+- Put large domain datasets in `config/config.<domain>.lua` only when needed. Do not create `core/sh_config.lua` or config normalization layers; read `Config.General.*` and `Config.Text.*` directly.
 - Framework, inventory, notification, progress, text UI, logging, and owner hooks belong in `config/function/config.function.client.lua` or `.server.lua` as `FC.*`.
 - Core code never calls ESX inventory/account methods or pNotify directly.
 
@@ -73,19 +73,20 @@ local scriptname = GetCurrentResourceName()
 - Bound and validate external payloads. Re-derive items, prices, rewards, ownership, distance, and routing bucket server-side.
 - Throttle public actions and lock value mutations against concurrent execution. Revalidate identity after a yield.
 
-### Style And Guard Policy
+### Style, Directness, And Guard Policy
 
 - Use 4 spaces, double quotes, trailing commas in multi-line tables, multi-line `if`, and no comments in produced Lua or UI code.
-- Add guards at trust boundaries and before unsafe native/framework operations.
+- Write direct, minimal code. Read `Config.General.x`, `Config.Text.x`, and `cache.ped` / `cache.coords` directly; never write `(Config.General and Config.General.x) or default` or `cache.ped or PlayerPedId()` fallback chains.
+- Do not clutter Lua with manual string-formatting gymnastics (such as `string.format("WORLD %02d", ...)`, `:upper():gsub("_", " ")`, or multi-branch time string builders) when raw values or `FC` / `Config` labels can be passed directly.
+- Add guards only at trust boundaries and before unsafe native/framework operations.
 - Do not add nil/empty guards to internal values already guaranteed by config, a caller contract, or prior validation.
-- Do not create one-line wrapper methods or helpers used once. Extract only repeated logic or unsafe complexity.
+- Do not create one-line wrapper methods, unused callbacks, dead code, or helpers used once.
 
 ### Performance And Lifecycle
 
-- Use `lib.points`, `lib.zones`, and `cache.*` instead of idle proximity polling.
-- Use `Wait(0)` only for active frame work. Index repeated lookups once and send state only when it changes.
+- Use `lib.points`, `lib.zones` (`onEnter`, `inside`, `onExit`), and `cache.*` instead of manual polling loops.
+- Use `Wait(0)` only for active frame work. Send state only when it changes.
 - Do not claim an optimization without comparable before/after `resmon` or profiler evidence.
-- Bound queues, retries, callback maps, database batches, and external streams; define overload and cleanup behavior.
 - Scope frequent client events; do not broadcast with `-1` unless every player genuinely needs the update.
 - Clean entities, blips, points, zones, DUI, focus, timers, and controller maps on stop/drop.
 

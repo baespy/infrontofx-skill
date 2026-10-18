@@ -4,9 +4,10 @@ House style for every `infrontofx` Lua file. Match it exactly to keep all resour
 
 ## Core Principles
 
-- Direct, readable code. One clear flow per method.
+- Direct, minimal, readable code. One clear flow per method.
 - One controller table per side; every behaviour is a method on it.
 - Performance is a requirement, not cleanup.
+- Do not over-engineer: never write speculative fallback chains, unnecessary string formatting, unused helpers, or extra files.
 - Add a helper only when it removes real duplication (used 3+ times) or hides unsafe complexity.
 - No framework layers, dispatchers, or class hierarchies inside a resource.
 
@@ -113,15 +114,17 @@ Produced Lua contains no `--` or `--[[ ]]`. If a block needs a comment, rename v
 - Methods: `function Name:Method(arg)`.
 - `FC` entries: `FC.Name = function(arg) ... end`.
 - Exports: global wrapper + `exports("Name", Name)` (see `skills/common/events.md`).
-- Local helpers only for pure, file-private math or encoding in `sh_config.lua`.
 
-### Guards
+### Directness And Guards
 
+- Write direct code without defensive clutter:
+  - Read `Config.General.x` and `Config.Text.x` directly; never write `(Config.General and Config.General.x) or default`.
+  - Use `cache.ped` and `cache.coords` directly; never write `cache.ped or PlayerPedId()`.
+  - Pass raw numbers and `FC.GetItemLabel(...)` / `Config` labels directly to NUI instead of formatting strings in Lua with `string.format("WORLD %02d", ...)`, `:upper():gsub("_", " ")`, or multi-branch time string builders.
 - Guard data where trust changes: net events, callbacks, commands, exports, NUI input, database decode, and native/entity handles.
 - Guard framework/native results only when failure is expected and the next operation would be unsafe.
-- Do not repeat a validation already guaranteed by the caller or normalized config.
+- Do not repeat a validation already guaranteed by the caller or `Config`.
 - Do not add empty-string checks to `FC.Notify`, `FC.ShowTextUI`, logging hooks, or other adapters when core code owns the value.
-- Prefer a clear contract and a visible error over silently returning from impossible internal state.
 - Keep guard clauses inline in the method that owns the boundary. Do not create generic `ValidatePlayer`, `SafeCall`, or `EnsureValue` wrappers.
 
 ## CfxLua Operators

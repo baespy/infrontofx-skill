@@ -31,6 +31,7 @@ Rules:
 - Every player-facing string lives in `Config.Text` so owners can translate without touching core.
 - Durations name their unit (`interval_ms`, `cooldown_sec`, `lifetime_hours`). Do not create loose global time constants.
 - Mode switches are strings with documented values (`method = "item" | "statebag"`), not boolean pairs.
+- Read `Config.General.*` and `Config.Text.*` directly in `core/*`. Never wrap config reads in `(Config.General and Config.General.x) or default` fallback chains, and do not create a `core/sh_config.lua` normalization file.
 
 ## Split Config Files
 
@@ -51,27 +52,6 @@ Config.Shops = {
 
 - Key datasets by their natural id (`central_market`, `main_garage`) so lookups are O(1).
 - Keep a dataset in one file; do not spread one table across files.
-
-## core/sh_config.lua - Validate And Normalize Once
-
-```lua
-Config = Config or {}
-
-for shopId, shop in pairs(Config.Shops or {}) do
-    assert(type(shop.coords) == "vector3", ("Shop %s needs vector3 coords"):format(shopId))
-    shop.id = shopId
-    shop.itemIndex = {}
-    for _, item in ipairs(shop.items or {}) do
-        item.price = math.floor(tonumber(item.price) or 0)
-        assert(item.price > 0, ("Shop %s item %s needs positive price"):format(shopId, tostring(item.name)))
-        shop.itemIndex[item.name] = item
-    end
-end
-```
-
-- `assert` bad config at start so the owner sees the error in console instead of a runtime nil.
-- Pre-compute derived values (seconds, hash sets, reverse indexes, defaults) here, never per tick.
-- Fill defaults with `lib.table.deepclone(Config.Defaults.x)` so rows do not share mutable tables.
 
 ## What Must Not Be In Shared Config
 

@@ -34,6 +34,15 @@ function TemplateServer:IsNearShop(src, shop)
     return #(GetEntityCoords(ped) - shop.coords) <= Config.General.interact.distance + 3.0
 end
 
+function TemplateServer:FindItem(shop, itemName)
+    for _, item in ipairs(shop.items) do
+        if item.name == itemName then
+            return item
+        end
+    end
+    return nil
+end
+
 function TemplateServer:GetShop(src, shopId)
     if self:IsThrottled(src, "open", Config.General.throttle_ms.open) then
         return false, Config.Text.busy
@@ -55,7 +64,7 @@ function TemplateServer:GetShop(src, shopId)
         }
     end
     return true, {
-        id = shop.id,
+        id = shopId,
         label = shop.label,
         items = items,
         money = FC.GetMoney(src, "money"),
@@ -79,7 +88,7 @@ function TemplateServer:Buy(src, payload)
         return false, { message = Config.Text.invalid_amount }
     end
     local shop = Config.Shops[payload.shopId]
-    local item = shop and shop.itemIndex[payload.item]
+    local item = shop and self:FindItem(shop, payload.item)
     if not item then
         return false, { message = Config.Text.invalid_item }
     end
@@ -132,4 +141,3 @@ AddEventHandler("playerDropped", function()
     local src = source
     TemplateServer:ClearPlayer(src)
 end)
-

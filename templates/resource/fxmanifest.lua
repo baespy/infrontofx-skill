@@ -10,7 +10,6 @@ shared_scripts {
     "@ox_lib/init.lua",
     "config/config.lua",
     "config/config.shop.lua",
-    "core/sh_config.lua",
 }
 
 client_scripts {

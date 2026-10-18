@@ -30,48 +30,31 @@ Name UI actions in camelCase, optionally namespaced (`"shopMenu:open"`) when one
 
 ## Ready Handshake
 
-Messages sent before the page loads are lost. Queue them until the UI announces readiness; do not create one waiting thread per message.
-
-The pending queue must be bounded. Coalesce replaceable state messages by action or stable id and keep ordered entries only for non-replaceable actions. Clear it on stop and UI reload.
-
-Client controller:
+Keep the ready check simple and direct on the client controller:
 
 ```lua
 Template = {
     ServerState = {},
     PlayerState = { uiOpen = false, uiReady = false },
-    PendingNUI = {},
 }
 
 function Template:PostNUI(action, data)
-    local message = { action = action, data = data }
     if not self.PlayerState.uiReady then
-        for index = #self.PendingNUI, 1, -1 do
-            if self.PendingNUI[index].action == action then
-                self.PendingNUI[index] = message
-                return
-            end
-        end
-        if #self.PendingNUI >= Config.General.nui_queue_limit then
-            table.remove(self.PendingNUI, 1)
-        end
-        self.PendingNUI[#self.PendingNUI + 1] = message
         return
     end
-    SendNUIMessage(message)
+    SendNUIMessage({
+        action = action,
+        data = data,
+    })
 end
 
 RegisterNUICallback("uiReady", function(_, cb)
     Template.PlayerState.uiReady = true
-    for index = 1, #Template.PendingNUI do
-        SendNUIMessage(Template.PendingNUI[index])
-    end
-    Template.PendingNUI = {}
     cb({ ok = true })
 end)
 ```
 
-UI side retries until Lua answers:
+UI side announces readiness on load:
 
 ```js
 async ready() {
@@ -126,7 +109,8 @@ end)
 
 ## Payload Hygiene
 
-- Send only what the UI renders: labels, counts, prices for display, ids.
+- Send only what the UI renders: raw numbers, labels from `FC`/`Config`, counts, prices for display, ids.
+- Do not clutter Lua with display-formatting strings (`string.format("WORLD %02d", ...)`, `:upper():gsub("_", " ")`) when the UI can render the value directly.
 - No vectors/userdata: convert `coords` to `{ x = c.x, y = c.y, z = c.z }`.
 - No secrets, webhook URLs, admin flags, hidden reward data.
 
@@ -142,11 +126,9 @@ Injected script in NUI can call every `RegisterNUICallback` as the victim.
 
 ## Performance
 
-- Send on change, not per frame. Batch rapid updates (one message per 100-250 ms max).
-- For high-rate telemetry, collect changes and send one frame or interval batch. Cap buffered entries and bytes; discard or coalesce replaceable stale data before memory grows.
+- Send on change, not per frame. Batch rapid updates (one message per 100-500 ms max).
 - Keep the page idle when hidden: stop timers/animations, `hidden` attribute instead of opacity-only hiding.
-- Move encoding or transformation to a Web Worker only after profiling shows it blocks the UI thread; workers add transfer and lifecycle cost.
-- All JS/CSS local; no CDN at runtime.
+- All JS/CSS local; no CDN `<link>` or `<script>` tags in `index.html`.
 - Never display toasts, notifications, or error banners inside the NUI page; trigger notifications on the Lua side via `FC.Notify`.
 - Produced UI files (`HTML`, `CSS`, `JS`, `TS`, `TSX`, `Vue`) contain zero comments.
 

@@ -46,7 +46,6 @@ const REQUIRED = [
     "templates/resource/config/config.lua",
     "templates/resource/config/function/config.function.client.lua",
     "templates/resource/config/function/config.function.server.lua",
-    "templates/resource/core/sh_config.lua",
     "templates/resource/core/cl_main.lua",
     "templates/resource/core/sv_main.lua",
     "templates/resource/html/index.html",

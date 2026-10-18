@@ -10,11 +10,11 @@ Whenever you create, edit, refactor, review, debug, or optimize a FiveM Lua reso
    local scriptname = GetCurrentResourceName()
    ```
 2. One controller table per side, PascalCase from the resource name without author prefix: `Shop` / `ShopServer`. Fields `ServerState`, `PlayerState`. Colon methods only.
-3. `Config` in `config/config.lua` (`Config.General`, `Config.Text`), datasets in `config/config.<domain>.lua`, validation in `core/sh_config.lua`.
+3. `Config` in `config/config.lua` (`Config.General`, `Config.Text`), optional split datasets in `config/config.<domain>.lua`. Do not create `core/sh_config.lua`; read `Config` directly.
 4. All framework/external calls and owner hooks in `config/function/config.function.client.lua` / `config.function.server.lua` via `FC` (wrapping standard `ESX` + `pNotify` + UI/log hooks). Client `FC.Notify(label, type)`, server `FC.Notify(source, label, type)`.
 5. Events: `scriptname .. ":SV:action"` / `scriptname .. ":CL:action"`. `local src = source` first line of every server handler.
 6. ox_lib allowed for callback/points/zones/cache/table/cron/dui. Forbidden: `lib.notify`, `lib.progressBar`, `lib.progressCircle`, `lib.showTextUI`, `lib.hideTextUI`.
-7. Multi-line `if` only. No comments in Lua. 4 spaces. Double quotes.
+7. Multi-line `if` only. No comments in Lua. 4 spaces. Double quotes. Write direct, minimal code without defensive fallback chains (`(Config.General and Config.General.x) or ...`, `cache.ped or PlayerPedId()`), unnecessary `string.format` / `:gsub` gymnastics, or one-line wrapper bloat.
 8. Server decides every value; validate payloads, throttle, in-flight lock, distance + bucket checks.
 9. NUI: `{ action, data }`, `uiReady` handshake, `cb` once, `textContent` only, `--px` design tokens.
 10. Clean up on `onResourceStop` and `playerDropped`.

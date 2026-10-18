@@ -12,41 +12,32 @@ Template = {
     },
     Points = {},
     Blips = {},
-    PendingNUI = {},
 }
 
 function Template:PostNUI(action, data)
-    local message = { action = action, data = data }
     if not self.PlayerState.uiReady then
-        for index = #self.PendingNUI, 1, -1 do
-            if self.PendingNUI[index].action == action then
-                self.PendingNUI[index] = message
-                return
-            end
-        end
-        if #self.PendingNUI >= Config.General.nui_queue_limit then
-            table.remove(self.PendingNUI, 1)
-        end
-        self.PendingNUI[#self.PendingNUI + 1] = message
         return
     end
-    SendNUIMessage(message)
+    SendNUIMessage({
+        action = action,
+        data = data,
+    })
 end
 
 function Template:Init()
-    for _, shop in pairs(Config.Shops) do
-        self:CreatePoint(shop)
+    for shopId, shop in pairs(Config.Shops) do
+        self:CreatePoint(shopId, shop)
         if Config.General.blip.enabled and shop.blip then
             self:CreateBlip(shop)
         end
     end
 end
 
-function Template:CreatePoint(shop)
+function Template:CreatePoint(shopId, shop)
     local point = lib.points.new({
         coords = shop.coords,
         distance = Config.General.interact.draw_distance,
-        shopId = shop.id,
+        shopId = shopId,
     })
 
     function point:onExit()
@@ -136,8 +127,7 @@ function Template:Buy(itemName, amount)
     result = type(result) == "table" and result or {}
     FC.Notify(result.message, ok and "success" or "error")
     if ok then
-        local shop = Config.Shops[shopId]
-        FC.OnPurchased(shop, shop.itemIndex[itemName], result.amount)
+        FC.OnPurchased(Config.Shops[shopId], itemName, result.amount)
     end
     return ok == true, result.money
 end
@@ -152,7 +142,6 @@ function Template:Destroy()
         end
     end
     self.Points, self.Blips = {}, {}
-    self.PendingNUI = {}
     if self.PlayerState.nearShopId then
         FC.HideTextUI()
     end
@@ -160,13 +149,7 @@ function Template:Destroy()
 end
 
 RegisterNUICallback("uiReady", function(_, cb)
-    if not Template.PlayerState.uiReady then
-        Template.PlayerState.uiReady = true
-        for index = 1, #Template.PendingNUI do
-            SendNUIMessage(Template.PendingNUI[index])
-        end
-        Template.PendingNUI = {}
-    end
+    Template.PlayerState.uiReady = true
     cb({ ok = true })
 end)
 
@@ -203,4 +186,3 @@ AddEventHandler("onResourceStop", function(resource)
     end
     Template:Destroy()
 end)
-
