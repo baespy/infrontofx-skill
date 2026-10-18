@@ -2,6 +2,8 @@
 
 Optimize measured work, not code appearance. A skill update does not speed up running resources; a resource becomes faster only after its hot paths are changed and verified under the same scenario.
 
+For ESX inventory compatibility, static item catalogs, event traffic accounting, and current oxmysql decisions, read `memory/performance-research.md`. Keep lookup CPU, serialization, network bytes, database work, and client frame cost as separate measurements.
+
 ## Priority
 
 1. Remove blocking or non-yielding work.

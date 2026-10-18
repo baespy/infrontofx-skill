@@ -7,6 +7,7 @@ Confirmed engine quirks, exploit classes, and reusable patterns discovered while
 - `memory/native-gotchas.md` - native return types, subtype quirks, crash triggers.
 - `memory/security-exploits.md` - exploit classes and fixes.
 - `memory/patterns.md` - reusable implementation patterns.
+- `memory/performance-research.md` - sourced ESX inventory, network, and oxmysql findings; client-only evidence limits.
 
 ## Adding An Entry
 

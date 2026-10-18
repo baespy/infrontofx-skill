@@ -29,6 +29,7 @@ Use this skill for FiveM Lua and in-game UI work in the `infrontofx` ecosystem. 
 | Threads, yields, source lifetime, resource restarts | `skills/common/runtime.md` |
 | Rewards, money, items, permissions, hostile input | `skills/common/security.md` |
 | Profiling, loops, queues, caching, streaming, sync cost | `skills/common/performance.md` |
+| ESX inventory indexes, item catalogs, event/payload budgets, oxmysql research | `memory/performance-research.md` |
 | Entities, net IDs, buckets, state bags | `skills/common/networking.md` |
 | oxmysql or KVP | `skills/common/database.md` |
 | Natives and entity calls | `skills/common/natives.md`, `memory/native-gotchas.md` |

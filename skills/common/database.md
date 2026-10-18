@@ -3,8 +3,9 @@
 ## Defaults
 
 - oxmysql only: `"@oxmysql/lib/MySQL.lua"` in `server_scripts`.
+- Before new integrations or upgrades, check the official oxmysql releases and installed version. Prefer the current stable supported API; record the tested tag and database version. Do not silently upgrade a running server or freeze a claim of "latest" into generated code.
 - Parameterized queries with `?` always. Never concatenate values into SQL.
-- Async on gameplay paths (`MySQL.insert`, `MySQL.update`, `MySQL.query` with callback) or `.await` inside a dedicated thread.
+- Use callbacks or `.await` in a yieldable context, including yieldable event/callback handlers. Await yields the calling coroutine; spawning a dedicated thread per query does not make SQL cheaper. Keep state locks and revalidate sessions across yields.
 - Keep live data in RAM (`ServerState`), mark dirty, save in batches.
 - Ship `install.sql` with `CREATE TABLE IF NOT EXISTS` and the indexes your queries use.
 
@@ -16,12 +17,16 @@ local row = MySQL.single.await("SELECT money FROM users WHERE identifier = ?", {
 local id = MySQL.insert.await("INSERT INTO resource_entities (owner, state) VALUES (?, ?)", { identifier, state })
 local affected = MySQL.update.await("UPDATE resource_entities SET state = ? WHERE id = ?", { state, id })
 local ok = MySQL.transaction.await({
-    { query = "UPDATE users SET money = money - ? WHERE identifier = ? AND money >= ?", values = { cost, identifier, cost } },
-    { query = "INSERT INTO purchases (identifier, item, amount) VALUES (?, ?, ?)", values = { identifier, item, amount } },
+    { query = "UPDATE resource_entities SET state = ? WHERE id = ?", values = { state, id } },
+    { query = "INSERT INTO resource_history (entity_id, state) VALUES (?, ?)", values = { id, state } },
 })
 ```
 
 Use `MySQL.prepare` for hot repeated statements.
+
+A transaction boolean means SQL success, not business success. An `UPDATE ... WHERE balance >= ?` affecting zero rows is not an SQL error; a later grant/insert can still commit. A purchase must make its dependent operations conditional on the debit succeeding within the same atomic design. Check affected rows; use a supported connection-bound transaction mechanism or database routine when conditional branching is required. Do not issue separate `query` calls and assume they share a transaction connection. Keep ESX-owned money/items under their existing persistence owner; an independent SQL debit can be overwritten by the next framework save.
+
+Prepare accepts `?` value placeholders and can execute multiple parameter sets. Its SELECT return shape and date/boolean conversion differ from query/single. A prepared batch still executes SQL statements and is not automatically an atomic transaction or one bulk SQL statement. Pick the API by required result shape and benchmark repeated statements.
 
 ## Query Shape And Throughput
 
@@ -71,7 +76,7 @@ end
 - Autosave interval from config (`Config.General.save.interval_sec`).
 - Autosave processes a bounded batch and carries remaining dirty entries into the next run.
 - Save the player's rows on `playerDropped` when `on_player_dropped = true`.
-- On `onResourceStop` use `.await` so writes finish before teardown.
+- Flush periodically and use a controlled shutdown flush while dependencies are alive. Treat `onResourceStop` writes as best effort; awaiting does not guarantee completion during teardown, dependency stop, process kill, or crash. Define the acceptable loss window; critical trades need durable writes and deduplication before success acknowledgement.
 - Deleted rows go to `ServerState.deletedEntities` and are removed in the same batch.
 - Clear an entity's dirty revision only after its matching write succeeds. If it changed during the write, leave the newer revision dirty.
 

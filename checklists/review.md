@@ -32,6 +32,9 @@ Review in this order: authority -> boundaries -> lifecycle -> performance -> sty
 - [ ] No idle `Wait(0)` loops; points/zones used for proximity.
 - [ ] `cache.ped` / `cache.coords` instead of repeated natives in loops.
 - [ ] Indexes instead of list scans in hot paths.
+- [ ] Inventory indexes preserve array consumers, zero-count/unknown-item behavior, persistence, and provider semantics; no name-only map for distinct metadata slots.
+- [ ] Event counts, encoded bytes, recipient counts, and latency measured separately; batching has bounded bytes and delay.
+- [ ] Prepared batches are not assumed atomic; zero affected rows cannot grant a purchase, and saves have one persistence owner.
 - [ ] No generic full-pool sweeps or unregister/delete of entities the resource does not own.
 - [ ] No awaited query per row/player; queries select required columns and use matching indexes.
 - [ ] Scoped `TriggerClientEvent`; snapshots only on join/bucket change.
