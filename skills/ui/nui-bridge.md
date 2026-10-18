@@ -24,11 +24,15 @@ SendNUIMessage({ action = "open", data = payload })
 
 UI -> Lua, `fetch` POST to `https://<resource>/<callback>` with JSON, response `{ ok = boolean, ... }`.
 
+Resolve `<resource>` at runtime with `GetParentResourceName()`. Never hardcode the resource folder name in JavaScript.
+
 Name UI actions in camelCase, optionally namespaced (`"shopMenu:open"`) when one page hosts several apps.
 
 ## Ready Handshake
 
 Messages sent before the page loads are lost. Queue them until the UI announces readiness; do not create one waiting thread per message.
+
+The pending queue must be bounded. Coalesce replaceable state messages by action or stable id and keep ordered entries only for non-replaceable actions. Clear it on stop and UI reload.
 
 Client controller:
 
@@ -42,6 +46,15 @@ Template = {
 function Template:PostNUI(action, data)
     local message = { action = action, data = data }
     if not self.PlayerState.uiReady then
+        for index = #self.PendingNUI, 1, -1 do
+            if self.PendingNUI[index].action == action then
+                self.PendingNUI[index] = message
+                return
+            end
+        end
+        if #self.PendingNUI >= Config.General.nui_queue_limit then
+            table.remove(self.PendingNUI, 1)
+        end
         self.PendingNUI[#self.PendingNUI + 1] = message
         return
     end
@@ -107,6 +120,7 @@ end)
 ```
 
 - `cb` exactly once on every branch.
+- Return a stable shape such as `{ ok, data, error }`; do not make UI code infer success from unrelated fields.
 - The shop id comes from Lua state, not the UI, so the UI cannot pick a different shop.
 - The server re-validates everything (`skills/common/security.md`).
 
@@ -129,7 +143,9 @@ Injected script in NUI can call every `RegisterNUICallback` as the victim.
 ## Performance
 
 - Send on change, not per frame. Batch rapid updates (one message per 100-250 ms max).
+- For high-rate telemetry, collect changes and send one frame or interval batch. Cap buffered entries and bytes; discard or coalesce replaceable stale data before memory grows.
 - Keep the page idle when hidden: stop timers/animations, `hidden` attribute instead of opacity-only hiding.
+- Move encoding or transformation to a Web Worker only after profiling shows it blocks the UI thread; workers add transfer and lifecycle cost.
 - All JS/CSS local; no CDN at runtime.
 - Never display toasts, notifications, or error banners inside the NUI page; trigger notifications on the Lua side via `FC.Notify`.
 - Produced UI files (`HTML`, `CSS`, `JS`, `TS`, `TSX`, `Vue`) contain zero comments.
@@ -144,3 +160,5 @@ AddEventHandler("onResourceStop", function(resource)
     SetNuiFocus(false, false)
 end)
 ```
+
+The UI also removes global listeners, intervals, animation frames, observers, workers, media streams, object URLs, and unresolved callback entries when its app is destroyed or reloaded.

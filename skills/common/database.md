@@ -23,26 +23,45 @@ local ok = MySQL.transaction.await({
 
 Use `MySQL.prepare` for hot repeated statements.
 
+## Query Shape And Throughput
+
+- Select only the columns the caller consumes. Avoid `SELECT *` in gameplay and UI paths.
+- Never await one query per row or player. Fetch with one bounded `IN (...)` query, join, transaction, or prepared batch.
+- Use keyset pagination (`WHERE id > ? ORDER BY id LIMIT ?`) for large tables. Offset pagination is acceptable only for small admin views.
+- Use `INSERT ... ON DUPLICATE KEY UPDATE` for atomic upserts. Do not use `REPLACE` when deleting and recreating the row would break relations or metadata.
+- Keep transactions short. Do not call exports, HTTP, callbacks, or `Wait` while a transaction is open.
+- Bound batch sizes from config. Split large saves so one autosave cannot monopolize the database queue.
+- Inspect slow queries with the database slow-query log and `EXPLAIN`; add composite indexes in the same order used by `WHERE` and `ORDER BY`.
+
 ## Dirty Save Pattern
 
 ```lua
 function NameServer:MarkDirty(entity)
+    entity.revision = (entity.revision or 0) + 1
     entity.dirty = true
-    self.ServerState.dirtyCount = (self.ServerState.dirtyCount or 0) + 1
 end
 
 function NameServer:SaveDirty()
     local batch = {}
-    for _, entity in pairs(self.ServerState.entities) do
+    local revisions = {}
+    for id, entity in pairs(self.ServerState.entities) do
         if entity.dirty then
             batch[#batch + 1] = { query = "UPDATE resource_entities SET data = ? WHERE id = ?", values = { json.encode(entity.data), entity.id } }
-            entity.dirty = false
+            revisions[id] = entity.revision
+            if #batch >= Config.General.save.batch_size then
+                break
+            end
         end
     end
     if #batch > 0 then
         MySQL.transaction(batch, function(ok)
-            if not ok then
-                NameServer:RequeueBatch(batch)
+            if ok then
+                for id, revision in pairs(revisions) do
+                    local entity = NameServer.ServerState.entities[id]
+                    if entity and entity.revision == revision then
+                        entity.dirty = false
+                    end
+                end
             end
         end)
     end
@@ -50,9 +69,11 @@ end
 ```
 
 - Autosave interval from config (`Config.General.save.interval_sec`).
+- Autosave processes a bounded batch and carries remaining dirty entries into the next run.
 - Save the player's rows on `playerDropped` when `on_player_dropped = true`.
 - On `onResourceStop` use `.await` so writes finish before teardown.
 - Deleted rows go to `ServerState.deletedEntities` and are removed in the same batch.
+- Clear an entity's dirty revision only after its matching write succeeds. If it changed during the write, leave the newer revision dirty.
 
 ## Resource KVP
 
@@ -79,3 +100,4 @@ end
 - Use `INT UNSIGNED AUTO_INCREMENT` ids, `VARCHAR(60)` identifiers, index every `WHERE` column.
 - Timestamps as `INT` unix seconds when compared in Lua (`os.time()`).
 - Store flexible data as `LONGTEXT` JSON only when it is never queried by field.
+- Use a unique key for every upsert identity and foreign keys only when their delete/update behavior is deliberate.

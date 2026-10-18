@@ -170,14 +170,23 @@ function lintLua(file, rel) {
         if (/TriggerClientEvent\s*\([^,]+,\s*-1\b/.test(line)) {
             add(rel, ln, "warn", "broadcast", "avoid -1 broadcasts; scope to sessions or a source");
         }
+        if (/TriggerLatentClientEvent\s*\([^,]+,\s*-1\b/.test(line)) {
+            add(rel, ln, "warn", "latent-broadcast", "latent bandwidth is per target; build an interest set before sending a large payload");
+        }
         if (/MySQL\.\w+(\.\w+)?\s*\(\s*["'][^"']*["']\s*\.\./.test(original) || /["'][^"']*\b(SELECT|UPDATE|INSERT|DELETE)\b[^"']*["']\s*\.\./i.test(original)) {
             add(rel, ln, "error", "sql-concat", "use ? placeholders instead of string concatenation");
+        }
+        if (/\bSELECT\s+\*\s+FROM\b/i.test(original) && !comments.has(ln)) {
+            add(rel, ln, "warn", "select-star", "select only the columns consumed by the caller");
         }
         if (/ExecuteCommand\s*\(\s*[^"'\s)]/.test(line)) {
             add(rel, ln, "warn", "dynamic-command", "do not pass dynamic strings to ExecuteCommand");
         }
         if (/GetEntityCoords\s*\(\s*PlayerPedId\s*\(\s*\)\s*\)/.test(line)) {
             add(rel, ln, "info", "cache-ped", "prefer cache.ped / cache.coords");
+        }
+        if (/\bGetGamePool\s*\(/.test(line)) {
+            add(rel, ln, "warn", "pool-scan", "avoid generic full-pool sweeps; use owned registries or a measured, infrequent diagnostic path");
         }
         if (/discord(app)?\.com\/api\/webhooks\//i.test(original)) {
             add(rel, ln, "error", "secret", "webhook URL in code; load it from a server convar");
@@ -264,6 +273,12 @@ function lintWeb(file, rel) {
         const ln = index + 1;
         if (/\.innerHTML\s*[+]?=|insertAdjacentHTML|document\.write\s*\(|dangerouslySetInnerHTML|v-html=|\{@html/.test(line)) {
             add(rel, ln, "warn", "xss-sink", "render data with textContent / text bindings");
+        }
+        if (/\$\([^)]*\)\.html\s*\(/.test(line)) {
+            add(rel, ln, "warn", "xss-sink", "render data with textContent / text bindings instead of jQuery html()");
+        }
+        if (/(fetch|\$\.post|axios\.post)\s*\(\s*["'`]https:\/\/[a-z0-9_-]+\//i.test(line)) {
+            add(rel, ln, "warn", "hardcoded-nui-resource", "build NUI callback URLs with GetParentResourceName()");
         }
         if (/<script[^>]+src=["']https?:/i.test(line) || /<link[^>]+href=["']https?:/i.test(line)) {
             add(rel, ln, "warn", "remote-asset", "ship JS/CSS locally; no CDN at runtime");

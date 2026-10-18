@@ -35,7 +35,14 @@ For Claude Code:
 - External input is validated once at the boundary. Internal values are not wrapped in redundant guards.
 - Lua and produced UI code use no comments. Lua uses 4 spaces, double quotes, and multi-line `if` blocks.
 - Idle polling, unscoped sync, stale post-yield state, and leaked entities/UI handles are rejected.
+- Performance changes require comparable `resmon` or profiler evidence; queues, retries, callback maps, database batches, and external streams stay bounded.
 - NUI uses `{ action, data }`, an `uiReady` handshake, runtime resource names, and safe text rendering.
+
+## Design Sources
+
+The standard selectively incorporates patterns reviewed from [b3sty-skill](https://github.com/b3sty191/b3sty-skill), [fivem-analytics-framework](https://github.com/b3sty191/fivem-analytics-framework), [jxeqoz/es_extended](https://github.com/jxeqoz/es_extended), [jxeqoz/screenshot-basic](https://github.com/jxeqoz/screenshot-basic), [jxeqoz/lockpick](https://github.com/jxeqoz/lockpick), [jxeqoz/fivem-mongodb](https://github.com/jxeqoz/fivem-mongodb), [jxeqoz/ws_lib](https://github.com/jxeqoz/ws_lib), [jxeqoz/fivem-mcp](https://github.com/jxeqoz/fivem-mcp), [HTPH/Chipo_](https://github.com/HTPH/Chipo_), [HTPH/Chipo_RobPlayer](https://github.com/HTPH/Chipo_RobPlayer), and [HTPH/FiveM-Utilities-NUI-and-Lua](https://github.com/HTPH/FiveM-Utilities-NUI-and-Lua).
+
+Patterns are adopted only when they fit the house contract and current Cfx runtime guidance. Client-authoritative rewards, hardcoded NUI resource URLs, unsafe HTML rendering, generic global entity sweeps, legacy ESX access, and token-only event security are explicitly rejected.
 
 ## Structure
 

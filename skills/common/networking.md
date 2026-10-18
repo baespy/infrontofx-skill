@@ -46,6 +46,9 @@ Delete with `DeleteEntity` on cleanup and drop from the registry.
 - Interested players: iterate `self.ServerState.playerSessions` (players who have the feature loaded / are near).
 - Everyone: `-1`, only for rare global events.
 - `TriggerLatentClientEvent(name, src, bps, ...)` for big one-off payloads (initial snapshot) so the net thread is not flooded.
+- Latent bandwidth is per target. Sending a large payload to `-1` multiplies total transfer by the player count; build an interest set first.
+- Prefer a small initial snapshot followed by versioned deltas. If a version is missed, request a fresh snapshot instead of replaying an unbounded history.
+- Coalesce replaceable updates by stable id. Preserve order only for actions whose sequence changes the result.
 
 ## State Bags
 
@@ -53,6 +56,15 @@ Delete with `DeleteEntity` on cleanup and drop from the registry.
 - Client reads: `LocalPlayer.state.isVip`, `AddStateBagChangeHandler("isVip", nil, fn)`.
 - Enable `setr sv_stateBagStrictMode true` so clients cannot write replicated bags.
 - Keep values small (flags, ids, short strings).
+- State bag access is shallow: each getter deserializes the whole stored value and nested mutation does not replicate. Use granular keys such as `garage:locked` and set the complete key value.
+- Do not read the same state bag key repeatedly inside a frame loop. Cache it from a change handler and invalidate it on change.
+- State bags replicate state, not authority. Validate every action again on the server.
+
+## Ownership And Migration
+
+- Network ownership can migrate between clients. Never use the current owner as proof of permission or identity.
+- Keep gameplay ownership in `ServerState` or persistence and map it to the net id only for rendering and cleanup.
+- Before operating on a migrated entity, resolve the current handle from its net id and validate existence, model, bucket, and server registry entry.
 
 ## Player Sessions
 

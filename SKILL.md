@@ -28,7 +28,7 @@ Use this skill for FiveM Lua and in-game UI work in the `infrontofx` ecosystem. 
 | Events, callbacks, commands, exports | `skills/common/events.md` |
 | Threads, yields, source lifetime, resource restarts | `skills/common/runtime.md` |
 | Rewards, money, items, permissions, hostile input | `skills/common/security.md` |
-| Loops, caching, streaming, sync cost | `skills/common/performance.md` |
+| Profiling, loops, queues, caching, streaming, sync cost | `skills/common/performance.md` |
 | Entities, net IDs, buckets, state bags | `skills/common/networking.md` |
 | oxmysql or KVP | `skills/common/database.md` |
 | Natives and entity calls | `skills/common/natives.md`, `memory/native-gotchas.md` |
@@ -84,6 +84,8 @@ local scriptname = GetCurrentResourceName()
 
 - Use `lib.points`, `lib.zones`, and `cache.*` instead of idle proximity polling.
 - Use `Wait(0)` only for active frame work. Index repeated lookups once and send state only when it changes.
+- Do not claim an optimization without comparable before/after `resmon` or profiler evidence.
+- Bound queues, retries, callback maps, database batches, and external streams; define overload and cleanup behavior.
 - Scope frequent client events; do not broadcast with `-1` unless every player genuinely needs the update.
 - Clean entities, blips, points, zones, DUI, focus, timers, and controller maps on stop/drop.
 

@@ -1,117 +1,98 @@
 # Performance
 
-FXServer runs Lua on one thread per side. Every wasted tick is felt by every player on that machine. Target: idle client resource at 0.00-0.01 ms, server resource well under 0.5 ms average.
+Optimize measured work, not code appearance. A skill update does not speed up running resources; a resource becomes faster only after its hot paths are changed and verified under the same scenario.
 
-## Contents
+## Priority
 
-- Waits
-- Spatial Logic
-- Caching
-- Indexes
-- Streaming Many World Entities
-- Network Payloads
-- NUI And DUI
-- Server Loops
-- Memory And Cleanup
-- Measuring
+1. Remove blocking or non-yielding work.
+2. Stop idle per-frame work.
+3. Reduce full scans, serialization, database round trips, and network fan-out.
+4. Bound queues and concurrent work so bursts cannot grow without limit.
+5. Reduce allocations and localize globals only inside confirmed hot paths.
 
-## Waits
+Do not claim a performance improvement without before/after evidence from the same player count, location, feature state, and capture duration.
 
-| State | Wait |
+## Threads And Waits
+
+| State | Behavior |
 | --- | --- |
-| nothing nearby / idle | event driven, or `Wait(1000+)` |
-| something within ~50 m | `Wait(500)` |
-| within interaction range | `Wait(100-250)` |
-| drawing markers/text or reading controls | `Wait(0)` only while needed |
+| inactive | no thread, event-driven, or `Wait(1000+)` |
+| coarse maintenance | one scheduler with a long configurable interval |
+| nearby | point/zone callbacks or `Wait(100-500)` |
+| drawing or reading controls | `Wait(0)` only while active |
 
-- Return the wait from the loop body and sleep once: compute `local sleep = 1000`, lower it only when needed.
-- Never `while true do Wait(0)` at resource start.
+- Every loop yields on every path.
+- Do not start a thread per event, log entry, entity, or player when one scheduler or queue can own the work.
+- Do not use arbitrary startup waits to solve dependency order.
+- Spread large maintenance work across ticks with a batch size or time budget.
+- Use generation/version fields to make delayed callbacks ignore stale state when the runtime has no cancellation handle.
 
-## Spatial Logic
+## Spatial And Entity Work
 
-Use `lib.points` / `lib.zones` instead of distance loops:
+- Use `lib.points` or `lib.zones` instead of scanning every configured location.
+- Keep `point:nearby()` limited to the native calls required for the current frame.
+- Render decorative, preview, attached, and reconstructible props locally. Network only entities whose shared physics or ownership matters.
+- For large local worlds, index entries into grid cells and scan nearby cells instead of the full dataset.
+- Use a larger retain distance than spawn distance to prevent boundary churn.
+- Never add global `GetGamePool` sweeps as a generic optimization. Pool scans and unregistering entities can create cost, ownership bugs, and incompatibility; use them only for a measured, resource-owned problem.
 
-```lua
-local point = lib.points.new({
-    coords = shop.coords,
-    distance = Config.General.interact.draw_distance,
-    shopId = shop.id,
-})
+## Caches And Indexes
 
-function point:onEnter()
-    Template:OnEnterShop(self.shopId)
-end
+- Prefer `cache.ped`, `cache.coords`, `cache.vehicle`, and `lib.onCache` over repeated player natives.
+- Build maps by stable id during config normalization or initialization.
+- Cache reads, not authority. Invalidate on mutation, player drop, provider restart, and resource stop.
+- Give remote/profile lookups a bounded TTL. Do not use a cache to hide a missing SQL index.
+- Do not retain `xPlayer`, entity handles, or opaque export results across yields or provider restarts.
 
-function point:onExit()
-    Template:OnExitShop(self.shopId)
-end
+## Allocations And Serialization
 
-function point:nearby()
-    if self.currentDistance <= Config.General.interact.distance and IsControlJustReleased(0, Config.General.interact.key) then
-        Template:OpenShop(self.shopId)
-    end
-end
-```
+- Do not build tables, concatenate strings, call `json.encode`, or format unchanged text every frame.
+- Reuse stable payloads and recompute only the fields that changed.
+- Compute hashes/digests only when cheaper than encoding or sending the payload they replace.
+- Avoid copying large tables between controller layers. Send ids and narrow DTOs.
+- Move measured CPU-heavy browser work such as image/video encoding to a Web Worker; do not add workers to ordinary menus.
 
-`nearby()` runs every frame only while inside `distance`; keep it tiny.
+## Network And State
 
-## Caching
-
-- `cache.ped`, `cache.coords`, `cache.vehicle`, `cache.playerId`, `cache.serverId` instead of `PlayerPedId()` / `GetEntityCoords(PlayerPedId())` in loops.
-- `lib.onCache("ped", fn)` to react to ped change.
-- Cache asset loads in the controller (`self.LoadedPtfxAssets[asset] = true`) and release on stop.
-- Owner-name style lookups: TTL cache (`{ value, expires = GetGameTimer() + 30000 }`).
-- Every cache has an owner field on the controller and a cleanup path.
-
-## Indexes
-
-Build once in `sh_config.lua` or `Init`:
-
-```lua
-shop.itemIndex = {}
-for _, item in ipairs(shop.items) do
-    shop.itemIndex[item.name] = item
-end
-```
-
-Then `shop.itemIndex[name]` instead of a loop. Same for sessions by identifier, entities by id, objects by owner.
-
-## Streaming Many World Entities
-
-- Server keeps all entities in `ServerState.entities`; clients only spawn the ones within `streaming.distance`.
-- Grid cells (`cell_size = 150.0`) index entities by `floor(x / cell)`, `floor(y / cell)` so a scan touches 9 cells, not every entity.
-- Scan in batches with a time budget (`scan_batch_size = 16`, `scan_budget_ms = 2`) and `Wait(0)` between batches.
-- `retain_distance > distance` (hysteresis) so entities do not spawn/despawn every tick on the boundary.
-- Local (non-networked) props for visuals: `CreateObject(model, x, y, z, false, false, false)`.
-
-## Network Payloads
-
-- Send ids and deltas, not full objects, on frequent updates.
-- Snapshot on join / bucket change only; afterwards push per-entity create/update/remove events.
-- Compress large snapshots with dictionary key encoding (`memory/patterns.md` -> Wire Encoding).
-- Use digests (`("%s:%d:%.2f"):format(...)`) to skip sending unchanged entities.
-- State bags for small visible state; never put large tables in state bags.
+- Send an initial snapshot once, then narrow create/update/remove deltas.
+- Maintain interested sessions by bucket/feature/range instead of broadcasting frequent updates.
+- Use latent events for multi-kilobyte transfers. Set a deliberate per-target bandwidth and avoid `-1` because total bandwidth multiplies by player count.
+- Keep state bag keys granular. Reading a nested state value deserializes the bag, and mutating a nested table does not replicate unless the top-level key is set again.
+- Coalesce replaceable updates such as position, progress, or balance so only the newest unsent value remains.
 
 ## NUI And DUI
 
-- `SendNUIMessage` only on change. Throttle per-entity UI updates (`entity.nextUiUpdate = GetGameTimer() + 1000`).
-- Pool DUI instances (`max_dui`) and reuse slots instead of creating a DUI per entity (`skills/ui/dui.md`).
-- CSS transitions instead of JS animation loops.
+- `SendNUIMessage` only on state change. Batch high-frequency bridge traffic once per frame or at a feature-appropriate interval.
+- Bound pre-ready and request queues. Coalesce replaceable actions instead of allowing an unlimited backlog.
+- Stop timers, animation frames, media, observers, and expensive renders while hidden.
+- Pool DUI instances and reuse runtime textures. Destroy them on stop.
+- Use CSS transitions for ordinary motion. Profile canvas/WebGL/filters in Chromium devtools before keeping them.
 
-## Server Loops
+## Database
 
-- One scheduler thread per concern (autosave, expiry), long intervals.
-- Spread work: snapshot the dirty set, process with `Wait(50)` between items.
-- `lib.cron` for wall-clock jobs.
-- Avoid `GetPlayers()` scans every tick; maintain `playerSessions` on join/drop.
+- Keep active gameplay state in controller memory and persist dirty rows in bounded batches.
+- Never run one awaited query per row in a loop. Fetch/bulk-write once or use one transaction containing the batch.
+- Select only required columns. Paginate large histories with indexed ids/timestamps rather than loading all rows.
+- Use prepared statements for repeated hot queries and duplicate-key upserts instead of select-then-insert races.
+- Investigate slow-query warnings and query plans before adding a cache.
+- Do not enable verbose SQL/debug logging in production.
 
-## Memory And Cleanup
+## HTTP, Webhooks, And External Streams
 
-- Clear `[src]` maps on `playerDropped`.
-- Remove points, zones, blips, DUI, local entities, ptfx on `onResourceStop`.
-- `SetModelAsNoLongerNeeded` after spawning, `RemoveNamedPtfxAsset` when no longer used.
+- Keep external I/O off the gameplay mutation path unless its result is required for authority.
+- Use one bounded queue per integration, a concurrency cap, and a defined overflow policy.
+- Batch non-critical logs. Do not create one thread or unbounded request per event.
+- Retry only transient failures with exponential backoff, jitter, and a maximum delay/attempt count.
+- Apply payload, client, and buffered-byte limits. One stalled consumer must not grow server memory indefinitely.
+- Close timers, sockets, workers, and pending ownership records when either the consumer or provider resource stops.
 
 ## Measuring
 
-- `resmon 1` in F8 for client ms; `profiler record 500` / `profiler view` for hot functions.
-- Server: `txAdmin` resource monitor or `profiler` in server console.
+1. Record the exact reproduction: player count, location, action, duration, and whether UI/entities are active.
+2. Capture a baseline with `resmon true` and `profiler record 500`; use `profiler status`, then `profiler view` or `profiler saveJSON <file>`.
+3. Inspect spikes, not only averages. Find the resource, thread, file, and line owning the work.
+4. For NUI, use `nui_devtools` or the Chromium remote debugger and inspect Performance, Memory, Network, and listener/timer growth.
+5. For database/network issues, correlate slow queries, payload sizes, recipient counts, and event frequency with the hitch timestamp.
+6. Change one cause, repeat the same capture, and report the before/after observation.
+
+Fixed universal millisecond budgets are misleading across hardware and scenarios. Treat consistent idle work, growing memory, burst spikes, and server hitch warnings as defects; use measurements to set a budget for the specific resource.

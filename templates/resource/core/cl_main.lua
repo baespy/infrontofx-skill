@@ -18,6 +18,15 @@ Template = {
 function Template:PostNUI(action, data)
     local message = { action = action, data = data }
     if not self.PlayerState.uiReady then
+        for index = #self.PendingNUI, 1, -1 do
+            if self.PendingNUI[index].action == action then
+                self.PendingNUI[index] = message
+                return
+            end
+        end
+        if #self.PendingNUI >= Config.General.nui_queue_limit then
+            table.remove(self.PendingNUI, 1)
+        end
         self.PendingNUI[#self.PendingNUI + 1] = message
         return
     end

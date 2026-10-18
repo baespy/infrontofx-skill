@@ -7,6 +7,7 @@ Read this file for threads, yields, `source`, dependency restarts, and resource 
 - Every long-running loop must yield. A loop without `Wait` stalls its Lua runtime.
 - `Wait(0)` resumes next frame and is reserved for active drawing or control reads. Idle work sleeps or stops.
 - Start loops only when needed and give them an explicit state-based exit path.
+- Do not create one thread per event, entity, player, delayed message, or retry. Use one bounded scheduler or queue when work shares a lifecycle.
 - Do not yield inside `entityCreating`. Move slow work outside the creation gate.
 
 ## Source Lifetime
@@ -32,6 +33,8 @@ Read this file for threads, yields, `source`, dependency restarts, and resource 
 
 - Initialize from the resource lifecycle or a deliberate player-ready path, not timing guesses.
 - On provider restart, clear pending requests and refresh dependent state.
+- Every delayed task carries a session or generation id. Ignore its result when the player, UI, dependency, or resource generation changed while it was waiting.
+- Bound pending callbacks and retries. Expire callback entries and cancel retry timers when their owner closes or disconnects.
 - On `onResourceStop`, release focus and destroy owned entities, blips, points, zones, DUI objects, timers, and subscriptions.
 - On `playerDropped`, clear every controller map keyed by `src`.
 

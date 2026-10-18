@@ -28,10 +28,15 @@ Review in this order: authority -> boundaries -> lifecycle -> performance -> sty
 
 ## Performance
 
+- [ ] Before/after captures use the same scenario, player count, duration, and profiler/resmon method.
 - [ ] No idle `Wait(0)` loops; points/zones used for proximity.
 - [ ] `cache.ped` / `cache.coords` instead of repeated natives in loops.
 - [ ] Indexes instead of list scans in hot paths.
+- [ ] No generic full-pool sweeps or unregister/delete of entities the resource does not own.
+- [ ] No awaited query per row/player; queries select required columns and use matching indexes.
 - [ ] Scoped `TriggerClientEvent`; snapshots only on join/bucket change.
+- [ ] State bag keys are small and granular; no repeated large-table getter in a hot loop.
+- [ ] External HTTP/stream queues, retries, callbacks, and NUI buffers are bounded and cleaned up.
 - [ ] NUI messages only on change.
 
 ## Style

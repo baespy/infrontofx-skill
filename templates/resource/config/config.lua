@@ -5,6 +5,7 @@ Config.General = {
     interact = { key = 38, distance = 2.0, draw_distance = 10.0 },
     throttle_ms = { open = 1000, buy = 500 },
     max_amount = 50,
+    nui_queue_limit = 32,
     blip = { enabled = true },
 }
 
