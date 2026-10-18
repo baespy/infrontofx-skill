@@ -1,6 +1,3 @@
-sec = 1000
-min = 60 * sec
-
 Config = {}
 
 Config.General = {
@@ -12,13 +9,13 @@ Config.General = {
 }
 
 Config.Text = {
-    prompt_open = "[E] เปิดร้านค้า",
-    too_far = "คุณอยู่ไกลจากร้านเกินไป",
-    invalid_item = "ไม่พบสินค้านี้",
-    invalid_amount = "จำนวนไม่ถูกต้อง",
-    not_enough_money = "เงินไม่พอ",
-    inventory_full = "กระเป๋าเต็ม",
-    busy = "กรุณารอสักครู่",
-    purchased = "ซื้อ %s x%d สำเร็จ",
+    prompt_open = "[E] Open shop",
+    too_far = "You are too far from the shop",
+    invalid_item = "Item not found",
+    invalid_amount = "Invalid amount",
+    not_enough_money = "Not enough money",
+    inventory_full = "Inventory is full",
+    busy = "Please wait",
+    purchased = "Purchased %s x%d",
 }
 

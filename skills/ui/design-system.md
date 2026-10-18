@@ -48,7 +48,7 @@ Change the accent per resource by overriding `--red` only.
 
 ## Typography
 
-- Use `"Bai Jamjuree", "Segoe UI", sans-serif` (Thai + Latin coverage).
+- Use `"Bai Jamjuree", "Segoe UI", sans-serif` for broad Thai and Latin glyph coverage.
 - Sizes: title 15, body 12-13, meta 10.5 (all `* var(--px)`).
 - Titles uppercase with letter-spacing `calc(1 * var(--px))`.
 
@@ -106,7 +106,7 @@ Never render notifications, toasts, or error banners inside the UI; all notifica
 - `:focus-visible` outline in red at 65% alpha.
 - ESC closes dialogs first, then the panel. Tab cycles inside an open dialog.
 - Disable buttons while `busy`; show progress text.
-- Thai copy for player text; numbers formatted with `toLocaleString("th-TH")`.
+- Keep player-facing copy in the resource's configured locale; format numbers with the matching locale.
 
 ## Performance
 

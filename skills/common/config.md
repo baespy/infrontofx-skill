@@ -5,9 +5,6 @@ How `infrontofx` resources expose tunable values.
 ## config/config.lua
 
 ```lua
-sec = 1000
-min = 60 * sec
-
 Config = {}
 
 Config.General = {
@@ -21,9 +18,9 @@ Config.General = {
 }
 
 Config.Text = {
-    not_enough_money = "เงินไม่พอ",
-    inventory_full = "กระเป๋าเต็ม",
-    purchased = "ซื้อ %s x%d สำเร็จ",
+    not_enough_money = "Not enough money",
+    inventory_full = "Inventory is full",
+    purchased = "Purchased %s x%d",
 }
 ```
 
@@ -32,7 +29,7 @@ Rules:
 - `Config = {}` once, in `config.lua` only. Other config files add keys: `Config.Shops = { ... }`.
 - `Config.General` groups by feature with snake_case keys. Short inline tables for small groups.
 - Every player-facing string lives in `Config.Text` so owners can translate without touching core.
-- Durations: name the unit (`interval_sec`, `cooldown_sec`, `lifetime_hours`) or use `sec` / `min` constants.
+- Durations name their unit (`interval_ms`, `cooldown_sec`, `lifetime_hours`). Do not create loose global time constants.
 - Mode switches are strings with documented values (`method = "item" | "statebag"`), not boolean pairs.
 
 ## Split Config Files

@@ -21,14 +21,14 @@ Whenever you create, edit, refactor, review, debug, or optimize a FiveM Lua reso
 
 ## Repository Map
 
-- `skills/common/` - Lua rules (style, architecture, config, FC, events, security, performance, networking, database, natives, ox_lib, debugging).
+- `skills/common/` - Lua rules (style, architecture, config, FC, events, runtime, security, performance, networking, database, natives, ox_lib, debugging).
 - `skills/ui/` - NUI bridge, design system, vanilla UI, React/Vite, DUI.
 - `references/` - APIs of ESX (`references/esx-api.md`) and pNotify (`references/pnotify-api.md`).
 - `rules/contracts.md` - cross-resource rules.
 - `memory/` - learned quirks, exploits, patterns (Date + Game build per entry).
 - `checklists/` - new resource and review checklists.
 - `templates/resource/` - complete resource in house style.
-- `scripts/` - `lint-resource.mjs`, `new-resource.ps1`, `validate-skill.mjs`.
+- `scripts/` - `lint-resource.mjs`, `new-resource.mjs`, `validate-skill.mjs`.
 
 ## Working Rules
 

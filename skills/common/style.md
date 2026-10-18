@@ -115,6 +115,15 @@ Produced Lua contains no `--` or `--[[ ]]`. If a block needs a comment, rename v
 - Exports: global wrapper + `exports("Name", Name)` (see `skills/common/events.md`).
 - Local helpers only for pure, file-private math or encoding in `sh_config.lua`.
 
+### Guards
+
+- Guard data where trust changes: net events, callbacks, commands, exports, NUI input, database decode, and native/entity handles.
+- Guard framework/native results only when failure is expected and the next operation would be unsafe.
+- Do not repeat a validation already guaranteed by the caller or normalized config.
+- Do not add empty-string checks to `FC.Notify`, `FC.ShowTextUI`, logging hooks, or other adapters when core code owns the value.
+- Prefer a clear contract and a visible error over silently returning from impossible internal state.
+- Keep guard clauses inline in the method that owns the boundary. Do not create generic `ValidatePlayer`, `SafeCall`, or `EnsureValue` wrappers.
+
 ## CfxLua Operators
 
 - `+=`, `-=`, `*=`, `/=`, `|=`, `&=` are allowed in FiveM Lua when clearer.

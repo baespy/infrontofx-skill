@@ -130,7 +130,6 @@ function lintLua(file, rel) {
     const side = sideOf(rel);
     const isFc = /config[\\/]function[\\/]/i.test(rel);
     const isManifest = basename(rel).toLowerCase() === "fxmanifest.lua";
-    const isCore = /(^|[\\/])core[\\/]/i.test(rel) || /^(cl|sv)_/i.test(basename(rel));
 
     for (const lineNo of comments) {
         add(rel, lineNo, "error", "no-comments", "comments are not allowed in produced Lua");
@@ -167,9 +166,6 @@ function lintLua(file, rel) {
         }
         if (/TriggerServerEvent\s*\(.*\b(price|cost|money|reward|balance)\b/i.test(line)) {
             add(rel, ln, "warn", "client-economy", "client should send intent only; compute prices and rewards on the server");
-        }
-        if (/\bGetResourceState\s*\(/.test(line)) {
-            add(rel, ln, "warn", "resource-state", "call exports directly (rules/contracts.md)");
         }
         if (/TriggerClientEvent\s*\([^,]+,\s*-1\b/.test(line)) {
             add(rel, ln, "warn", "broadcast", "avoid -1 broadcasts; scope to sessions or a source");
@@ -218,10 +214,10 @@ function lintLua(file, rel) {
         }
     });
 
-    if (isCore && (side === "client" || side === "server") && !isManifest) {
+    if ((side === "client" || side === "server") && !isManifest) {
         const head = raw.slice(0, 8).join("\n");
-        if (/^(cl|sv)_main\.lua$/i.test(basename(rel)) && (!/getSharedObject\s*\(\s*\)/.test(head) || !/GetCurrentResourceName\s*\(\s*\)/.test(head))) {
-            add(rel, 1, "info", "header", "start with ESX = exports[\"es_extended\"]:getSharedObject() and local scriptname = GetCurrentResourceName()");
+        if (!/getSharedObject\s*\(\s*\)/.test(head) || !/GetCurrentResourceName\s*\(\s*\)/.test(head)) {
+            add(rel, 1, "error", "header", "client/server files need the ESX export and scriptname header");
         }
     }
 
@@ -231,8 +227,11 @@ function lintLua(file, rel) {
 }
 
 function lintManifest(rel, src) {
-    if (!/lua54\s*\(?\s*["']yes["']/.test(src)) {
-        add(rel, 1, "warn", "manifest-lua54", "set lua54 \"yes\"");
+    if (/\blua54\s*\(?/.test(src)) {
+        add(rel, 1, "info", "manifest-lua54", "lua54 is deprecated because current FXServer uses Lua 5.4 by default");
+    }
+    if (/\buse_experimental_fxv2_oal\s*\(?/.test(src)) {
+        add(rel, 1, "warn", "manifest-oal", "enable experimental OAL only after auditing native signatures and vector arguments");
     }
     if (/ui_page/.test(src) && !/files\s*\(?\s*\{/.test(src)) {
         add(rel, 1, "error", "manifest-files", "ui_page needs a files { } block listing UI assets");

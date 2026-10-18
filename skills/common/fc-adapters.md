@@ -1,301 +1,70 @@
 # FC Adapters
 
-`FC` (Config Function) is the only place a resource touches frameworks, inventories, notifications, text UI, progress bars, logs, or owner-customizable gameplay rules. Core code calls `FC.*` and stays portable.
+`FC` is the resource's integration and owner-customization boundary. Core files call `FC.*`; they do not call ESX inventory/account methods, pNotify, progress resources, text UI resources, webhooks, or owner hooks directly.
 
-## Files
+## Files And Load Order
 
-- `config/function/config.function.client.lua` - loaded in `client_scripts` before `core/cl_*`.
-- `config/function/config.function.server.lua` - loaded in `server_scripts` before `core/sv_*`.
+- `config/function/config.function.client.lua` loads before `core/cl_*`.
+- `config/function/config.function.server.lua` loads before `core/sv_*`.
+- Both files use the mandatory client/server header, then `FC = FC or {}`.
+- Keep `FC` flat. Do not add adapter classes, providers, registries, or dispatchers.
 
-Both start with:
+The canonical implementations are in `templates/resource/config/function/`. Read the matching template when creating or replacing an adapter; do not duplicate the complete implementation here.
 
-```lua
-ESX = exports["es_extended"]:getSharedObject()
-FC = FC or {}
-```
+## Entry Types
 
-## Two Kinds Of Entries
+Adapters wrap framework or third-party APIs. Hooks expose deliberate owner choices:
 
-1. **Adapters** - thin wrappers over standard ESX and external resources.
-2. **Hooks** - owner-editable gameplay decisions. `FC.CanXxx` returns boolean (gate), `FC.OnXxx` reacts (side effect, return ignored unless documented).
+| Kind | Shape | Rule |
+| --- | --- | --- |
+| Adapter | `FC.Notify`, `FC.GetItem`, `FC.AddItem` | Thin translation of one external contract |
+| Gate hook | `FC.CanOpenShop`, `FC.CanPurchase` | Returns a boolean; core must respect it |
+| Reaction hook | `FC.OnPurchased`, `FC.Log` | Runs after the named action; no hidden authority change |
 
-Core code always calls hooks at the documented moment and respects the return value:
+Do not wrap controller methods in `FC`. Business flow stays on the controller; only integration and customization cross this boundary.
 
-```lua
-if not FC.CanOpenShop(shop) then
-    return
-end
-```
+## Client Contract
 
-## Standard Client Adapters
+Use only the entries the resource needs. Common names:
 
-```lua
-ESX = exports["es_extended"]:getSharedObject()
-FC = FC or {}
+- `FC.Notify(label, type)`
+- `FC.GetItem(name)`, `FC.GetItemCount(name)`, `FC.GetItemLabel(name)`
+- `FC.GetAccount(name)`, `FC.GetMoney(name)`
+- `FC.ShowTextUI(text)`, `FC.HideTextUI()`
+- `FC.Progress(data, onFinish)`
+- `FC.CanOpenXxx(data)` and `FC.OnXxx(data)`
 
-FC.Notify = function(label, notifyType)
-    if not label or label == "" then
-        return
-    end
-    TriggerEvent("pNotify:SendNotification", {
-        text = label,
-        type = notifyType or "info",
-    })
-end
+Client adapters are UX helpers only. They never prove inventory, money, job, permission, elapsed time, ownership, or reward eligibility to the server.
 
-FC.GetItem = function(itemName)
-    local playerData = ESX.GetPlayerData()
-    for _, item in pairs(playerData and playerData.inventory or {}) do
-        if item and item.name == itemName then
-            return item
-        end
-    end
-    return nil
-end
+## Server Contract
 
-FC.GetItemCount = function(itemName)
-    local item = FC.GetItem(itemName)
-    return item and (item.count or 0) or 0
-end
+Common names:
 
-FC.GetItemLabel = function(itemName)
-    if ESX.GetItemLabel then
-        local label = ESX.GetItemLabel(itemName)
-        if label and label ~= "" then
-            return label
-        end
-    end
-    local item = FC.GetItem(itemName)
-    return item and item.label or itemName
-end
+- `FC.Notify(source, label, type)`
+- `FC.GetIdentifier(source)`, `FC.GetPlayerName(source)`, `FC.GetJob(source)`
+- `FC.GetItem(source, name)`, `FC.GetItemCount(source, name)`, `FC.CanCarryItem(source, name, count)`
+- `FC.AddItem(source, name, count)`, `FC.RemoveItem(source, name, count)`
+- `FC.GetAccount(source, name)`, `FC.GetMoney(source, name)`, `FC.AddMoney(...)`, `FC.RemoveMoney(...)`
+- `FC.Log(source, event, content)`
+- `FC.CanXxx(source, data)` and `FC.OnXxx(source, data)`
 
-FC.CheckItem = function(itemName, count)
-    return FC.GetItemCount(itemName) >= (count or 1)
-end
+Server adapters return explicit success when core must react to failure. Core validates names, counts, amounts, permissions, distance, bucket, cooldown, and ownership before calling a mutation adapter.
 
-FC.CanCarryItem = function(itemName, count)
-    local item = FC.GetItem(itemName)
-    if not item then
-        return false
-    end
-    local limit = item.limit or -1
-    return limit == -1 or (item.count or 0) + (count or 1) <= limit
-end
+## Guard Policy
 
-FC.GetAccount = function(accountName)
-    local target = accountName or "money"
-    local playerData = ESX.GetPlayerData()
-    for _, account in pairs(playerData and playerData.accounts or {}) do
-        if account and account.name == target then
-            return account
-        end
-    end
-    return nil
-end
+- Do not add `if not label or label == "" then return end` to notify or text adapters. Core owns these values.
+- Do not invent default counts or amounts in mutation adapters. Callers pass already validated values.
+- It is valid to check `xPlayer` before calling a framework method because disconnects and post-yield source reuse are runtime failures.
+- Preserve framework fallbacks only when the supported ESX versions genuinely differ, such as `canCarryItem` versus legacy item limits.
+- Do not catch and hide adapter errors unless the external integration is explicitly optional.
 
-FC.GetMoney = function(accountName)
-    local account = FC.GetAccount(accountName)
-    return account and (account.money or 0) or 0
-end
+## Hooks
 
-FC.CheckMoney = function(accountName, amount)
-    return FC.GetMoney(accountName) >= (amount or 1)
-end
+- Name gates `FC.CanXxx` and reactions `FC.OnXxx`.
+- Call a gate before setting an in-flight mutation state when possible.
+- Run reaction hooks only after success.
+- Hooks may read controller state but must not mutate controller internals behind its methods.
+- Only server hooks may grant value. Client hooks affect presentation only.
+- Swap inventory, notifications, progress, text UI, and logging by editing these two files only.
 
-FC.GetJob = function()
-    local playerData = ESX.GetPlayerData()
-    return playerData and playerData.job and playerData.job.name or nil
-end
-
-FC.ShowTextUI = function(text)
-    if not text or text == "" then
-        return
-    end
-    BeginTextCommandDisplayHelp("STRING")
-    AddTextComponentSubstringPlayerName(text)
-    EndTextCommandDisplayHelp(0, false, true, -1)
-end
-
-FC.HideTextUI = function()
-    ClearAllHelpMessages()
-end
-
-FC.Progress = function(data, onFinish)
-    if onFinish then
-        onFinish(true)
-    end
-end
-```
-
-## Standard Server Adapters
-
-```lua
-ESX = exports["es_extended"]:getSharedObject()
-FC = FC or {}
-
-FC.Notify = function(source, label, notifyType)
-    if not label or label == "" then
-        return
-    end
-    TriggerClientEvent("pNotify:SendNotification", source, {
-        text = label,
-        type = notifyType or "info",
-    })
-end
-
-FC.GetIdentifier = function(source)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    return xPlayer and xPlayer.getIdentifier() or nil
-end
-
-FC.GetPlayerName = function(source)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    return (xPlayer and xPlayer.getName()) or GetPlayerName(source) or "Unknown"
-end
-
-FC.GetJob = function(source)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local job = xPlayer and xPlayer.getJob()
-    return job and job.name or nil
-end
-
-FC.GetItem = function(source, itemName)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    return xPlayer and xPlayer.getInventoryItem(itemName) or nil
-end
-
-FC.GetItemCount = function(source, itemName)
-    local item = FC.GetItem(source, itemName)
-    return item and (item.count or 0) or 0
-end
-
-FC.GetItemLabel = function(source, itemName)
-    if ESX.GetItemLabel then
-        local label = ESX.GetItemLabel(itemName)
-        if label and label ~= "" then
-            return label
-        end
-    end
-    local item = FC.GetItem(source, itemName)
-    return item and item.label or itemName
-end
-
-FC.CheckItem = function(source, itemName, count)
-    return FC.GetItemCount(source, itemName) >= (count or 1)
-end
-
-FC.CanCarryItem = function(source, itemName, count)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    if not xPlayer then
-        return false
-    end
-    if xPlayer.canCarryItem then
-        return xPlayer.canCarryItem(itemName, count or 1) == true
-    end
-    local item = xPlayer.getInventoryItem(itemName)
-    if not item then
-        return false
-    end
-    local limit = item.limit or -1
-    return limit == -1 or (item.count or 0) + (count or 1) <= limit
-end
-
-FC.GetAccount = function(source, accountName)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    return xPlayer and xPlayer.getAccount(accountName or "money") or nil
-end
-
-FC.GetMoney = function(source, accountName)
-    local account = FC.GetAccount(source, accountName)
-    return account and (account.money or 0) or 0
-end
-
-FC.CheckMoney = function(source, accountName, amount)
-    return FC.GetMoney(source, accountName) >= (amount or 1)
-end
-
-FC.AddItem = function(source, itemName, count)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    if not xPlayer then
-        return false
-    end
-    xPlayer.addInventoryItem(itemName, count)
-    return true
-end
-
-FC.RemoveItem = function(source, itemName, count)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    if not xPlayer then
-        return false
-    end
-    xPlayer.removeInventoryItem(itemName, count)
-    return true
-end
-
-FC.AddMoney = function(source, accountName, amount)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    if not xPlayer then
-        return false
-    end
-    xPlayer.addAccountMoney(accountName or "money", amount)
-    return true
-end
-
-FC.RemoveMoney = function(source, accountName, amount)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    if not xPlayer then
-        return false
-    end
-    xPlayer.removeAccountMoney(accountName or "money", amount)
-    return true
-end
-
-FC.CountJob = function(jobName)
-    return #ESX.GetExtendedPlayers("job", jobName)
-end
-
-FC.Log = function(source, event, content)
-end
-```
-
-## Hook Examples
-
-Client:
-
-```lua
-FC.CanOpenShop = function(shop)
-    return not IsPedDeadOrDying(cache.ped, true) and not IsPedInAnyVehicle(cache.ped, false)
-end
-
-FC.OnPurchased = function(shop, item, amount)
-end
-```
-
-Server:
-
-```lua
-FC.IsVip = function(source)
-    local vip = Config.General.vip
-    if vip.method == "statebag" then
-        return Player(source).state[vip.statebag] == true
-    end
-    return FC.GetItemCount(source, vip.item) > 0
-end
-
-FC.CanPurchase = function(source, shop, item, amount)
-    return true
-end
-
-FC.OnPurchased = function(source, shop, item, amount, cost)
-    FC.Log(source, "Shop", ("%s x%d (%d)"):format(item.name, amount, cost))
-end
-```
-
-## Rules
-
-- Argument order: client `FC.Notify(label, notifyType)`, server `FC.Notify(source, label, notifyType)`. Server adapters always take `source` first.
-- Use standard `ESX.GetPlayerFromId(source)` inside server `FC` adapters; never use non-standard fork methods like `RunStaticPlayerMethod`.
-- Adapters call ESX and exports directly; no `GetResourceState` guards (`rules/contracts.md`).
-- Hooks may read the controller table (`Shop:IsOpen()`) but must not mutate core state.
-- Server hooks are the only hooks that can grant value. Client hooks are UX only.
-- Swapping inventory/notify/textui/progress/logging is done by editing these two files only. See `references/esx-api.md` for the default contract.
+See `references/esx-api.md` and `references/pnotify-api.md` for the supported external contracts.

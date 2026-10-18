@@ -1,8 +1,8 @@
 # New Resource Checklist
 
-1. Scaffold: `powershell -File scripts/new-resource.ps1 -Name <name> -Destination <resources folder>`.
+1. Scaffold: `node scripts/new-resource.mjs <name> --destination <resources folder>`.
 2. Rename check: client table `Name`, server table `NameServer`, no author prefix.
-3. `fxmanifest.lua`: lua54, `use_experimental_fxv2_oal`, `@ox_lib/init.lua` first, config before `core/sh_config.lua`, `config/function/*` before `core/*`, `files { "html/**" }`.
+3. `fxmanifest.lua`: `@ox_lib/init.lua` first, config before `core/sh_config.lua`, `config/function/*` before `core/*`, and `files { "html/**" }`. Do not add deprecated `lua54` or experimental OAL by default.
 4. `config/config.lua`: `Config.General` (snake_case), `Config.Text` for every player string, commands configurable.
 5. Datasets in `config/config.<domain>.lua`, validated in `core/sh_config.lua` with `assert`, indexes built there.
 6. `FC` adapters for every external call; hooks (`FC.CanXxx`, `FC.OnXxx`) at every owner-customizable decision.

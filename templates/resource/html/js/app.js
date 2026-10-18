@@ -57,9 +57,9 @@ class ShopMenu {
         this.list.replaceChildren(...this.items.map((item) => this.row(item)));
         this.buyButton.disabled = this.selected === null || this.busy;
         if (this.busy) {
-            this.buyButton.textContent = "กำลังซื้อ...";
+            this.buyButton.textContent = "Purchasing...";
         } else {
-            this.buyButton.textContent = this.selected === null ? "เลือกสินค้าก่อน" : "ซื้อสินค้า";
+            this.buyButton.textContent = this.selected === null ? "Select an item" : "Purchase";
         }
     }
 
@@ -101,7 +101,7 @@ class ShopMenu {
     }
 
     formatMoney(value) {
-        return "$" + (Number(value) || 0).toLocaleString("th-TH");
+        return "$" + (Number(value) || 0).toLocaleString("en-US");
     }
 
     async buy() {

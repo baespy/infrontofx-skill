@@ -1,10 +1,8 @@
 ESX = exports["es_extended"]:getSharedObject()
+local scriptname = GetCurrentResourceName()
 FC = FC or {}
 
 FC.Notify = function(label, notifyType)
-    if not label or label == "" then
-        return
-    end
     TriggerEvent("pNotify:SendNotification", {
         text = label,
         type = notifyType or "info",
@@ -54,9 +52,6 @@ FC.GetMoney = function(accountName)
 end
 
 FC.ShowTextUI = function(text)
-    if not text or text == "" then
-        return
-    end
     BeginTextCommandDisplayHelp("STRING")
     AddTextComponentSubstringPlayerName(text)
     EndTextCommandDisplayHelp(0, false, true, -1)

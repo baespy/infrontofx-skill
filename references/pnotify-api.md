@@ -6,7 +6,7 @@ Always call through `FC.Notify`.
 
 ```lua
 {
-    text = "ข้อความ",
+    text = "Message",
     type = "info",
     timeout = 5000,
     layout = "topCenter",

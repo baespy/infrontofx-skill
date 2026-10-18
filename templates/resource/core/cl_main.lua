@@ -12,14 +12,16 @@ Template = {
     },
     Points = {},
     Blips = {},
-    uiLoaded = promise.new(),
+    PendingNUI = {},
 }
 
 function Template:PostNUI(action, data)
-    CreateThread(function()
-        Citizen.Await(self.uiLoaded)
-        SendNUIMessage({ action = action, data = data })
-    end)
+    local message = { action = action, data = data }
+    if not self.PlayerState.uiReady then
+        self.PendingNUI[#self.PendingNUI + 1] = message
+        return
+    end
+    SendNUIMessage(message)
 end
 
 function Template:Init()
@@ -141,6 +143,7 @@ function Template:Destroy()
         end
     end
     self.Points, self.Blips = {}, {}
+    self.PendingNUI = {}
     if self.PlayerState.nearShopId then
         FC.HideTextUI()
     end
@@ -150,7 +153,10 @@ end
 RegisterNUICallback("uiReady", function(_, cb)
     if not Template.PlayerState.uiReady then
         Template.PlayerState.uiReady = true
-        Template.uiLoaded:resolve(true)
+        for index = 1, #Template.PendingNUI do
+            SendNUIMessage(Template.PendingNUI[index])
+        end
+        Template.PendingNUI = {}
     end
     cb({ ok = true })
 end)

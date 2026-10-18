@@ -28,26 +28,32 @@ Name UI actions in camelCase, optionally namespaced (`"shopMenu:open"`) when one
 
 ## Ready Handshake
 
-Messages sent before the page loads are lost. The UI announces readiness; Lua waits on a promise.
+Messages sent before the page loads are lost. Queue them until the UI announces readiness; do not create one waiting thread per message.
 
 Client controller:
 
 ```lua
 Template = {
     ServerState = {},
-    PlayerState = { uiOpen = false },
-    uiLoaded = promise.new(),
+    PlayerState = { uiOpen = false, uiReady = false },
+    PendingNUI = {},
 }
 
 function Template:PostNUI(action, data)
-    CreateThread(function()
-        Citizen.Await(self.uiLoaded)
-        SendNUIMessage({ action = action, data = data })
-    end)
+    local message = { action = action, data = data }
+    if not self.PlayerState.uiReady then
+        self.PendingNUI[#self.PendingNUI + 1] = message
+        return
+    end
+    SendNUIMessage(message)
 end
 
 RegisterNUICallback("uiReady", function(_, cb)
-    Template.uiLoaded:resolve(true)
+    Template.PlayerState.uiReady = true
+    for index = 1, #Template.PendingNUI do
+        SendNUIMessage(Template.PendingNUI[index])
+    end
+    Template.PendingNUI = {}
     cb({ ok = true })
 end)
 ```

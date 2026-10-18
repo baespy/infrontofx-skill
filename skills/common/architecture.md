@@ -37,9 +37,6 @@ Standard layout and load order for an `infrontofx` FiveM resource.
 ```lua
 fx_version "cerulean"
 game "gta5"
-lua54 "yes"
-use_experimental_fxv2_oal "yes"
-
 name "infrontofx_template"
 author "infrontofx"
 version "1.0.0"
@@ -82,7 +79,8 @@ Load order rules:
 3. `config/function/*` before `core/*` on each side (core calls `FC` at load).
 4. Server-only config (`config.server.lua`) in `server_scripts` so clients never download it.
 5. Declare exports in `exports {}` / `server_exports {}` when other resources consume them.
-6. `use_experimental_fxv2_oal "yes"` for the faster native call path.
+6. Do not add deprecated `lua54`; current FXServer uses Lua 5.4 by default.
+7. Do not enable experimental OAL by default. Add it only after auditing native signatures and vector arguments for that resource.
 
 ## Responsibilities
 

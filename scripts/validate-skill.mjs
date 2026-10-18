@@ -11,7 +11,6 @@ const REQUIRED = [
     "CLAUDE.md",
     "README.md",
     "LICENSE",
-    "install.ps1",
     "agents/openai.yaml",
     ".claude-plugin/marketplace.json",
     ".claude-plugin/plugin.json",
@@ -21,6 +20,7 @@ const REQUIRED = [
     "skills/common/config.md",
     "skills/common/fc-adapters.md",
     "skills/common/events.md",
+    "skills/common/runtime.md",
     "skills/common/security.md",
     "skills/common/performance.md",
     "skills/common/networking.md",
@@ -51,7 +51,7 @@ const REQUIRED = [
     "templates/resource/core/sv_main.lua",
     "templates/resource/html/index.html",
     "scripts/lint-resource.mjs",
-    "scripts/new-resource.ps1",
+    "scripts/new-resource.mjs",
 ];
 const LINK_PREFIXES = ["skills/", "memory/", "references/", "rules/", "checklists/", "templates/", "scripts/", "agents/"];
 const failures = [];

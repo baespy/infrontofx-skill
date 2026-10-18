@@ -1,10 +1,8 @@
 ESX = exports["es_extended"]:getSharedObject()
+local scriptname = GetCurrentResourceName()
 FC = FC or {}
 
 FC.Notify = function(source, label, notifyType)
-    if not label or label == "" then
-        return
-    end
     TriggerClientEvent("pNotify:SendNotification", source, {
         text = label,
         type = notifyType or "info",
@@ -43,7 +41,7 @@ FC.GetMoney = function(source, accountName)
 end
 
 FC.CheckMoney = function(source, accountName, amount)
-    return FC.GetMoney(source, accountName) >= (amount or 1)
+    return FC.GetMoney(source, accountName) >= amount
 end
 
 FC.CanCarryItem = function(source, itemName, count)
@@ -52,14 +50,14 @@ FC.CanCarryItem = function(source, itemName, count)
         return false
     end
     if xPlayer.canCarryItem then
-        return xPlayer.canCarryItem(itemName, count or 1) == true
+        return xPlayer.canCarryItem(itemName, count) == true
     end
     local item = xPlayer.getInventoryItem(itemName)
     if not item then
         return false
     end
     local limit = item.limit or -1
-    return limit == -1 or (item.count or 0) + (count or 1) <= limit
+    return limit == -1 or (item.count or 0) + count <= limit
 end
 
 FC.AddItem = function(source, itemName, count)
