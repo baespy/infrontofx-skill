@@ -265,7 +265,7 @@ function lintManifest(rel, src) {
 }
 
 function lintWeb(file, rel) {
-    if (/\.min\.(js|css)$/.test(rel) || /vue\.global|react\.production/.test(rel)) {
+    if (/\.min\.(js|css)$/.test(rel) || /vue\.global|react\.production/.test(rel) || /[\\/]assets[\\/][^\\/]+\.[a-z0-9_-]{6,}\.(js|css)$/i.test(rel)) {
         return;
     }
     const raw = readFileSync(file, "utf8").split("\n");

@@ -11,7 +11,7 @@ Read `SKILL.md` first and open the routed files in `skills/`, `references/`, `ru
    ESX = exports["es_extended"]:getSharedObject()
    local scriptname = GetCurrentResourceName()
    ```
-2. Single-table OOP controller per side in PascalCase without author prefix (`shop` -> `Shop` / `ShopServer`). Client holds `ServerState` + `PlayerState`; server holds `ServerState`. All methods use colon syntax `function Name:Method(...)`.
+2. Single-table OOP controller per side in PascalCase without author prefix (`shop` -> `Shop` / `ShopServer`). Client holds `ServerState` + `PlayerState`; server holds `ServerState`. All methods use colon syntax `function Name:Method(...)`. Keep all logic in `core/cl_main.lua` and `core/sv_main.lua` unless the resource genuinely separates multiple distinct subsystems (`core/cl_<domain>.lua`, `core/sv_<domain>.lua`).
 3. `Config` lives in `config/config.lua` (`Config.General`, `Config.Text`), with optional domain tables in `config/config.<domain>.lua`. Do not create `core/sh_config.lua`; read `Config` directly.
 4. All framework/external calls and customizable hooks live in `config/function/config.function.client.lua` and `config/function/config.function.server.lua` on the global `FC` table (wrapping standard `ESX`, `pNotify`, text UI, progress bar, and server logs).
 5. Dynamic events: `scriptname .. ":SV:action"` and `scriptname .. ":CL:action"`. First line of every server handler: `local src = source`.

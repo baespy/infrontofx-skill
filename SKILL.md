@@ -56,6 +56,7 @@ local scriptname = GetCurrentResourceName()
 - Use one global controller table per side, named from the resource without its author prefix: `Shop` and `ShopServer`.
 - Client shape: `Name = { ServerState = {}, PlayerState = {} }`. Server shape: `NameServer = { ServerState = {} }`.
 - Put runtime maps on the controller. Define behavior with colon methods and use `self`.
+- Keep all client/server logic in `core/cl_main.lua` and `core/sv_main.lua` for single-system resources. Split into `core/cl_<domain>.lua` / `core/sv_<domain>.lua` only when a resource contains multiple distinct subsystems; never split out small helper files (`cl_nui.lua`, `cl_zone.lua`, `sv_db.lua`, `sv_exports.lua`).
 - `FC` is the only additional global table and exists only as the integration/customization boundary.
 
 ### Config And Integrations

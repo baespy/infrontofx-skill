@@ -17,10 +17,9 @@ Standard layout and load order for an `infrontofx` FiveM resource.
 │       └── config.function.server.lua   FC server adapters + hooks
 ├── core/
 │   ├── cl_main.lua                   client controller table + methods
-│   ├── cl_<feature>.lua              more client methods on the same table (optional)
-│   ├── sv_main.lua                   server controller table + methods
-│   ├── sv_db.lua                     persistence methods on the same table (optional)
-│   └── sv_exports.lua / cl_exports.lua  export wrappers (optional)
+│   ├── cl_<domain>.lua               independent client subsystem on the same table (multi-system resources only)
+│   ├── sv_main.lua                   server controller table + methods (including DB, timers, exports)
+│   └── sv_<domain>.lua               independent server subsystem on the same table (multi-system resources only)
 ├── html/                             NUI (ui_page)
 │   ├── index.html
 │   ├── css/style.css
@@ -29,8 +28,10 @@ Standard layout and load order for an `infrontofx` FiveM resource.
 ```
 
 - `core/` holds logic, `config/` holds what server owners edit. Owners should never need to open `core/`.
-- Do not create `core/sh_config.lua`. Read `Config` directly from `config/*.lua`.
-- The file that creates the controller table loads first on its side (`cl_main.lua` / `sv_main.lua` or `sv_db.lua`).
+- Do not create `core/sh_config.lua` or `core/sh_wire.lua`. Read `Config` directly from `config/*.lua`.
+- Keep all client logic in `core/cl_main.lua` and all server logic in `core/sv_main.lua` for single-system resources. Do not fragment a single feature into tiny files (`cl_nui.lua`, `cl_zone.lua`, `sv_db.lua`, `sv_exports.lua`, `sv_eventschedule.lua`).
+- Split `core/cl_<domain>.lua` and `core/sv_<domain>.lua` only when a resource genuinely bundles multiple independent subsystems (e.g., an all-in-one menu with gangs, mailbox, twitter, and online rewards). Keep shared lifecycle, DB helpers, and exports in `cl_main.lua` / `sv_main.lua`.
+- The file that creates the controller table loads first on its side (`cl_main.lua` / `sv_main.lua`).
 
 ## Manifest
 
@@ -133,5 +134,5 @@ end)
 
 ## Cross-file Sharing
 
-- The controller table is global inside the resource environment, so `sv_db.lua` and `sv_main.lua` share `NameServer` without exports.
+- The controller table is global inside the resource environment, so `sv_main.lua` and any `sv_<domain>.lua` subsystem files share `NameServer` without exports.
 - Globals are per resource in FXServer; they do not leak to other resources. Other resources use exports or events only (`rules/contracts.md`).

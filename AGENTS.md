@@ -9,7 +9,7 @@ Whenever you create, edit, refactor, review, debug, or optimize a FiveM Lua reso
    ESX = exports["es_extended"]:getSharedObject()
    local scriptname = GetCurrentResourceName()
    ```
-2. One controller table per side, PascalCase from the resource name without author prefix: `Shop` / `ShopServer`. Fields `ServerState`, `PlayerState`. Colon methods only.
+2. One controller table per side, PascalCase from the resource name without author prefix: `Shop` / `ShopServer`. Fields `ServerState`, `PlayerState`. Colon methods only. Keep all logic in `core/cl_main.lua` and `core/sv_main.lua` unless the resource separates multiple distinct subsystems (`core/cl_<domain>.lua`, `core/sv_<domain>.lua`).
 3. `Config` in `config/config.lua` (`Config.General`, `Config.Text`), optional split datasets in `config/config.<domain>.lua`. Do not create `core/sh_config.lua`; read `Config` directly.
 4. All framework/external calls and owner hooks in `config/function/config.function.client.lua` / `config.function.server.lua` via `FC` (wrapping standard `ESX` + `pNotify` + UI/log hooks). Client `FC.Notify(label, type)`, server `FC.Notify(source, label, type)`.
 5. Events: `scriptname .. ":SV:action"` / `scriptname .. ":CL:action"`. `local src = source` first line of every server handler.
