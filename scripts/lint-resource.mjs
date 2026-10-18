@@ -151,12 +151,24 @@ function lintLua(file, rel) {
         if (/\bRunStaticPlayerMethod\b/.test(line)) {
             add(rel, ln, "error", "non-standard-esx", "use standard ESX.GetPlayerFromId(source) instead of RunStaticPlayerMethod");
         }
-        if (!isFc && /["']pNotify:SendNotification["']/.test(original) && !comments.has(ln)) {
+        if (!isFc && /\bTrigger(Client)?Event\s*\(\s*["']pNotify:SendNotification["']/.test(original) && !comments.has(ln)) {
             add(rel, ln, "warn", "use-fc", "use FC.Notify instead of triggering pNotify directly");
         }
+        if (isFc && /exports\s*\[\s*["']1nfx_utilities["']\s*\]/.test(original) && !comments.has(ln)) {
+            add(rel, ln, "error", "fc-standard-esx", "use standard ESX (ESX.GetPlayerData / ESX.GetPlayerFromId) in FC adapters instead of 1nfx_utilities");
+        }
+        if (isFc && /^\s*function\s+FC[.:]/.test(line)) {
+            add(rel, ln, "warn", "fc-style", "define FC entries as FC.Name = function(...)");
+        }
+        if (!isFc && /\b(xPlayer|player|medic)\.(addInventoryItem|removeInventoryItem|setInventoryItem|addAccountMoney|removeAccountMoney|setAccountMoney|addMoney|removeMoney|addWeapon|removeWeapon)\b/.test(line)) {
+            add(rel, ln, "warn", "use-fc", "route inventory/account/weapon mutations through FC.* instead of calling xPlayer methods in core");
+        }
         const literalEvent = /(RegisterNetEvent|TriggerServerEvent|TriggerClientEvent|TriggerLatentClientEvent|lib\.callback\.register|lib\.callback\.await|lib\.callback)\s*\(\s*["']([^"']+)["']/.exec(original);
-        if (literalEvent && !comments.has(ln) && !LUA_THIRD_PARTY_EVENTS.test(literalEvent[2])) {
-            add(rel, ln, "warn", "event-name", `build event names from scriptname (scriptname .. ":SV:x"), found "${literalEvent[2]}"`);
+        if (!isFc && literalEvent && !comments.has(ln) && !LUA_THIRD_PARTY_EVENTS.test(literalEvent[2])) {
+            const isCrossResourceListen = literalEvent[1] === "RegisterNetEvent" && /^(ESX:|1nfx_|1NFX:|IFF:)/.test(literalEvent[2]) && !rel.replace(/\\/g, "/").startsWith(literalEvent[2].split(":")[0] + "/");
+            if (!isCrossResourceListen) {
+                add(rel, ln, "warn", "event-name", `build event names from scriptname (scriptname .. ":SV:x"), found "${literalEvent[2]}"`);
+            }
         }
         if (/scriptname\s*\.\.\s*["']:(?!SV:|CL:)/.test(original) && !comments.has(ln)) {
             add(rel, ln, "warn", "event-side", "event names need a :SV: or :CL: side marker");
