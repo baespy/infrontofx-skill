@@ -1,8 +1,5 @@
 fx_version "cerulean"
 game "gta5"
-name "infrontofx_template"
-author "infrontofx"
-version "1.0.0"
 
 ui_page "html/index.html"
 
