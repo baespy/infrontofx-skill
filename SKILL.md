@@ -39,6 +39,8 @@ Use this skill for FiveM Lua and in-game UI work in the `infrontofx` ecosystem. 
 | UI styling and scaling | `skills/ui/design-system.md` |
 | Vanilla UI | `skills/ui/vanilla-ui.md` |
 | React, Vite, TypeScript | `skills/ui/react-vite.md` |
+| Vue or Svelte NUI | `skills/ui/vue-svelte.md`, `skills/ui/nui-bridge.md` |
+| MCP-assisted research/review, realtime web integration | `references/infrontofx-fivem.md` |
 | World-space DUI | `skills/ui/dui.md` |
 | Cross-resource integration | `rules/contracts.md` |
 | Review | `checklists/review.md` |
@@ -89,6 +91,7 @@ local scriptname = GetCurrentResourceName()
 - Use `lib.points`, `lib.zones` (`onEnter`, `inside`, `onExit`), and `cache.*` instead of manual polling loops.
 - Use `Wait(0)` only for active frame work. Send state only when it changes.
 - Do not claim an optimization without comparable before/after `resmon` or profiler evidence.
+- Bound queues, retries, callback maps, database batches, socket send buffers, and per-tick work; define rejection and cleanup behavior.
 - Scope frequent client events; do not broadcast with `-1` unless every player genuinely needs the update.
 - Clean entities, blips, points, zones, DUI, focus, timers, and controller maps on stop/drop.
 
