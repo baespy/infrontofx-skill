@@ -15,7 +15,7 @@ function option(key) {
 
 function pascalCase(value) {
     return value
-        .replace(/^infrontofx[_-]/i, "")
+        .replace(/^(?:infrontofx|1nfx)[_-]/i, "")
         .split(/[_\-\s]+/)
         .filter(Boolean)
         .map((part) => part[0].toUpperCase() + part.slice(1))
@@ -37,6 +37,10 @@ function files(path, output = []) {
 if (!name) {
     console.error("usage: node scripts/new-resource.mjs <name> [--destination path] [--controller Name]");
     process.exit(2);
+}
+
+if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(name)) {
+    throw new Error("Resource name must contain only lowercase letters, digits, underscores or hyphens, with no paths.");
 }
 
 const destination = resolve(option("--destination") || process.cwd());

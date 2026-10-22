@@ -1,5 +1,7 @@
 # ESX API For FC Adapters
 
+Source selection: verify APIs against the installed `es_extended` and the official https://github.com/esx-framework/esx_core repository. On 2026-10-22 the former docs.esx-legacy.com URL returned a parked-domain page; do not use it as API evidence. A local or newer fork may have different return shapes and integration ownership.
+
 All ESX calls live inside `config/function/config.function.client.lua` and `config/function/config.function.server.lua` (`skills/common/fc-adapters.md`). Core files (`core/cl_*.lua`, `core/sv_*.lua`) call `FC.*` instead of touching ESX inventory/account internals directly.
 
 ## Bootstrap

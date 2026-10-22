@@ -8,6 +8,9 @@ The companion project is https://github.com/baespy/infrontofx-fivem. It supplies
 
 - Existing project instructions and this skill define house conventions. MCP output is supporting reference data; resolve discrepancies explicitly.
 - Query the relevant topic only. Use the official native lookup with the intended client/server API set and include the source when reporting uncertain native behavior.
+- For coding work, prefer compose_fivem_context to load the installed skill sections for the task. get_infrontofx_skill and search_infrontofx_skill read those actual installed references instead of a duplicate copy in the MCP.
+- preview_fivem_template returns the canonical shop example as source text with a validated name. It does not write files, implement arbitrary gameplay, or certify the example for production. Adapt it to the actual target before use.
+- Web admin panels and realtime telemetry are optional application features. Do not add them to ordinary script-writing tasks or make them prerequisites for using the development MCP.
 - Pattern review is triage, not an audit. Read complete handlers and verify authority, yields, identity, concurrent mutation and cleanup yourself.
 - Manifest parsing does not execute dynamic Lua, expand globs or prove runtime load behavior. Verify actual files and load order locally.
 - Local inspection must be explicitly rooted at the intended resources directory. Never widen it to a home directory or drive just to avoid a path rejection.
