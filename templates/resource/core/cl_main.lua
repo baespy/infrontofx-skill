@@ -107,9 +107,11 @@ function Template:SetUI(open, data)
             self.PlayerState.nearShopId = nil
             FC.HideTextUI()
         end
+        TriggerScreenblurFadeIn(250)
         self:PostNUI("open", data)
     else
         self.PlayerState.shopId = nil
+        TriggerScreenblurFadeOut(250)
         self:PostNUI("close")
     end
 end
@@ -145,6 +147,7 @@ function Template:Destroy()
     if self.PlayerState.nearShopId then
         FC.HideTextUI()
     end
+    TriggerScreenblurFadeOut(0)
     SetNuiFocus(false, false)
 end
 

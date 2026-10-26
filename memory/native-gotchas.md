@@ -43,3 +43,19 @@
 - Game build: any
 - Symptom: hitch when many world objects play effects simultaneously.
 - Fix: cache loaded assets on the controller (`LoadedPtfxAssets`) and re-request only when `HasNamedPtfxAssetLoaded` is false.
+
+### FiveM CEF full-screen backdrop-filter black screen
+
+- Date: 2026-10-26
+- Game build: 3095
+- Symptom: NUI covers the entire screen with solid pitch-black when opening a menu or HUD overlay.
+- Cause: CSS `backdrop-filter: blur(...)` on `body`, `body::before`, or a `position: fixed; inset: 0` wrapper samples the NUI transparent backbuffer instead of the GTA V 3D framebuffer.
+- Fix: Set `backdrop-filter: none !important` on full-screen wrappers and use `TriggerScreenblurFadeIn(250)` / `TriggerScreenblurFadeOut(250)` in client Lua to blur the game world behind NUI.
+
+### RegisterKeyMapping ignores updated default key for existing command name
+
+- Date: 2026-10-26
+- Game build: 3095
+- Symptom: Changing `toggle_key` in `config.lua` (e.g. from `"K"` to `"J"`) does not respond to the new key in-game.
+- Cause: FiveM caches keybindings per command name in the player's local `fivem.cfg` on first registration and ignores subsequent default key changes for that same command name.
+- Fix: Append the lowercase key to the registered keymapping command name (`local keyCmd = baseCmd .. "_" .. string.lower(key)`) while keeping `baseCmd` registered for manual console/chat use.

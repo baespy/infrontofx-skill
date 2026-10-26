@@ -57,9 +57,9 @@ class ShopMenu {
         this.list.replaceChildren(...this.items.map((item) => this.row(item)));
         this.buyButton.disabled = this.selected === null || this.busy;
         if (this.busy) {
-            this.buyButton.textContent = "Purchasing...";
+            this.buyButton.textContent = "PURCHASING...";
         } else {
-            this.buyButton.textContent = this.selected === null ? "Select an item" : "Purchase";
+            this.buyButton.textContent = this.selected === null ? "SELECT ITEM" : "CONFIRM";
         }
     }
 
