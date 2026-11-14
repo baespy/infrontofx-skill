@@ -2,7 +2,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, basename, extname, sep } from "node:path";
 
-const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "vendor", "stream", "fonts"]);
+const SKIP_DIRS = new Set(["node_modules", ".git", ".next", "dist", "vendor", "stream", "fonts", "tests", "launcher-build-worker"]);
 const LUA_THIRD_PARTY_EVENTS = /^(pNotify|esx|esx_|1nfx_core|mythic_progbar|ox_lib|ox_inventory|txAdmin|chat|baseevents|playerSpawned|onResource|onClientResource|gameEventTriggered|populationPedCreating|entityCreated|entityRemoved|explosionEvent|weaponDamageEvent)/;
 const FORBIDDEN_OXLIB = /\blib\.(notify|progressBar|progressCircle|progressActive|cancelProgress|showTextUI|hideTextUI|isTextUIOpen|registerContext|showContext|inputDialog|alertDialog)\b/;
 
