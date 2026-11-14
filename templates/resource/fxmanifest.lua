@@ -25,8 +25,3 @@ files {
     "html/js/nui.js",
     "html/js/app.js",
 }
-
-dependencies {
-    "ox_lib",
-    "1nfx_core",
-}

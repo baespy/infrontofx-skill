@@ -2,7 +2,7 @@
 
 1. Scaffold: `node scripts/new-resource.mjs <name> --destination <resources folder>`.
 2. Rename check: client module `Name`, server module `NameServer`, no author prefix. One module table per side, declared as a `local` on the first line after `scriptname`.
-3. `fxmanifest.lua`: `lua54 "yes"`, `@ox_lib/init.lua` then `@1nfx_core/imports.lua` first in `shared_scripts`, `config/*.lua` after them, `core/*` in `client_scripts` / `server_scripts`, and `files` listing only the html files the page actually references. No `core/sh_config.lua`, no experimental OAL by default.
+3. `fxmanifest.lua`: `lua54 "yes"`, `@ox_lib/init.lua` then `@1nfx_core/imports.lua` first in `shared_scripts`, `config/*.lua` after them, `core/*` in `client_scripts` / `server_scripts`, and `files` listing only the html files the page actually references. No `dependencies`, no `escrow_ignore`, no `sh_*.lua` files, no experimental OAL by default.
 4. `config/config.lua`: `Config.General` (snake_case), `Config.Text` for every player string, commands configurable.
 5. Optional split datasets in `config/config.<domain>.lua` when a dataset is large. Read `Config` directly in `core/*` without fallback chains.
 6. Integration code (notify, text UI, money, items, logs) is written directly inside `core/` as methods of the module (`Module:Notify`, `Module:GetMoney`). Framework access goes through the global `Core` from `@1nfx_core/imports.lua` (ESX-compatible); never `exports["es_extended"]:getSharedObject()`.

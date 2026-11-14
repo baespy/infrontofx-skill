@@ -15,6 +15,8 @@
 9. NUI: `{ action, data }`, handshake `uiReady`, เรียก `cb` ครั้งเดียวต่อ callback, ใช้ `textContent`, ย่อขยายด้วย `--px` บนกรอบ 1920x1080
 10. ล้างให้ครบใน `onResourceStop` และ `playerDropped`
 11. secret อยู่ในไฟล์ฝั่ง server เท่านั้น ไม่ลงใน repo
+12. manifest ห้ามมี `dependencies`/`dependency` และ `escrow_ignore` ห้ามมีไฟล์ `sh_*.lua`
+13. UI ใช้สไตล์ `skills/ui/extreme-hp-ui.md`: ไม่มีขอบสีขาว ไม่มี blur ใช้ crimson `#ff263d`
 
 ## แผนที่ repo
 

@@ -60,11 +60,6 @@ server_scripts {
 files {
     "html/**",
 }
-
-dependencies {
-    "ox_lib",
-    "1nfx_core",
-}
 ```
 
 Load order rules:

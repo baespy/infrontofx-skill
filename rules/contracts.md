@@ -4,7 +4,7 @@
 
 - Call exports directly at the use site inside `core/` methods, with the full resource name: `exports["1nfx_processbar"]:getIsDoingAction()`. Do not store the resource name in a variable.
 - The framework is reached through the global `Core` from `shared_script "@1nfx_core/imports.lua"`, not through `exports["es_extended"]`.
-- Do not wrap calls in `GetResourceState` checks for mandatory providers. Declare the provider in `dependencies {}` and fix start order in `server.cfg` instead. `GetResourceState` is for optional integrations only.
+- Do not wrap calls in `GetResourceState` checks for mandatory providers. Do not declare `dependencies {}`; fix start order in `server.cfg` instead. `GetResourceState` is for optional integrations only.
 - Call exports at use time, not once at load (a cached export reference goes stale when the provider restarts).
 - External exports are reached from module methods (`Module:Notify`, `Module:GetMoney`), so a provider swap touches only those methods.
 

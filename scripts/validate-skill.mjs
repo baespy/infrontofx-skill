@@ -32,6 +32,7 @@ const REQUIRED = [
     "skills/common/debugging.md",
     "skills/ui/nui-bridge.md",
     "skills/ui/design-system.md",
+    "skills/ui/extreme-hp-ui.md",
     "skills/ui/vanilla-ui.md",
     "skills/ui/react-vite.md",
     "skills/ui/vue-svelte.md",

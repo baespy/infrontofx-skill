@@ -1,6 +1,8 @@
 # Design System
 
-The `infrontofx` visual language: borderless dark layered panels, matte crimson action surfaces (`#632524`), sharp red indicator pills (`#ff1a1a`), Bai Jamjuree typography, and smooth spring micro-animations scaled from a 1920x1080 artboard.
+The default style for this server is skills/ui/extreme-hp-ui.md (vivid crimson #ff263d, no white borders, no blur). Where this file disagrees, that file wins.
+
+The `infrontofx` visual language: borderless dark layered panels, vivid crimson action surfaces (`#ff263d`), sharp red indicator pills (`#ff1a1a`), Bai Jamjuree typography, and smooth spring micro-animations scaled from a 1920x1080 artboard.
 
 ## Resolution Scaling
 
@@ -33,8 +35,8 @@ Design in Figma at 1920x1080 and copy the pixel numbers straight into `calc(N * 
     --card-bg-hover: rgba(255, 255, 255, 0.08);
     --card-solid: rgba(28, 31, 38, 0.76);
     --input-bg: rgba(0, 0, 0, 0.35);
-    --btn-red: #632524;
-    --btn-red-hover: #7a2e2d;
+    --btn-red: #ff263d;
+    --btn-red-hover: #cf1025;
     --btn-red-active: #521e1d;
     --btn-secondary: rgba(255, 255, 255, 0.06);
     --btn-secondary-hover: rgba(255, 255, 255, 0.12);
@@ -56,7 +58,7 @@ Design in Figma at 1920x1080 and copy the pixel numbers straight into `calc(N * 
 ### Color & Surface Rules
 
 - **Borderless hierarchy**: Never use `1px solid` borders on panels, cards, inputs, or buttons (`border: none`). Separate layers using background luminance steps (`--panel` -> `--surface` -> `--card-bg` -> `--card-bg-hover`).
-- **Matte crimson actions (`#632524`)**: Primary buttons, active tabs, selected cards, and keybind action pills use `--btn-red` (`#632524`) with `#ffffff` bold text and hover `--btn-red-hover` (`#7a2e2d`).
+- **Vivid crimson actions (`#ff263d`)**: Primary buttons, active tabs, selected cards, and keybind action pills use `--btn-red` (`#ff263d`) with `#ffffff` bold text and hover `--btn-red-hover` (`#cf1025`).
 - **Pure red accents (`#ff1a1a`)**: Reserve bright `--red` (`#ff1a1a`) for small visual anchors only:
   - Header vertical pill (`3.5 * var(--px)` wide, `18-24 * var(--px)` tall, `border-radius: 999px`)
   - Active sidebar/card indicator bar (`3 * var(--px)` wide)
@@ -68,7 +70,7 @@ Design in Figma at 1920x1080 and copy the pixel numbers straight into `calc(N * 
 - **Blur is expensive in CEF.** Avoid large `backdrop-filter` / `filter: blur(...)` areas; prefer a semi-opaque `--panel` / `--panel-blur` surface and the in-game `TriggerScreenblurFadeIn` for the world behind the menu. Animate only `transform` and `opacity`, and hide closed pages with `display: none` (the `hidden` attribute) so nothing keeps drawing.
 - **Never apply `backdrop-filter: blur(...)` to full-screen NUI wrappers** (`body`, `#app`, `.modal-backdrop`, `body::before`) over a transparent page. In FiveM CEF, blurring the root transparent backbuffer renders as an opaque pitch-black screen.
 - **Blurring the game world**: Call `TriggerScreenblurFadeIn(250)` when opening a full menu and `TriggerScreenblurFadeOut(250)` when closing (plus `TriggerScreenblurFadeOut(0)` in `onResourceStop`). Pair it with `--panel-blur` (`rgba(18, 20, 24, 0.78)`) on the window and a soft radial vignette (`radial-gradient(circle at 50% 45%, rgba(10, 12, 16, 0.25) 0%, rgba(6, 8, 12, 0.55) 100%)`) with `backdrop-filter: none !important;` on the full-screen wrapper.
-- **Inner popovers only**: CSS `backdrop-filter: blur(12px)` is allowed only on floating dropdown menus positioned over an already-opaque NUI panel.
+- No `backdrop-filter` blur anywhere, including popovers.
 - **Floating HUD / notification wrappers**: Outer containers for corner HUDs and item notifications must use `background: transparent !important; box-shadow: none !important; overflow: visible !important;` so card shadows are never hard-clipped into dark rectangular bands.
 
 ## Typography & Copy
@@ -148,11 +150,11 @@ window.addEventListener("keydown", (event) => {
 | Panel / Window | `--panel` (or `--panel-blur` with `TriggerScreenblurFadeIn`), `border: none`, radius `12-14`, `--shadow`, centered |
 | Brand header | red pill (`3.5 x 22`, radius `999px`, `--red`) + uppercase eyebrow (`9.5`, `--text3` or `--red`) + bold title (`18-20`) + `CLOSE` button (`--btn-secondary`, hover `--btn-red`) |
 | Divider | `1px` solid `rgba(255, 255, 255, 0.06)` (no dashed borders) |
-| Row / Card | `--card-bg`, `border: none`, radius `8-10`, hover `--card-bg-hover` + `translateY(-1.5px)` or `translateX(3px)`, selected `--btn-red` (`#632524`) with `#ffffff` text |
-| Primary button | bg `--btn-red` (`#632524`), text `#ffffff`, radius `8`, `font-weight: 800`, hover `--btn-red-hover` (`#7a2e2d`) + `translateY(-1.5px)`, active `scale(0.97)` |
+| Row / Card | `--card-bg`, `border: none`, radius `8-10`, hover `--card-bg-hover` + `translateY(-1.5px)` or `translateX(3px)`, selected `--btn-red` (`#ff263d`) with `#ffffff` text |
+| Primary button | bg `--btn-red` (`#ff263d`), text `#ffffff`, radius `8`, `font-weight: 800`, hover `--btn-red-hover` (`#cf1025`) + `translateY(-1.5px)`, active `scale(0.97)` |
 | Secondary button | bg `--btn-secondary` (`rgba(255, 255, 255, 0.06)`), text `--text2`, radius `8`, hover `--btn-secondary-hover` + text `#ffffff` |
 | Collapsible HUD card | Compact header row with red pill, title, compact timer badge (`--card-solid`), and `[KEY] OPEN/CLOSE` button (`--btn-red`) with dark key badge (`rgba(0, 0, 0, 0.35)`); body collapses via `max-height` + `opacity` |
-| Item notify card | Compact `168 x 52` card, `rgba(20, 22, 26, 0.9)`, `box-shadow: none`, `38 x 38` icon box (`rgba(10, 12, 16, 0.68)`), `ADD` (`#1d4b7a`) / `REMOVE` (`#632524`) pill + `xCount`, item label, right accent bar (`#29b6ff` / `#ff1a1a`) |
+| Item notify card | Compact `168 x 52` card, `rgba(20, 22, 26, 0.9)`, `box-shadow: none`, `38 x 38` icon box (`rgba(10, 12, 16, 0.68)`), `ADD` (`#1d4b7a`) / `REMOVE` (`#ff263d`) pill + `xCount`, item label, right accent bar (`#29b6ff` / `#ff1a1a`) |
 | Confirm modal | Centered `.modal-box` (`--panel`, radius `12`, `--shadow`), red pill header, info rows (`--card-bg`), two-column `CANCEL` (`--btn-secondary`) + `CONFIRM` (`--btn-red`) buttons |
 
 Never render generic notifications, toasts, or error banners inside menu UIs; route notifications through a `Module:Notify` method (`pNotify:SendNotification`) on the Lua side. Produced HTML, CSS, JS, TS, TSX, Svelte, and Vue files must contain zero comments. The JS rules follow the Lua style: no file-level constants, write the literal at the use site, and prefer one class per app.

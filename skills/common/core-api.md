@@ -4,7 +4,7 @@ How a resource reaches the framework, notifications, text UI, progress, logs, an
 
 ## Reaching The Framework
 
-- Every resource lists `"@1nfx_core/imports.lua"` in `shared_scripts` (after `"@ox_lib/init.lua"`) and `1nfx_core` in `dependencies`.
+- Every resource lists `"@1nfx_core/imports.lua"` in `shared_scripts` (after `"@ox_lib/init.lua"`); do not add a `dependencies` block, start order is set in `server.cfg`.
 - The import provides a global `Core`. It is ESX-compatible: `Core.GetPlayerFromId`, `Core.GetExtendedPlayers`, `Core.RegisterUsableItem`, `Core.GetItemLabel`, `Core.IsPlayerLoaded` (client), `Core.GetPlayerData` (client), and the usual `xPlayer` methods (`xPlayer.getIdentifier()`, `xPlayer.addInventoryItem(name, count)`, ...). The method list is in `references/esx-api.md`.
 - Do not write `local ESX = exports["es_extended"]:getSharedObject()` and do not call `TriggerEvent("esx:getSharedObject", ...)`.
 - Framework events are named `1nfx_core:*` (`1nfx_core:playerLoaded`, `1nfx_core:setJob`, ...). Legacy `esx:*` names still fire locally for old resources, but new code listens to `1nfx_core:*`. Listen to framework events; never re-trigger them.

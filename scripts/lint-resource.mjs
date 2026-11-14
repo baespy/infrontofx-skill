@@ -237,6 +237,9 @@ function lintLua(file, rel) {
     const raw = src.split("\n");
     const { comments, code } = scanLua(src);
     const side = sideOf(rel);
+    if (/^sh_/i.test(basename(rel))) {
+        add(rel, 1, "error", "no-sh-file", "no sh_*.lua files; client code in cl_*.lua, server code in sv_*.lua, shared data in config/");
+    }
     const isManifest = basename(rel).toLowerCase() === "fxmanifest.lua";
 
     for (const lineNo of comments) {
@@ -370,6 +373,12 @@ function lintLua(file, rel) {
 }
 
 function lintManifest(rel, src) {
+    if (/^\s*(dependencies|dependency)\b/m.test(src)) {
+        add(rel, 1, "error", "no-dependencies", "remove dependencies from the manifest; set start order in server.cfg");
+    }
+    if (/^\s*escrow_ignore\b/m.test(src)) {
+        add(rel, 1, "error", "no-escrow-ignore", "remove escrow_ignore from the manifest");
+    }
     if (/config[\\/]function[\\/]|config\/function/.test(src)) {
         add(rel, 1, "error", "no-config-function", "remove config/function from the manifest");
     }

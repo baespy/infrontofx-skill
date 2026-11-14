@@ -20,7 +20,7 @@ description: ชุดเดียวครบสำหรับงาน FiveM 
 | ฐานข้อมูล | `skills/common/database.md` |
 | ประสิทธิภาพ, native, ox_lib, runtime | `skills/common/performance.md`, `natives.md`, `ox-lib.md`, `runtime.md`, `memory/performance-research.md`, `memory/native-gotchas.md` |
 | ความปลอดภัย, ดีบัก, สไตล์ | `skills/common/security.md`, `debugging.md`, `style.md`, `memory/security-exploits.md`, `memory/patterns.md` |
-| UI (NUI/DUI) | `NUI_DUI.md` แล้วตามด้วย `skills/ui/design-system.md`, `nui-bridge.md`, `dui.md`, `vanilla-ui.md`, `react-vite.md`, `vue-svelte.md` |
+| UI (NUI/DUI) | `NUI_DUI.md` แล้วตามด้วย `skills/ui/extreme-hp-ui.md` (สไตล์หลัก), `skills/ui/design-system.md`, `nui-bridge.md`, `dui.md`, `vanilla-ui.md`, `react-vite.md`, `vue-svelte.md` |
 | เครื่องมือเสริม MCP ความจำ ประหยัด token | `TOOLING.md` |
 | โปสเตอร์ Support / Welfare / แจกของ | `poster-forge/SKILL.md` |
 | สกินอาวุธ, โมเดล, ptfx (.ypt), เอฟเฟกต์หน้าจอ, เสียง | `weapon-forge/SKILL.md` |
@@ -59,7 +59,8 @@ core/sv_main.lua
 ```
 
 - resource ใหญ่ให้แตก `core/` ตามหน้าที่ (`cl_<feature>.lua`, `sv_<feature>.lua`) ไฟล์ละเรื่องเดียว
-- manifest: `lua54 "yes"`, ใส่ `dependencies` เฉพาะตัวที่ขาดแล้วสคริปพังจริง, `files` ใส่เฉพาะไฟล์ที่หน้าเว็บอ้างถึงจริง
+- manifest: `lua54 "yes"`, `files` ใส่เฉพาะไฟล์ที่หน้าเว็บอ้างถึงจริง ห้ามมี `dependencies`/`dependency` และห้ามมี `escrow_ignore` ลำดับ start ตั้งใน `server.cfg`
+- ห้ามมีไฟล์ `sh_*.lua` ใส่โค้ดฝั่ง client ใน `cl_*.lua` ฝั่ง server ใน `sv_*.lua` ข้อมูลที่ใช้สองฝั่งอยู่ใน `config/`
 - export ที่ประกาศด้วย `exports("name", fn)` ในโค้ดแล้ว ไม่ต้องซ้ำใน manifest
 
 ## OOP เท่านั้น
@@ -172,7 +173,6 @@ Server:
 - เทียบรายการ `RegisterNetEvent` / `AddEventHandler` / `RegisterNUICallback` / `lib.callback.register` / `RegisterCommand` / `exports(` กับ backup ก่อนและหลังแก้ ตรวจว่า method ที่ถูกเรียกมีนิยามครบ
 - ถ้า `local function` ถูกประกาศก่อนตารางโมดูล ให้ย้ายตารางขึ้นบนสุดก่อน ห้ามใส่ `local X = {}` ซ้ำ เพราะการ assign ตารางทีหลังจะทับ method ทิ้ง
 - `function Name() ... end` ตามด้วย `exports("Name", Name)` แปลงเป็น `exports("Name", function(...) ... end)` ได้ เพื่อไม่ทิ้ง global
-- ถ้า `cl_*.lua` กับ `sv_*.lua` เหมือนกันทุกไบต์ ให้รวมเป็น `sh_*.lua` แล้วโหลดเป็น `shared_script`
 - เปลี่ยน global ชื่อโมดูลเป็น `local` ได้เมื่อโมดูลมีไฟล์เดียวและไม่มีใครอ้างข้าม resource (grep `loadfile` และชื่อไฟล์ core ก่อน)
 - JS export ที่ Lua เรียกผ่าน `exports[scriptname]` ห้ามเปลี่ยนชื่อ
 - การนับ keyword ตอนตรวจ ต้องตัด string literal และ comment ออกก่อน
