@@ -280,6 +280,12 @@ function lintLua(file, rel) {
         if (topLocal && topLocal[1] !== "scriptname" && !/^\{/.test(topLocal[2].trim()) && !/^[A-Z][A-Z0-9_]*$/.test(topLocal[1])) {
             add(rel, ln, "warn", "file-local", `file-level local "${topLocal[1]}" is only allowed for scriptname and the module table`);
         }
+        if (/^(Config(?:\.\w+)*) = \1 or (\{\}|\d+|"[^"]*"|true|false)\s*$/.test(line)) {
+            add(rel, ln, "error", "no-config-guard", "create each Config table once in config/config.lua with plain assignment (Config = {}, Config.General = {}); later files must not repeat X = X or {}");
+        }
+        if (/^[A-Za-z_]\w* = [A-Za-z_]\w* or \{\}\s*$/.test(line) && !/^Config/.test(line)) {
+            add(rel, ln, "error", "no-global-guard", "no global state tables; keep state as fields of the module table (Module.ServerState / Module.PlayerState)");
+        }
         if (/exports\s*\[\s*["']es_extended["']\s*\]|exports\.es_extended/.test(original)) {
             add(rel, ln, "error", "legacy-esx", "load @1nfx_core/imports.lua in the manifest and use the global Core instead of es_extended");
         }

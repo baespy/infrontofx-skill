@@ -113,6 +113,8 @@ end
 - ไม่มี comment
 - `local scriptname = GetCurrentResourceName()` และชื่อ event เป็น `scriptname .. ":SV:<name>"` / `scriptname .. ":CL:<name>"`
 - global มีได้แค่ `Config` (โมดูลที่แตกหลายไฟล์ ใช้ global ชื่อโมดูลได้หนึ่งตัว)
+- ห้ามเขียน `Config = Config or {}`, `Config.General = Config.General or {}`, `Config.Text = Config.Text or {}` ซ้ำในหลายไฟล์ ให้สร้างแต่ละตารางครั้งเดียวในไฟล์แรกที่ manifest โหลด (`config/config.lua`) ด้วย `Config = {}` แล้วไฟล์ถัดไปเขียนต่อได้เลย และต้องระบุไฟล์ config ใน manifest เรียงตามลำดับโหลดจริง ไม่ใช้ glob
+- ห้ามมีตัวแปร global ของสถานะ เช่น `itemCount = itemCount or {}` หรือ `scriptname = GetCurrentResourceName()` ในไฟล์ config ให้เก็บเป็น field ของโมดูล (`Module.PlayerState.itemCount`) และให้แต่ละไฟล์ที่ใช้ประกาศ `local scriptname` เอง
 - ตรวจค่าคงที่ระดับไฟล์ด้วย regex `(?m)^local [A-Z][A-Z0-9_]* = ` ต้องไม่เจอ
 - ดึง `xPlayer` ครั้งเดียวต่อหนึ่งงาน แล้วเช็ก nil ก่อนใช้
 - ลบ fallback หลายชั้นที่ไม่จำเป็น เหลือทางเดียวที่ framework ของเซิร์ฟมีจริง
