@@ -1,0 +1,112 @@
+﻿{
+    "size":  "1:1",
+    "layout":  "gun-support",
+    "theme":  "cobalt",
+    "seed":  41,
+    "background":  {
+                       "shape":  "none",
+                       "texture":  0.18,
+                       "graffiti":  0.7,
+                       "tag":  "Extreme",
+                       "tagX":  0.3,
+                       "tagY":  0.3,
+                       "tagSize":  0.42,
+                       "ghost":  "W",
+                       "ghostAlpha":  0.12,
+                       "ghostX":  0.4,
+                       "ghostY":  0.98,
+                       "lightX":  0.7,
+                       "lightY":  0.35,
+                       "grid":  1.4,
+                       "darken":  0.3
+                   },
+    "fx":  {
+               "sparks":  30,
+               "beams":  4,
+               "leaks":  6
+           },
+    "grain":  0.3,
+    "vignette":  0.6,
+    "heroes":  [
+                   {
+                       "src":  "gang_gun.png",
+                       "x":  0.73,
+                       "y":  1.02,
+                       "h":  1.02,
+                       "grade":  0.06,
+                       "rim":  0.9
+                   }
+               ],
+    "title":  {
+                  "style":  "stack",
+                  "lines":  [
+                                "GANG"
+                            ],
+                  "script":  "Extreme",
+                  "sub":  "WELFARE"
+              },
+    "items":  {
+                  "style":  "tag",
+                  "cols":  4,
+                  "gap":  0.012,
+                  "list":  [
+                               {
+                                   "name":  "CASH",
+                                   "qty":  "X1,400,000",
+                                   "img":  "items/money.png"
+                               },
+                               {
+                                   "name":  "RED MONEY",
+                                   "qty":  "X80,000",
+                                   "img":  "items/black_money.png"
+                               },
+                               {
+                                   "name":  "SUPPLY BOX",
+                                   "qty":  "X150",
+                                   "img":  "items/supply_box.png"
+                               },
+                               {
+                                   "name":  "GACHA PROMOTE",
+                                   "qty":  "X300",
+                                   "img":  "items/gacha_promote_v1.png"
+                               },
+                               {
+                                   "name":  "MERGING BOX",
+                                   "qty":  "X527",
+                                   "img":  "items/merging_box.png"
+                               },
+                               {
+                                   "name":  "WEAPON BOX",
+                                   "qty":  "X343",
+                                   "img":  "items/weaponbox.png"
+                               },
+                               {
+                                   "name":  "CEMENT",
+                                   "qty":  "X2,140",
+                                   "img":  "items/cement.png"
+                               },
+                               {
+                                   "name":  "EXP",
+                                   "qty":  "X164,000",
+                                   "img":  "items/exp.png"
+                               }
+                           ],
+                  "cardLogo":  "logo.png"
+              },
+    "footer":  {
+                   "style":  "chips",
+                   "socials":  [
+                                   {
+                                       "text":  "EXTREME COMMUNITY",
+                                       "type":  "facebook"
+                                   },
+                                   {
+                                       "text":  "EXTREME COMMUNITY",
+                                       "type":  "discord"
+                                   }
+                               ],
+                   "size":  14
+               },
+    "accent2":  "#ff7a3a",
+    "panel":  false
+}

@@ -4,4 +4,8 @@ Thumbs.db
 *.log
 .vscode/
 .idea/
-
+__pycache__/
+*.pyc
+*.secrets.lua
+credentials*.json
+.env

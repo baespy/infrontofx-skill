@@ -1,0 +1,48 @@
+# CFX Runtime
+
+Read this file for threads, yields, `source`, dependency restarts, and resource lifecycle.
+
+## Threads And Waits
+
+- Every long-running loop must yield. A loop without `Wait` stalls its Lua runtime.
+- `Wait(0)` resumes next frame and is reserved for active drawing or control reads. Idle work sleeps or stops.
+- Start loops only when needed and give them an explicit state-based exit path.
+- Do not create one thread per event, entity, player, delayed message, or retry. Use one bounded scheduler or queue when work shares a lifecycle.
+- Threads and event handlers only call methods; the logic lives in the module.
+- Do not yield inside `entityCreating`. Move slow work outside the creation gate.
+
+## Source Lifetime
+
+- `source` is meaningful only inside the current event/callback handler. Capture `local src = source` before a yield.
+- A server ID can be recycled after a disconnect. Before a valuable mutation following `Wait`, `MySQL.*.await`, `lib.callback.await`, or another async call, confirm the player still exists and the current identifier matches the identifier captured before the yield.
+- Identity comes from runtime `source` and server-side framework state (`Core.GetPlayerFromId(src)`), never from the client payload.
+- Resolve `xPlayer` once per job and nil-check it before use; do not keep it across a yield.
+
+## Dependencies And Exports
+
+- Declare mandatory providers in `fxmanifest.lua`; do not hide load-order races with arbitrary waits.
+- An object returned by an export can become stale when its provider restarts. Re-acquire restart-sensitive objects or handle the provider start/stop events.
+- Call an export through its runtime proxy at use time (`exports["1nfx_processbar"]:...`). Cache immutable data, not opaque provider state.
+- Use `GetResourceState` only for optional integrations. Mandatory dependencies should fail clearly.
+
+## Yield Boundaries
+
+- Avoid yielding between validation and mutation. If a yield is required, keep the per-player in-flight lock and repeat identity, permission, state, and proximity checks afterward.
+- Run `MySQL.*.await` inside a coroutine context, not a non-yieldable load path.
+- Use connection deferrals for asynchronous checks in `playerConnecting`, and call `done` exactly once.
+
+## Lifecycle
+
+- Initialize from the resource lifecycle or a deliberate player-ready path (`Core.IsPlayerLoaded()` on the client), not timing guesses.
+- On provider restart, clear pending requests and refresh dependent state.
+- Every delayed task carries a session or generation id. Ignore its result when the player, UI, dependency, or resource generation changed while it was waiting.
+- Bound pending callbacks and retries. Expire callback entries and cancel retry timers when their owner closes or disconnects.
+- On `onResourceStop`, release focus and destroy owned entities, blips, points, zones, DUI objects, timers, and subscriptions.
+- On `playerDropped`, clear every module map keyed by `src`.
+
+## Review
+
+- Confirm every loop yields and sleeps when idle.
+- Find every yield and inspect the state used after it.
+- Find cached export results and decide whether provider restart makes them stale.
+- Confirm initialization and cleanup can run exactly once without relying on fixed delays.

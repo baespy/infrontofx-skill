@@ -1,0 +1,54 @@
+{
+  "id": "moonveil",
+  "skinType": "Moonveil",
+  "label": "MOONVEIL",
+  "family": "holy_gothic",
+  "seed": 7,
+  "weapons": ["poolcue", "bottle", "knuckle", "machete", "revolver"],
+  "palette": {
+    "primary": "#101018",
+    "secondary": "#eef1f7",
+    "accent": "#c7d3ea",
+    "glow": "#bcd4ff",
+    "grip": "#16161e",
+    "metal": "#e6ebf5"
+  },
+  "style": {
+    "motif": "star4",
+    "wrap": "thorn",
+    "charm": "star",
+    "bottle_type": "scepter",
+    "knuckle_type": "lace_fan",
+    "serrate": true,
+    "fuller": true,
+    "optic": false,
+    "tac_light": false
+  },
+  "fx": {
+    "screen": {
+      "preset": "gothic",
+      "primary": "#eef1f7",
+      "secondary": "#0a0d16",
+      "glow": "#bcd4ff",
+      "duration": 2000,
+      "kill_preset": "holy_halo"
+    },
+    "sound": {
+      "preset": "bell",
+      "kill_preset": "holy_choir",
+      "hit_volume": 0.3,
+      "kill_volume": 0.3
+    },
+    "ptfx": "ptfx-design.example.json",
+    "hold": [
+      { "dict": "moonveil_fx", "name": "moonveil_hold", "scale": 1.0, "isLoop": true }
+    ],
+    "hit": [
+      { "dict": "moonveil_fx", "name": "moonveil_hit", "scale": 1.0 }
+    ],
+    "kill": [
+      { "dict": "moonveil_fx", "name": "moonveil_kill", "scale": 1.0 },
+      { "dict": "moonveil_fx", "name": "moonveil_kill_veil", "scale": 1.0 }
+    ]
+  }
+}

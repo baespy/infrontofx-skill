@@ -1,0 +1,703 @@
+{
+  "inferno": {
+    "about": "Fire, lava, forge. Animated flames on the weapon, a burning cut, a ring of fire on the kill.",
+    "families": "obsidian_beast, demon, forge",
+    "screen": "dragon", "kill_screen": "dragon", "sound": "blade", "kill_sound": "dragon_roar",
+    "palette": { "core": "#fff4d6", "primary": "#ff6a1a", "secondary": "#ffb23a", "deep": "#7a1404", "accent": "#ff2a2a" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "flames", "color": "primary", "colorEnd": "deep", "rate": 8 },
+      { "name": "arcs", "use": "arc_bolts", "color": "secondary", "rate": 6, "size": [0.07, 0.14], "shape": "box", "radius": [0.14, 0.04, 0.04], "attach": [[0, 1], [0.5, 0.5], [1, 0]] },
+      { "use": "ember_rise", "color": "core", "colorEnd": "accent", "rate": 11 }
+    ] },
+    "hit": { "duration": 0.6, "layers": [
+      { "use": "flash", "color": "secondary", "size": 0.7 },
+      { "use": "energy_slash", "color": "core", "color2": "secondary" },
+      { "use": "spark_burst", "color": "secondary", "colorEnd": "accent", "burst": 24 },
+      { "use": "shockwave", "color": "primary", "start": 0.05 },
+      { "name": "lick", "use": "flames", "color": "primary", "burst": 6, "radius": 0.15, "life": [0.3, 0.5], "size": [0.25, 0.4], "start": 0.03 }
+    ] },
+    "kill": { "duration": 2, "layers": [
+      { "use": "implode", "color": "secondary" },
+      { "use": "flash", "color": "core", "size": 1.6, "start": 0.15 },
+      { "use": "ground_crack", "color": "primary", "start": 0.15 },
+      { "use": "fire_ring", "color": "primary", "start": 0.18 },
+      { "use": "light_beam", "color": "secondary", "start": 0.18 },
+      { "name": "embers", "use": "ember_rise", "color": "secondary", "colorEnd": "accent", "rate": 40, "radius": 0.7, "start": 0.2, "end": 0.7 },
+      { "use": "smoke_puff", "color": "deep", "start": 0.3 }
+    ] }
+  },
+  "frost": {
+    "about": "Ice and crystal. Drifting snow, shattering crystal fragments, a cold shock on the ground.",
+    "families": "pastel_jewel, winter, crystal",
+    "screen": "frost", "kill_screen": "shatter", "sound": "chime", "kill_sound": "shatter_glass",
+    "palette": { "core": "#ffffff", "primary": "#9fe3ff", "secondary": "#4fb4ff", "deep": "#1a3a7a", "accent": "#d8f4ff" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "glow_pulse", "color": "secondary", "size": 0.13, "life": [1.2, 1.2] },
+      { "use": "snow", "color": "primary", "color2": "core", "rate": 8, "shape": "sphere", "radius": 0.22, "offset": [0, 0, 0] },
+      { "use": "glints", "color": "core", "burst": 4, "radius": 0.18, "size": [0.04, 0.09] }
+    ] },
+    "hit": { "duration": 0.6, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.6 },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "use": "crystal_break", "color": "primary", "color2": "core", "burst": 16 },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 },
+      { "name": "flakes", "use": "shape_burst", "texture": "snowflake", "color": "accent", "burst": 8, "emissive": 14 }
+    ] },
+    "kill": { "duration": 2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.5, "start": 0.15 },
+      { "use": "ground_shock", "color": "secondary", "start": 0.16 },
+      { "use": "light_beam", "color": "primary", "start": 0.18 },
+      { "use": "crystal_break", "color": "primary", "color2": "core", "burst": 28, "speed": [4, 8], "start": 0.2 },
+      { "use": "glints", "color": "core", "burst": 16, "radius": 0.9, "start": 0.22 },
+      { "use": "mist", "color": "accent", "start": 0.25 }
+    ] }
+  },
+  "storm": {
+    "about": "Lightning. Crackling arcs on the weapon, a spiked flash on hit, two bolts and a scorched ground on the kill.",
+    "families": "storm, clean_scifi",
+    "screen": "bolt", "kill_screen": "bolt", "sound": "thunder", "kill_sound": "thunder",
+    "palette": { "core": "#ffffff", "primary": "#7fd0ff", "secondary": "#b7a6ff", "deep": "#1c2470", "accent": "#ffe66b" },
+    "hold": { "duration": 1, "layers": [
+      { "name": "crackle", "use": "arc_bolts", "color": "primary", "rate": 10, "size": [0.08, 0.16], "shape": "box", "radius": [0.15, 0.04, 0.04], "attach": [[0, 1], [0.5, 0.55], [1, 0]] },
+      { "use": "arc_crackle", "color": "core", "rate": 6 },
+      { "use": "motes", "color": "accent", "rate": 7 }
+    ] },
+    "hit": { "duration": 0.55, "layers": [
+      { "use": "flash", "color": "core", "size": 0.7 },
+      { "use": "arc_bolts", "color": "primary", "burst": 6 },
+      { "use": "impact_star", "color": "core", "color2": "accent" },
+      { "use": "spark_burst", "color": "accent", "colorEnd": "primary" },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.7, "start": 0.15 },
+      { "use": "bolt_strike", "color": "core", "size": 0.9, "start": 0.15 },
+      { "name": "second", "use": "bolt_strike", "color": "primary", "offset": [0.3, 0, 1.1], "sprite": { "seed": 9 }, "start": 0.22 },
+      { "use": "ground_shock", "color": "secondary", "start": 0.17 },
+      { "name": "storm", "use": "arc_bolts", "color": "primary", "burst": 10, "radius": 0.7, "size": [0.5, 0.9], "life": [0.12, 0.25], "start": 0.2 },
+      { "use": "ground_crack", "color": "primary", "start": 0.16 }
+    ] }
+  },
+  "holy": {
+    "about": "Sacred light. Gentle glints, rays on hit, a rune circle, a beam, wings and a halo on the kill.",
+    "families": "holy_gothic, angel",
+    "screen": "gothic", "kill_screen": "holy_halo", "sound": "bell", "kill_sound": "holy_choir",
+    "palette": { "core": "#ffffff", "primary": "#ffe9a8", "secondary": "#ffd15a", "deep": "#8a5a10", "accent": "#fff7dc" },
+    "hold": { "duration": 1.3, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.14, "life": [1.3, 1.3] },
+      { "use": "glints", "color": "core", "burst": 5, "radius": 0.2, "size": [0.04, 0.1] },
+      { "use": "motes", "color": "secondary", "rate": 6 }
+    ] },
+    "hit": { "duration": 0.6, "layers": [
+      { "use": "flash", "color": "core", "size": 0.7 },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "use": "nova_rays", "color": "primary", "size": 1.4, "life": [0.25, 0.35] },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 },
+      { "name": "feathers", "use": "shape_burst", "texture": "feather", "color": "accent", "blend": "normal", "burst": 8, "gravity": 1.5 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.6, "start": 0.15 },
+      { "use": "magic_circle", "color": "secondary", "sprite": { "points": 8, "size": 512 }, "start": 0.15 },
+      { "use": "light_beam", "color": "primary", "start": 0.18 },
+      { "use": "wings", "color": "accent", "start": 0.2 },
+      { "use": "halo", "color": "secondary", "start": 0.22 },
+      { "use": "glints", "color": "core", "burst": 16, "radius": 0.9, "start": 0.25 }
+    ] }
+  },
+  "abyss": {
+    "about": "Void and dark magic. A turning spiral on the weapon, a violet cut, a vortex that swallows the victim.",
+    "families": "obsidian_beast, void, dark magic",
+    "screen": "nebula", "kill_screen": "nebula", "sound": "cosmic", "kill_sound": "cosmic",
+    "palette": { "core": "#e9d8ff", "primary": "#8a4dff", "secondary": "#4a1fb8", "deep": "#12062e", "accent": "#ff4df0" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "aura_swirl", "color": "primary", "life": [1.2, 1.2] },
+      { "use": "wisp_rise", "color": "secondary", "rate": 4, "attach": 1 },
+      { "use": "motes", "color": "accent", "rate": 6 }
+    ] },
+    "hit": { "duration": 0.6, "layers": [
+      { "use": "flash", "color": "primary", "size": 0.6 },
+      { "use": "energy_slash", "color": "core", "color2": "primary" },
+      { "use": "plasma_orb", "color": "secondary", "size": 0.5, "life": [0.3, 0.4] },
+      { "use": "spark_burst", "color": "accent", "colorEnd": "secondary" },
+      { "use": "shockwave", "color": "primary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "accent", "burst": 28 },
+      { "use": "flash", "color": "core", "size": 1.4, "start": 0.15 },
+      { "use": "vortex", "color": "primary", "start": 0.15 },
+      { "use": "plasma_orb", "color": "secondary", "size": 1.1, "life": [0.8, 1], "start": 0.18 },
+      { "name": "tendrils", "use": "wisp_rise", "color": "primary", "burst": 10, "radius": 0.6, "size": [0.4, 0.6], "life": [0.9, 1.3], "start": 0.2 },
+      { "use": "ground_shock", "color": "accent", "start": 0.45 },
+      { "use": "energy_wisp", "color": "secondary", "start": 0.3 }
+    ] }
+  },
+  "toxic": {
+    "about": "Poison and graffiti. Bubbles and fumes, splats on hit, skulls rising from a puddle on the kill.",
+    "families": "toxic_graffiti, bio, acid",
+    "screen": "drip", "kill_screen": "drip", "sound": "slime", "kill_sound": "slime",
+    "palette": { "core": "#f4ffd0", "primary": "#9dff3a", "secondary": "#3fdc5a", "deep": "#0f3a12", "accent": "#d9ff5a" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "glow_pulse", "color": "secondary", "size": 0.13, "life": [1.2, 1.2] },
+      { "use": "bubbles", "color": "primary", "rate": 7, "attach": 1 },
+      { "use": "wisp_rise", "color": "secondary", "rate": 3 }
+    ] },
+    "hit": { "duration": 0.7, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.6 },
+      { "use": "ink_splats", "color": "primary", "color2": "secondary" },
+      { "name": "drops", "use": "shape_burst", "texture": "drop", "color": "primary", "burst": 12, "gravity": 7 },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 },
+      { "use": "impact_star", "color": "core" }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.4, "start": 0.15 },
+      { "use": "ground_shock", "color": "primary", "start": 0.16 },
+      { "name": "puddle", "use": "ink_splats", "color": "secondary", "align": "ground", "offset": [0, 0, -0.93], "burst": 6, "radius": [0.7, 0.7, 0.01], "size": [0.5, 0.9], "life": [1.2, 1.6], "start": 0.18 },
+      { "name": "skulls", "use": "shape_float", "texture": "skull", "color": "accent", "burst": 5, "size": [0.2, 0.3], "radius": 0.4, "life": [1, 1.4], "start": 0.2 },
+      { "name": "fizz", "use": "bubbles", "color": "primary", "rate": 30, "radius": 0.6, "start": 0.2, "end": 0.7 },
+      { "use": "energy_wisp", "color": "primary", "start": 0.25 }
+    ] }
+  },
+  "sakura": {
+    "about": "Japanese blade. Falling petals, a clean cross cut, a storm of blossom on the kill.",
+    "families": "sakura, katana, silver_chain",
+    "screen": "sakura_slash", "kill_screen": "sakura_slash", "sound": "blade", "kill_sound": "katana_sheathe",
+    "palette": { "core": "#ffffff", "primary": "#ffb7d5", "secondary": "#ff6fa8", "deep": "#7a1f48", "accent": "#ffe3ef" },
+    "hold": { "duration": 1.3, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.13, "life": [1.3, 1.3] },
+      { "use": "petals", "color": "primary", "color2": "accent", "rate": 6, "shape": "sphere", "radius": 0.22, "offset": [0, 0, 0] },
+      { "use": "glints", "color": "core", "burst": 3, "radius": 0.15, "size": [0.04, 0.08] }
+    ] },
+    "hit": { "duration": 0.6, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.6 },
+      { "use": "energy_slash", "color": "core", "color2": "primary" },
+      { "name": "cross", "use": "energy_slash", "color": "core", "color2": "secondary", "rot": [60, 120], "start": 0.06 },
+      { "use": "petal_storm", "color": "primary", "color2": "accent", "burst": 16 },
+      { "use": "core_glint", "color": "core", "start": 0.03 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.5, "start": 0.15 },
+      { "use": "energy_slash", "color": "core", "color2": "primary", "size": 2, "rot": [-20, 20], "start": 0.15 },
+      { "name": "cross", "use": "energy_slash", "color": "core", "color2": "secondary", "size": 2, "rot": [70, 110], "start": 0.22 },
+      { "use": "petal_storm", "color": "primary", "color2": "accent", "burst": 36, "speed": [3, 6], "start": 0.24 },
+      { "use": "ripples", "color": "secondary", "start": 0.18 },
+      { "name": "blossom", "use": "shape_float", "texture": "sakura", "color": "primary", "blend": "normal", "burst": 8, "size": [0.14, 0.22], "radius": 0.6, "life": [1.2, 1.8], "start": 0.3 }
+    ] }
+  },
+  "cosmos": {
+    "about": "Galaxy and stars. A small galaxy on the weapon, a star shower on hit, a nebula vortex on the kill.",
+    "families": "cosmos, galaxy",
+    "screen": "nebula", "kill_screen": "nebula", "sound": "chime", "kill_sound": "cosmic",
+    "palette": { "core": "#ffffff", "primary": "#9d7bff", "secondary": "#4fd6ff", "deep": "#140a3c", "accent": "#ff8bf0" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "aura_swirl", "color": "primary", "life": [1.2, 1.2] },
+      { "use": "motes", "color": "secondary", "color2": "accent", "rate": 9 },
+      { "use": "glints", "color": "core", "burst": 4, "radius": 0.2, "size": [0.04, 0.09] }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "core", "size": 0.6 },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "use": "star_shower", "color": "primary", "color2": "secondary" },
+      { "use": "shockwave", "color": "accent", "start": 0.05 },
+      { "use": "lens_flare", "color": "secondary", "size": 1.2 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "secondary" },
+      { "use": "flash", "color": "core", "size": 1.6, "start": 0.15 },
+      { "use": "vortex", "color": "primary", "size": 2.2, "start": 0.12 },
+      { "use": "nova_rays", "color": "secondary", "start": 0.18 },
+      { "use": "star_shower", "color": "primary", "color2": "accent", "burst": 30, "speed": [3, 6], "start": 0.2 },
+      { "use": "plasma_orb", "color": "accent", "size": 1, "start": 0.16 },
+      { "use": "energy_wisp", "color": "primary", "start": 0.3 }
+    ] }
+  },
+  "cyber": {
+    "about": "Neon and glitch. Flickering data blocks, a hex shield flash, a digital break-up on the kill.",
+    "families": "clean_scifi, cyberpunk, mono_street",
+    "screen": "circuit", "kill_screen": "cyber_hud", "sound": "glitch", "kill_sound": "cyber_blast",
+    "palette": { "core": "#ffffff", "primary": "#00f0ff", "secondary": "#ff2bd6", "deep": "#0a1038", "accent": "#f8ff3a" },
+    "hold": { "duration": 1, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.12, "life": [1, 1] },
+      { "name": "bits", "use": "glitch_bits", "color": "primary", "color2": "secondary", "rate": 6, "size": [0.08, 0.16], "radius": 0.15, "attach": 1 },
+      { "use": "motes", "color": "primary", "rate": 6 }
+    ] },
+    "hit": { "duration": 0.5, "layers": [
+      { "use": "flash", "color": "core", "size": 0.6 },
+      { "use": "hex_shield", "color": "primary", "size": 1 },
+      { "use": "glitch_bits", "color": "secondary", "color2": "primary" },
+      { "use": "speed_lines", "color": "core" },
+      { "use": "lens_flare", "color": "primary" }
+    ] },
+    "kill": { "duration": 2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.5, "start": 0.15 },
+      { "use": "hex_shield", "color": "secondary", "size": 2, "life": [0.6, 0.8], "start": 0.15 },
+      { "use": "ground_shock", "color": "primary", "start": 0.17 },
+      { "use": "icon_burst", "texture": "sheet_tech", "color": "primary", "color2": "secondary", "burst": 20, "emissive": 16, "start": 0.2 },
+      { "use": "light_beam", "color": "primary", "start": 0.18 },
+      { "name": "breakup", "use": "glitch_bits", "color": "secondary", "color2": "primary", "burst": 16, "radius": 0.8, "size": [0.3, 0.7], "life": [0.1, 0.3], "start": 0.22 }
+    ] }
+  },
+  "kawaii": {
+    "about": "Cute and pastel. Floating hearts, a burst of hearts and stars, sixteen kinds of icon and confetti on the kill.",
+    "families": "kawaii_mascot, pastel_jewel, candy",
+    "screen": "hearts", "kill_screen": "hearts", "sound": "toy", "kill_sound": "chime",
+    "palette": { "core": "#ffffff", "primary": "#ff8fc7", "secondary": "#ffd1e8", "deep": "#b03a78", "accent": "#8fe3ff" },
+    "hold": { "duration": 1.3, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.13, "life": [1.3, 1.3] },
+      { "use": "shape_float", "texture": "heart", "color": "primary", "color2": "secondary", "rate": 3, "size": [0.04, 0.07], "emissive": 10 },
+      { "use": "glints", "color": "core", "burst": 3, "radius": 0.15, "size": [0.04, 0.08] }
+    ] },
+    "hit": { "duration": 0.7, "layers": [
+      { "use": "flash", "color": "secondary", "size": 0.6 },
+      { "use": "shape_burst", "texture": "heart", "color": "primary", "color2": "secondary", "burst": 12, "emissive": 10 },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "use": "shockwave", "color": "accent", "start": 0.05 },
+      { "use": "star_shower", "color": "accent", "color2": "core", "burst": 8 }
+    ] },
+    "kill": { "duration": 2, "layers": [
+      { "use": "flash", "color": "core", "size": 1.4 },
+      { "name": "bigheart", "use": "flash", "texture": "heart", "color": "primary", "size": 1.2, "life": [0.5, 0.7], "sizeKeys": [[0, 0.2], [0.25, 1.1], [0.4, 1], [1, 1.05]], "alphaKeys": [[0, 0], [0.1, 1], [0.7, 1], [1, 0]], "emissive": 12, "start": 0.05 },
+      { "use": "icon_burst", "color": "primary", "color2": "accent", "burst": 24, "emissive": 10, "start": 0.05 },
+      { "use": "confetti", "color": "primary", "color2": "accent", "start": 0.08 },
+      { "use": "ground_shock", "color": "secondary", "start": 0.1 },
+      { "name": "hearts", "use": "shape_float", "texture": "heart", "color": "primary", "color2": "secondary", "burst": 10, "radius": 0.6, "emissive": 10, "start": 0.3 },
+      { "use": "glints", "color": "core", "burst": 16, "radius": 0.8, "start": 0.2 }
+    ] }
+  },
+  "casino": {
+    "about": "Cards and gold. Floating suits, cards thrown on hit, a jackpot of icons, coins and confetti on the kill.",
+    "families": "casino, poker, luxury",
+    "screen": "pixel", "kill_screen": "holy_halo", "sound": "coin", "kill_sound": "coin",
+    "palette": { "core": "#ffffff", "primary": "#ffd24a", "secondary": "#e02b3c", "deep": "#1a1a1a", "accent": "#2bd67a" },
+    "hold": { "duration": 1.3, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.13, "life": [1.3, 1.3] },
+      { "use": "shape_float", "texture": "sheet_suits", "color": "primary", "color2": "secondary", "rate": 3, "size": [0.05, 0.08], "emissive": 10 },
+      { "use": "glints", "color": "core", "burst": 3, "radius": 0.15, "size": [0.04, 0.08] }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "primary", "size": 0.6 },
+      { "use": "card_throw", "color": "core", "color2": "secondary", "emissive": 10 },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "use": "shockwave", "color": "primary", "start": 0.05 },
+      { "use": "spark_burst", "color": "primary", "colorEnd": "secondary" }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.5, "start": 0.15 },
+      { "use": "magic_circle", "color": "primary", "sprite": { "text": "♠♥♦♣", "glyphs": 16, "points": 4, "size": 512 }, "start": 0.15 },
+      { "use": "icon_burst", "texture": "sheet_casino", "color": "primary", "color2": "core", "burst": 24, "emissive": 12, "start": 0.2 },
+      { "use": "confetti", "color": "primary", "color2": "secondary", "start": 0.22 },
+      { "use": "light_beam", "color": "primary", "start": 0.18 },
+      { "name": "coins", "use": "shape_burst", "texture": "coin", "color": "primary", "burst": 14, "speed": [3, 6], "gravity": 7, "emissive": 14, "start": 0.24 }
+    ] }
+  },
+  "blood": {
+    "about": "Crimson gothic. Dark red embers, a wet cut, cracks and a cross of blades on the kill.",
+    "families": "holy_gothic (dark), vampire, crimson",
+    "screen": "gothic", "kill_screen": "drip", "sound": "blade", "kill_sound": "chain_whip",
+    "palette": { "core": "#ffe0e0", "primary": "#ff1f3a", "secondary": "#a80018", "deep": "#2a0006", "accent": "#ff6a6a" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "wisp_rise", "color": "secondary", "colorEnd": "deep", "rate": 6 },
+      { "use": "ember_rise", "color": "primary", "colorEnd": "secondary", "rate": 10 },
+      { "name": "arcs", "use": "arc_bolts", "color": "primary", "rate": 5, "size": [0.06, 0.12], "shape": "box", "radius": [0.14, 0.04, 0.04], "attach": [[0, 1], [0.5, 0.5], [1, 0]] }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.5 },
+      { "use": "energy_slash", "color": "core", "color2": "primary" },
+      { "use": "ink_splats", "color": "secondary", "color2": "primary", "burst": 4, "size": [0.2, 0.35] },
+      { "name": "drops", "use": "shape_burst", "texture": "drop", "color": "primary", "blend": "normal", "burst": 14, "gravity": 7, "emissive": 3 },
+      { "use": "impact_star", "color": "accent" }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "accent", "size": 1.4, "start": 0.15 },
+      { "use": "ground_crack", "color": "primary", "start": 0.15 },
+      { "use": "energy_slash", "color": "core", "color2": "primary", "size": 2, "rot": [-25, 25], "start": 0.15 },
+      { "name": "cross", "use": "energy_slash", "color": "core", "color2": "accent", "size": 2, "rot": [65, 115], "start": 0.2 },
+      { "name": "spray", "use": "shape_burst", "texture": "drop", "color": "primary", "blend": "normal", "burst": 30, "speed": [3, 7], "gravity": 8, "emissive": 3, "start": 0.22 },
+      { "use": "energy_wisp", "color": "secondary", "start": 0.3 }
+    ] }
+  },
+  "ocean": {
+    "about": "Water. Bubbles and droplets, ripples on the ground, a geyser on the kill.",
+    "families": "ocean, aqua",
+    "screen": "bubbles", "kill_screen": "bubbles", "sound": "splash", "kill_sound": "splash",
+    "palette": { "core": "#ffffff", "primary": "#5fd4ff", "secondary": "#2a8cff", "deep": "#06305e", "accent": "#b6f1ff" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "glow_pulse", "color": "secondary", "size": 0.13, "life": [1.2, 1.2] },
+      { "use": "bubbles", "color": "primary", "rate": 7, "attach": 1 },
+      { "use": "motes", "color": "accent", "rate": 6 }
+    ] },
+    "hit": { "duration": 0.7, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.6 },
+      { "name": "drops", "use": "shape_burst", "texture": "drop", "color": "primary", "burst": 14, "gravity": 7 },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "name": "fizz", "use": "bubbles", "color": "accent", "burst": 10, "radius": 0.2 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.4, "start": 0.15 },
+      { "use": "ripples", "color": "secondary", "size": 2, "start": 0.15 },
+      { "use": "ground_shock", "color": "primary", "start": 0.2 },
+      { "name": "geyser", "use": "light_beam", "color": "primary", "start": 0.18 },
+      { "name": "splash", "use": "shape_burst", "texture": "drop", "color": "primary", "color2": "accent", "dir": "up", "spread": 0.8, "speed": [4, 7], "gravity": 9, "burst": 30, "start": 0.2 },
+      { "use": "mist", "color": "accent", "start": 0.28 }
+    ] }
+  },
+  "gold": {
+    "about": "Royal and rich. Golden glints, a cinematic flare, rays, a crown and coins on the kill.",
+    "families": "luxury, royal, pastel_jewel",
+    "screen": "holy_halo", "kill_screen": "holy_halo", "sound": "coin", "kill_sound": "holy_choir",
+    "palette": { "core": "#fffbe6", "primary": "#ffd700", "secondary": "#ff9d00", "deep": "#5a3a00", "accent": "#fff1a8" },
+    "hold": { "duration": 1.3, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.13, "life": [1.3, 1.3] },
+      { "use": "glints", "color": "core", "color2": "accent", "burst": 5, "radius": 0.2, "size": [0.04, 0.1] },
+      { "use": "motes", "color": "accent", "rate": 7 }
+    ] },
+    "hit": { "duration": 0.6, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.7 },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "use": "lens_flare", "color": "primary" },
+      { "use": "spark_burst", "color": "primary", "colorEnd": "secondary" },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.6, "start": 0.15 },
+      { "use": "nova_rays", "color": "primary", "start": 0.16 },
+      { "use": "magic_circle", "color": "secondary", "sprite": { "points": 8, "size": 512 }, "start": 0.15 },
+      { "name": "crown", "use": "flash", "texture": "crown", "color": "primary", "size": 0.7, "offset": [0, 0, 0.95], "life": [0.9, 1.1], "sizeKeys": [[0, 0.3], [0.2, 1.1], [0.35, 1], [1, 1.05]], "alphaKeys": [[0, 0], [0.1, 1], [0.7, 1], [1, 0]], "emissive": 18, "start": 0.22 },
+      { "name": "coins", "use": "shape_burst", "texture": "coin", "color": "primary", "burst": 16, "speed": [3, 6], "gravity": 7, "emissive": 14, "start": 0.22 },
+      { "use": "glints", "color": "core", "burst": 20, "radius": 0.9, "start": 0.25 }
+    ] }
+  },
+  "beast": {
+    "about": "Feral. Hot embers, three-claw rakes, a double maul and broken ground on the kill.",
+    "families": "obsidian_beast, wolf, dragon",
+    "screen": "dragon", "kill_screen": "dragon", "sound": "blade", "kill_sound": "dragon_roar",
+    "palette": { "core": "#fff0d8", "primary": "#ff7a1a", "secondary": "#c41e1e", "deep": "#1c0a04", "accent": "#ffd08a" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "flames", "color": "primary", "colorEnd": "secondary", "rate": 6 },
+      { "use": "ember_rise", "color": "core", "colorEnd": "primary", "rate": 10 },
+      { "use": "wisp_rise", "color": "secondary", "rate": 4 }
+    ] },
+    "hit": { "duration": 0.6, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.6 },
+      { "use": "claw_marks", "color": "core", "color2": "primary", "size": 1.1 },
+      { "use": "impact_star", "color": "primary" },
+      { "use": "spark_burst", "color": "accent", "colorEnd": "secondary" },
+      { "name": "fangs", "use": "shape_burst", "texture": "fang", "color": "core", "burst": 6, "emissive": 10 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.5, "start": 0.15 },
+      { "use": "claw_marks", "color": "core", "color2": "primary", "size": 2, "life": [0.3, 0.4], "start": 0.15 },
+      { "name": "maul", "use": "claw_marks", "color": "core", "color2": "secondary", "size": 2, "life": [0.3, 0.4], "rot": [60, 100], "start": 0.22 },
+      { "use": "ground_crack", "color": "secondary", "start": 0.16 },
+      { "name": "roar", "use": "shockwave", "color": "primary", "size": 1, "start": 0.18 },
+      { "use": "smoke_puff", "color": "deep", "start": 0.3 }
+    ] }
+  },
+  "arcane": {
+    "about": "Wizardry. Drifting runes, an upright spell circle on hit, two counter-turning circles and a beam on the kill.",
+    "families": "magic, cosmos, holy_gothic",
+    "screen": "nebula", "kill_screen": "holy_halo", "sound": "chime", "kill_sound": "cosmic",
+    "palette": { "core": "#ffffff", "primary": "#6fa8ff", "secondary": "#b07bff", "deep": "#101a4a", "accent": "#7ff0ff" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "aura_swirl", "color": "primary", "life": [1.2, 1.2] },
+      { "use": "rune_glyphs", "color": "secondary", "color2": "accent", "rate": 3, "radius": 0.15, "size": [0.04, 0.06], "attach": 1 },
+      { "use": "motes", "color": "accent", "rate": 6 }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "core", "size": 0.6 },
+      { "use": "magic_circle_air", "color": "primary", "size": 0.9, "life": [0.35, 0.45], "spin": [180, 180], "offset": [0, 0, 0] },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "name": "runes", "use": "rune_glyphs", "color": "accent", "burst": 8, "dir": "out", "speed": [1, 2.5], "life": [0.5, 0.8] },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "accent" },
+      { "use": "flash", "color": "core", "size": 1.5, "start": 0.15 },
+      { "use": "magic_circle", "color": "primary", "start": 0.12 },
+      { "name": "inner", "use": "magic_circle", "color": "secondary", "size": 1.1, "spin": [-70, -70], "sprite": { "points": 5, "seed": 3, "size": 512 }, "start": 0.16 },
+      { "use": "light_beam", "color": "accent", "start": 0.2 },
+      { "name": "runes", "use": "rune_glyphs", "color": "accent", "color2": "secondary", "rate": 14, "radius": 0.7, "start": 0.2, "end": 0.7 },
+      { "use": "plasma_orb", "color": "secondary", "offset": [0, 0, 0.3], "start": 0.18 }
+    ] }
+  },
+  "phantom": {
+    "about": "Ghost and spirit. Pale tendrils, little souls leaving on hit, a ring of spirits rising from a vortex on the kill.",
+    "families": "ghost, spirit, halloween",
+    "screen": "gothic", "kill_screen": "nebula", "sound": "chime", "kill_sound": "cosmic",
+    "palette": { "core": "#f2fbff", "primary": "#a8f0e0", "secondary": "#5fc7c0", "deep": "#0c2a30", "accent": "#d8fff6" },
+    "hold": { "duration": 1.3, "layers": [
+      { "use": "glow_pulse", "color": "secondary", "size": 0.13, "life": [1.3, 1.3] },
+      { "use": "wisp_rise", "color": "primary", "rate": 4, "attach": 1 },
+      { "name": "soul", "use": "shape_float", "texture": "ghost", "color": "accent", "rate": 1.5, "size": [0.07, 0.1], "emissive": 10 }
+    ] },
+    "hit": { "duration": 0.7, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.5 },
+      { "use": "energy_slash", "color": "core", "color2": "primary" },
+      { "name": "tendrils", "use": "wisp_rise", "color": "primary", "burst": 5, "radius": 0.2, "size": [0.25, 0.4], "life": [0.4, 0.6] },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 },
+      { "name": "souls", "use": "shape_burst", "texture": "ghost", "color": "accent", "burst": 5, "gravity": -1, "speed": [1, 2], "spin": [-30, 30], "emissive": 10 }
+    ] },
+    "kill": { "duration": 2.3, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.4, "start": 0.15 },
+      { "use": "vortex", "color": "secondary", "start": 0.14 },
+      { "name": "spirits", "use": "shape_float", "texture": "ghost", "color": "accent", "burst": 7, "size": [0.2, 0.32], "radius": 0.5, "life": [1.2, 1.8], "spin": [-20, 20], "emissive": 10, "start": 0.2 },
+      { "name": "tendrils", "use": "wisp_rise", "color": "primary", "burst": 10, "radius": 0.6, "size": [0.4, 0.6], "life": [0.9, 1.3], "start": 0.2 },
+      { "use": "ripples", "color": "primary", "start": 0.18 },
+      { "use": "energy_wisp", "color": "primary", "start": 0.3 }
+    ] }
+  },
+  "nature": {
+    "about": "Forest and growth. Falling leaves, a gust of foliage, a lotus mandala and a rising swarm of spores on the kill.",
+    "families": "field_tactical (soft), forest, druid",
+    "screen": "bubbles", "kill_screen": "sakura_slash", "sound": "chime", "kill_sound": "bell",
+    "palette": { "core": "#fbffe8", "primary": "#8be05a", "secondary": "#3fae4a", "deep": "#17401c", "accent": "#ffe27a" },
+    "hold": { "duration": 1.3, "layers": [
+      { "use": "glow_pulse", "color": "secondary", "size": 0.12, "life": [1.3, 1.3] },
+      { "name": "leaves", "use": "petals", "texture": "leaf", "color": "primary", "color2": "accent", "rate": 5, "shape": "sphere", "radius": 0.22, "offset": [0, 0, 0] },
+      { "use": "motes", "color": "accent", "rate": 6 }
+    ] },
+    "hit": { "duration": 0.7, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.5 },
+      { "name": "gust", "use": "shape_burst", "texture": "leaf", "color": "primary", "color2": "secondary", "blend": "normal", "burst": 14, "emissive": 2 },
+      { "use": "shockwave", "color": "primary", "start": 0.05 },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "name": "pollen", "use": "glints", "color": "accent" }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.4, "start": 0.15 },
+      { "name": "mandala", "use": "rune_circle", "texture": "lotus", "color": "primary", "size": 2, "start": 0.15 },
+      { "use": "icon_burst", "texture": "sheet_nature", "color": "primary", "color2": "accent", "blend": "normal", "burst": 24, "emissive": 2, "start": 0.2 },
+      { "use": "light_beam", "color": "accent", "start": 0.18 },
+      { "use": "ripples", "color": "secondary", "start": 0.2 },
+      { "name": "spores", "use": "motes", "color": "accent", "rate": 30, "radius": 0.8, "attach": 0, "start": 0.22, "end": 0.7 }
+    ] }
+  },
+  "arcade": {
+    "about": "Pixel and pop. Blocky bits, a comic hit mark with speed lines, a confetti and coin payout on the kill.",
+    "families": "pop_arcade, retro, comic",
+    "screen": "pixel", "kill_screen": "pixel", "sound": "toy", "kill_sound": "glitch",
+    "palette": { "core": "#ffffff", "primary": "#ffe14a", "secondary": "#ff4a6a", "deep": "#1a1040", "accent": "#4affd2" },
+    "hold": { "duration": 1, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.12, "life": [1, 1] },
+      { "name": "px", "use": "shape_float", "texture": "pixel", "color": "primary", "color2": "accent", "rate": 3, "size": [0.04, 0.07], "emissive": 10 },
+      { "use": "motes", "color": "accent", "rate": 5 }
+    ] },
+    "hit": { "duration": 0.5, "layers": [
+      { "use": "flash", "color": "core", "size": 0.5 },
+      { "use": "impact_star", "color": "primary" },
+      { "use": "speed_lines", "color": "core" },
+      { "name": "bits", "use": "shape_burst", "texture": "pixel", "color": "secondary", "color2": "accent", "burst": 12, "emissive": 10 },
+      { "name": "zap", "use": "flash", "texture": "zap", "color": "primary", "size": 0.6, "life": [0.2, 0.28], "rot": [-20, 20] }
+    ] },
+    "kill": { "duration": 2, "layers": [
+      { "use": "flash", "color": "core", "size": 1.5 },
+      { "use": "impact_star", "color": "primary", "size": 2, "life": [0.2, 0.3], "start": 0.02 },
+      { "use": "confetti", "color": "primary", "color2": "accent", "start": 0.05 },
+      { "use": "star_shower", "color": "secondary", "color2": "primary", "burst": 24, "start": 0.08 },
+      { "use": "ground_shock", "color": "accent", "start": 0.1 },
+      { "name": "breakup", "use": "glitch_bits", "color": "secondary", "color2": "accent", "burst": 14, "radius": 0.8, "start": 0.1 },
+      { "name": "coins", "use": "shape_burst", "texture": "coin", "color": "primary", "burst": 12, "speed": [3, 6], "gravity": 7, "emissive": 14, "start": 0.12 }
+    ] }
+  },
+  "oni": {
+    "about": "Japanese demon. Red flames on the weapon, a spinning tomoe mark on hit, a tomoe seal, a ring of fire and a skull on the kill.",
+    "families": "oni, obsidian_beast, yokai",
+    "screen": "oni", "kill_screen": "oni", "sound": "oni", "kill_sound": "oni",
+    "palette": { "core": "#fff2e0", "primary": "#ff2a2a", "secondary": "#ff7a1a", "deep": "#140404", "accent": "#f4d28a" },
+    "hold": { "duration": 1.2, "layers": [
+      { "name": "crackle", "use": "arc_bolts", "color": "primary", "color2": "secondary", "rate": 9, "size": [0.08, 0.16], "shape": "box", "radius": [0.15, 0.04, 0.04], "attach": [[0, 1], [0.45, 0.55], [1, 0]] },
+      { "use": "wisp_rise", "color": "primary", "colorEnd": "deep", "rate": 6 },
+      { "use": "ember_rise", "color": "core", "colorEnd": "primary", "rate": 10 }
+    ] },
+    "hit": { "duration": 0.6, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.6 },
+      { "use": "energy_slash", "color": "core", "color2": "primary" },
+      { "name": "mark", "use": "flash", "texture": "tomoe", "color": "primary", "size": 0.7, "life": [0.3, 0.4], "spin": [240, 240] },
+      { "use": "spark_burst", "color": "secondary", "colorEnd": "primary" },
+      { "use": "shockwave", "color": "primary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "flash", "color": "core", "size": 1.5, "start": 0.15 },
+      { "name": "seal", "use": "rune_circle", "texture": "tomoe", "color": "primary", "size": 1.8, "spin": [120, 120], "start": 0.14 },
+      { "use": "fire_ring", "color": "primary", "start": 0.18 },
+      { "name": "mask", "use": "flash", "texture": "skull", "color": "accent", "size": 1, "offset": [0, 0, 0.6], "life": [0.6, 0.8], "sizeKeys": [[0, 0.4], [0.2, 1.05], [0.35, 1], [1, 1.1]], "alphaKeys": [[0, 0], [0.1, 1], [0.6, 0.9], [1, 0]], "emissive": 16, "start": 0.2 },
+      { "use": "ground_crack", "color": "secondary", "start": 0.16 },
+      { "use": "smoke_puff", "color": "deep", "start": 0.3 }
+    ] }
+  },
+  "lantern": {
+    "about": "Warm festival sky lanterns and blooming lotus. Twinkling hand glints, golden flare and petals on hit, elastic lotus seal, rising flickering lanterns and delayed blossom breeze on the kill.",
+    "families": "festival_lantern, sakura, royal",
+    "screen": "sakura_slash", "kill_screen": "holy_halo", "sound": "bell", "kill_sound": "holy_choir",
+    "palette": { "core": "#fffdf2", "primary": "#ffbe4f", "secondary": "#ff7eb6", "deep": "#6b2608", "accent": "#ffe6a3" },
+    "hold": { "duration": 1.3, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.12, "life": [1.3, 1.3] },
+      { "name": "twinkle_gold", "use": "twinkle_glints", "color": "accent", "color2": "primary", "rate": 6, "radius": 0.2 },
+      { "name": "twinkle_pink", "use": "twinkle_glints", "color": "secondary", "color2": "core", "rate": 5, "radius": 0.2 }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.65 },
+      { "use": "energy_slash", "color": "core", "color2": "primary" },
+      { "use": "petal_storm", "color": "secondary", "color2": "accent", "burst": 16 },
+      { "use": "core_glint", "color": "core", "start": 0.02 },
+      { "use": "shockwave", "color": "primary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.8, "layers": [
+      { "use": "light_flash", "color": "core", "size": 1.4 },
+      { "use": "pop_seal", "texture": "lotus", "color": "secondary", "size": 2.1, "life": [2.2, 2.4] },
+      { "use": "ripples", "color": "primary", "size": 2.4, "life": [1.8, 2.2], "start": 0.04 },
+      { "use": "lantern_float", "color": "primary", "color2": "accent", "start": 0.06 },
+      { "name": "stars", "use": "twinkle_glints", "color": "core", "color2": "accent", "burst": 18, "radius": [1.2, 1.2, 0.8], "size": [0.12, 0.22], "start": 0.05 },
+      { "use": "delayed_petal_burst", "color": "secondary", "color2": "accent" }
+    ] }
+  },
+  "butterfly": {
+    "about": "Prism butterflies and shattered crystal. Dual-layer ribbon trail with fluttering butterflies on hold, glass shard burst on hit, prism light column and rising butterfly swarm on the kill.",
+    "families": "crystal_prism, pastel_jewel, arcane",
+    "screen": "frost", "kill_screen": "shatter", "sound": "chime", "kill_sound": "shatter_glass",
+    "palette": { "core": "#ffffff", "primary": "#74e8ff", "secondary": "#d98bff", "deep": "#1b1452", "accent": "#ff9fe5" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "ribbon_trail", "color": "core", "colorEnd": "primary" },
+      { "use": "ribbon_halo", "color": "secondary" },
+      { "name": "flutter", "use": "shape_float", "texture": "butterfly", "color": "primary", "color2": "accent", "rate": 3.5, "size": [0.055, 0.09], "emissive": 14 }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "core", "size": 0.65 },
+      { "use": "crystal_break", "color": "primary", "color2": "secondary", "burst": 18, "emissive": 10 },
+      { "name": "wings", "use": "shape_burst", "texture": "butterfly", "color": "accent", "color2": "primary", "burst": 10, "gravity": -0.4, "emissive": 14 },
+      { "use": "lens_flare", "color": "primary", "size": 1.3 },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.3, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "light_flash", "color": "core", "size": 1.5, "start": 0.14 },
+      { "use": "ground_shock", "color": "secondary", "start": 0.15 },
+      { "use": "light_beam", "color": "primary", "start": 0.16 },
+      { "use": "crystal_break", "color": "primary", "color2": "core", "burst": 24, "speed": [3.5, 7], "emissive": 10, "start": 0.18 },
+      { "name": "swarm", "use": "shape_float", "texture": "butterfly", "color": "accent", "color2": "primary", "burst": 16, "radius": 0.75, "size": [0.11, 0.18], "speed": [0.3, 0.8], "gravity": -0.8, "life": [1.3, 1.9], "emissive": 14, "start": 0.18 },
+      { "use": "twinkle_glints", "color": "core", "burst": 16, "radius": 0.9, "start": 0.2 }
+    ] }
+  },
+  "velvet": {
+    "about": "Dark crimson-magenta toxin. Smoldering wisps, embers and a silk ribbon on the weapon, venomous slash on hit, pitch-black shadow smoke, crimson spire and dynamic light on the kill.",
+    "families": "velvet_venom, obsidian_beast, vampire",
+    "screen": "gothic", "kill_screen": "drip", "sound": "blade", "kill_sound": "chain_whip",
+    "palette": { "core": "#ffe6f2", "primary": "#ff2468", "secondary": "#9e1458", "deep": "#090308", "accent": "#ff7ab8" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "ribbon_trail", "color": "primary", "colorEnd": "secondary" },
+      { "use": "wisp_rise", "color": "primary", "colorEnd": "secondary", "rate": 5 },
+      { "use": "ember_rise", "color": "core", "colorEnd": "primary", "rate": 11 }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "accent", "size": 0.6 },
+      { "use": "energy_slash", "color": "core", "color2": "primary" },
+      { "use": "ink_splats", "color": "secondary", "color2": "primary", "burst": 5 },
+      { "use": "spark_burst", "color": "accent", "colorEnd": "primary", "burst": 22 },
+      { "use": "shockwave", "color": "primary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.3, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "light_flash", "color": "primary", "size": 1.5, "start": 0.14 },
+      { "use": "shadow_smoke", "burst": 9, "size": [0.45, 0.75], "start": 0.12 },
+      { "use": "ground_crack", "color": "primary", "start": 0.15 },
+      { "use": "fire_ring", "color": "primary", "colorEnd": "secondary", "start": 0.16 },
+      { "use": "light_beam", "color": "accent", "start": 0.17 },
+      { "name": "cinders", "use": "ember_rise", "color": "core", "colorEnd": "primary", "rate": 38, "radius": 0.7, "start": 0.18, "end": 0.72 }
+    ] }
+  },
+  "pirate": {
+    "about": "Cursed spectral sea. Ghostly emerald mist on the weapon, anchor cut and brine spray on hit, shadow-casting sea shock, whirlpool vortex, anchors, skulls and gold coins on the kill.",
+    "families": "cursed_pirate, ocean, phantom",
+    "screen": "bubbles", "kill_screen": "gothic", "sound": "splash", "kill_sound": "thunder",
+    "palette": { "core": "#eafff8", "primary": "#26f2a6", "secondary": "#0e8f76", "deep": "#041f1e", "accent": "#ffd15c" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.13, "life": [1.2, 1.2] },
+      { "use": "wisp_rise", "color": "primary", "colorEnd": "secondary", "rate": 5 },
+      { "use": "motes", "color": "accent", "rate": 6 }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "core", "size": 0.6 },
+      { "use": "energy_slash", "color": "core", "color2": "primary" },
+      { "name": "spray", "use": "shape_burst", "texture": "drop", "color": "primary", "color2": "core", "burst": 14, "gravity": 6 },
+      { "name": "mark", "use": "flash", "texture": "anchor", "color": "accent", "size": 0.65, "life": [0.28, 0.38], "emissive": 18 },
+      { "use": "shockwave", "color": "primary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.3, "layers": [
+      { "use": "implode", "color": "primary" },
+      { "use": "light_flash", "color": "primary", "size": 1.6, "start": 0.14 },
+      { "use": "vortex", "color": "secondary", "size": 2.1, "start": 0.12 },
+      { "use": "ground_shock", "color": "primary", "start": 0.15 },
+      { "use": "icon_burst", "texture": "sheet_pirate", "color": "accent", "color2": "primary", "burst": 22, "emissive": 14, "start": 0.18 },
+      { "use": "energy_wisp", "color": "primary", "burst": 8, "size": [0.35, 0.55], "start": 0.2 },
+      { "use": "shadow_smoke", "burst": 6, "start": 0.16 }
+    ] }
+  },
+  "spooky": {
+    "about": "Jack-o'-lantern and trick-or-treat specter. Eerie orange-violet wisps and bats on hold, pumpkin and candy pop on hit, glowing pumpkin seal, bat swarm and purple mist on the kill.",
+    "families": "pumpkin_specter, halloween, toxic_graffiti",
+    "screen": "gothic", "kill_screen": "oni", "sound": "toy", "kill_sound": "dragon_roar",
+    "palette": { "core": "#fff5dc", "primary": "#ff7b1a", "secondary": "#9b3cff", "deep": "#160726", "accent": "#9dff3a" },
+    "hold": { "duration": 1.25, "layers": [
+      { "use": "wisp_rise", "color": "secondary", "colorEnd": "deep", "rate": 5 },
+      { "name": "spook", "use": "shape_float", "texture": "bat", "color": "primary", "color2": "secondary", "rate": 3, "size": [0.06, 0.1], "emissive": 12 },
+      { "use": "ember_rise", "color": "primary", "colorEnd": "accent", "rate": 8 }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "primary", "size": 0.6 },
+      { "use": "impact_star", "color": "primary", "color2": "secondary" },
+      { "use": "icon_burst", "texture": "sheet_spooky", "color": "primary", "color2": "accent", "burst": 16, "emissive": 12 },
+      { "use": "ink_splats", "color": "secondary", "burst": 4, "size": [0.22, 0.38] },
+      { "use": "shockwave", "color": "accent", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.3, "layers": [
+      { "use": "implode", "color": "secondary" },
+      { "use": "light_flash", "color": "primary", "size": 1.5, "start": 0.14 },
+      { "use": "pop_seal", "texture": "pumpkin", "color": "primary", "size": 1.8, "spin": [0, 0], "start": 0.14 },
+      { "use": "ground_shock", "color": "secondary", "start": 0.16 },
+      { "use": "icon_burst", "texture": "sheet_spooky", "color": "primary", "color2": "accent", "burst": 26, "speed": [2.5, 5.5], "emissive": 12, "start": 0.18 },
+      { "name": "bats", "use": "shape_float", "texture": "bat", "color": "secondary", "color2": "primary", "burst": 12, "radius": 0.65, "size": [0.14, 0.22], "speed": [0.4, 0.9], "gravity": -1.1, "emissive": 12, "start": 0.18 },
+      { "use": "energy_wisp", "color": "secondary", "start": 0.24 }
+    ] }
+  },
+  "sweet": {
+    "about": "Pastel confection and sleepy dream. Floating candies, hearts and Z glyphs on hold, sugar pop and frosting splats on hit, star mandala, candy shower and dreamy bubbles on the kill.",
+    "families": "sweet_confection, kawaii_mascot, pastel_jewel",
+    "screen": "hearts", "kill_screen": "hearts", "sound": "toy", "kill_sound": "chime",
+    "palette": { "core": "#ffffff", "primary": "#ff94c8", "secondary": "#8be8ff", "deep": "#6e3578", "accent": "#ffe875" },
+    "hold": { "duration": 1.3, "layers": [
+      { "use": "glow_pulse", "color": "primary", "size": 0.12, "life": [1.3, 1.3] },
+      { "use": "dream_float", "color": "primary", "color2": "secondary", "rate": 4 },
+      { "use": "twinkle_glints", "color": "accent", "color2": "core", "rate": 5, "radius": 0.18 }
+    ] },
+    "hit": { "duration": 0.65, "layers": [
+      { "use": "flash", "color": "core", "size": 0.55 },
+      { "use": "icon_burst", "texture": "sheet_sweet", "color": "primary", "color2": "secondary", "burst": 16, "emissive": 10 },
+      { "use": "ink_splats", "color": "primary", "color2": "accent", "burst": 4, "size": [0.2, 0.34] },
+      { "use": "core_glint", "color": "accent", "start": 0.02 },
+      { "use": "shockwave", "color": "secondary", "start": 0.05 }
+    ] },
+    "kill": { "duration": 2.2, "layers": [
+      { "use": "flash", "color": "core", "size": 1.4 },
+      { "use": "pop_seal", "texture": "flower", "color": "primary", "size": 1.9, "start": 0.04 },
+      { "use": "icon_burst", "texture": "sheet_sweet", "color": "primary", "color2": "accent", "burst": 26, "emissive": 10, "start": 0.06 },
+      { "use": "confetti", "color": "secondary", "color2": "accent", "start": 0.08 },
+      { "use": "ground_shock", "color": "secondary", "start": 0.1 },
+      { "use": "bubbles", "color": "secondary", "rate": 24, "radius": 0.65, "start": 0.12, "end": 0.7 },
+      { "use": "twinkle_glints", "color": "accent", "burst": 16, "radius": 0.85, "start": 0.15 }
+    ] }
+  }
+}

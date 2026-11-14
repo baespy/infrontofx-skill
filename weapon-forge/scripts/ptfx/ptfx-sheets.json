@@ -1,0 +1,106 @@
+{
+  "sheet_fire": {
+    "about": "25-frame looping turbulent flame with shredded tongues. Tint it with the layer colour; stack a smaller pale layer for a hot core.",
+    "grid": "5x5", "size": 512, "loop": 1,
+    "flipbook": { "shape": "fire", "corePower": 1.15 }, "animate": { "phase": [0, 1] }
+  },
+  "sheet_energy": {
+    "about": "25-frame looping plasma filaments. Energy weapons, spirits, cores.",
+    "grid": "5x5", "size": 512, "loop": 1,
+    "flipbook": { "shape": "plasma" }, "animate": { "phase": [0, 1] }
+  },
+  "sheet_vortex": {
+    "about": "16-frame looping spiral whose arms flow inward. Portals, dark and galaxy sets.",
+    "grid": "4x4", "size": 512, "loop": 1,
+    "flipbook": { "shape": "swirl", "points": 3, "twist": 3.2 }, "animate": { "phase": [0, 1] }
+  },
+  "sheet_wisps": {
+    "about": "16-frame looping multi-strand smoke tendrils that sway. Spirit, demon and poison sets.",
+    "grid": "4x4", "size": 512, "loop": 1,
+    "flipbook": { "shape": "wisp", "thickness": 0.08 }, "animate": { "phase": [0, 1] }
+  },
+  "sheet_arcs": {
+    "about": "Four fractal lightning bolts with tapered tips. Use anim random so each arc keeps changing.",
+    "grid": "2x2", "size": 512,
+    "flipbook": { "shape": "bolt", "branches": 3, "jag": 0.22 }, "animate": { "seed": 1 }
+  },
+  "sheet_cracks": {
+    "about": "Four different crack bursts for ground or glass breaks.",
+    "grid": "2x2", "size": 512,
+    "flipbook": { "shape": "crack" }, "animate": { "seed": 1 }
+  },
+  "sheet_puffs": {
+    "about": "Four soft smoke puffs drawn by the generator, for stylised smoke that does not use the game's sheet.",
+    "grid": "2x2", "size": 512,
+    "flipbook": { "shape": "smoke" }, "animate": { "seed": 1 }
+  },
+  "sheet_splats": {
+    "about": "Four paint or ink splats.",
+    "grid": "2x2", "size": 512,
+    "flipbook": { "shape": "splat" }, "animate": { "seed": 1 }
+  },
+  "sheet_shards": {
+    "about": "Four crystal fragments of different proportions.",
+    "grid": "2x2",
+    "cells": [ "shard", { "shape": "shard", "aspect": 0.6, "rotation": 30 }, { "shape": "diamond", "aspect": 0.55 }, { "shape": "triangle", "aspect": 0.7, "rotation": 15 } ]
+  },
+  "sheet_suits": { "about": "Spade, club, heart, diamond.", "grid": "2x2", "cells": ["spade", "club", "heart", "diamond"] },
+  "sheet_stars": { "about": "Star, four-point glint, burst, diamond.", "grid": "2x2", "cells": ["star", "sparkle", "burst", "diamond"] },
+  "sheet_petals": { "about": "Petal, leaf, sakura blossom, feather.", "grid": "2x2", "cells": ["petal", "leaf", "sakura", "feather"] },
+  "sheet_runes": {
+    "about": "Sixteen runic letters. Floating glyphs for magic, norse and occult sets.",
+    "grid": "4x4", "size": 512,
+    "cells": [
+      { "shape": "glyph", "text": "ᚠ" }, { "shape": "glyph", "text": "ᚢ" }, { "shape": "glyph", "text": "ᚦ" }, { "shape": "glyph", "text": "ᚨ" },
+      { "shape": "glyph", "text": "ᚱ" }, { "shape": "glyph", "text": "ᚲ" }, { "shape": "glyph", "text": "ᚷ" }, { "shape": "glyph", "text": "ᚹ" },
+      { "shape": "glyph", "text": "ᚺ" }, { "shape": "glyph", "text": "ᚾ" }, { "shape": "glyph", "text": "ᛇ" }, { "shape": "glyph", "text": "ᛈ" },
+      { "shape": "glyph", "text": "ᛏ" }, { "shape": "glyph", "text": "ᛒ" }, { "shape": "glyph", "text": "ᛞ" }, { "shape": "glyph", "text": "ᛟ" }
+    ],
+    "sprite": { "fit": 0.7 }
+  },
+  "sheet_kawaii": {
+    "about": "Sixteen cute icons.",
+    "grid": "4x4", "size": 512,
+    "cells": ["heart", "star", "paw", "note", "butterfly", "cat", "flower", "clover", "crown", "drop", "diamond", "sparkle", "bubble", "sun", "ghost", "zap"]
+  },
+  "sheet_gothic": {
+    "about": "Sixteen dark icons.",
+    "grid": "4x4", "size": 512,
+    "cells": ["skull", "bat", "holy_cross", "fang", "eye", "claw", "crack", "web", "bone", "sword", "tomoe", "crescent", "spade", "crown", "feather", "chain"]
+  },
+  "sheet_casino": {
+    "about": "Sixteen gambling icons.",
+    "grid": "4x4", "size": 512,
+    "cells": ["spade", "club", "heart", "diamond", "coin", "card", { "shape": "dice", "face": 6 }, { "shape": "dice", "face": 5 }, "crown", "star", { "shape": "card", "text": "♥" }, { "shape": "card", "text": "♦" }, { "shape": "dice", "face": 1 }, { "shape": "coin", "text": "$" }, "clover", { "shape": "glyph", "text": "7" }]
+  },
+  "sheet_tech": {
+    "about": "Sixteen digital and mechanical icons.",
+    "grid": "4x4", "size": 512,
+    "cells": ["hex", "gear", "glitch", "pixel", "hexgrid", "arrow", "zap", "triangle", "square", "cross", "diamond", "ring", { "shape": "glitch", "seed": 21 }, { "shape": "pixel", "seed": 5 }, "shuriken", "eye"]
+  },
+  "sheet_nature": {
+    "about": "Sixteen natural icons.",
+    "grid": "4x4", "size": 512,
+    "cells": ["leaf", "petal", "flower", "sakura", "lotus", "clover", "feather", "butterfly", "drop", "snowflake", "sun", "paw", { "shape": "leaf", "rotation": 40 }, { "shape": "petal", "rotation": -30 }, "crescent", "star"]
+  },
+  "sheet_festival": {
+    "about": "Sixteen warm festival and blossom icons: sky lanterns, lotus, sakura, butterflies and glints.",
+    "grid": "4x4", "size": 512,
+    "cells": ["lantern", "lotus", "sakura", "petal", "flower", "butterfly", "sparkle", "star", "diamond", "sun", "heart", "feather", { "shape": "petal", "rotation": 35 }, { "shape": "sakura", "rotation": 36 }, { "shape": "lantern", "rotation": -8 }, "burst"]
+  },
+  "sheet_spooky": {
+    "about": "Sixteen Halloween and specter icons: jack-o'-lanterns, ghosts, bats, candy, skulls and webs.",
+    "grid": "4x4", "size": 512,
+    "cells": ["pumpkin", "ghost", "bat", "skull", "candy", "web", "crescent", "bone", "fang", "claw", "eye", "star", { "shape": "bat", "rotation": 25 }, { "shape": "candy", "rotation": -30 }, "splat", "zap"]
+  },
+  "sheet_pirate": {
+    "about": "Sixteen cursed sea and pirate icons: anchors, skulls, crossed blades, coins, crowns and bones.",
+    "grid": "4x4", "size": 512,
+    "cells": ["anchor", "skull", "sword", "coin", "crown", "bone", "drop", "star", "sparkle", "claw", "crescent", { "shape": "coin", "text": "$" }, { "shape": "sword", "rotation": 45 }, { "shape": "sword", "rotation": -45 }, "diamond", "splat"]
+  },
+  "sheet_sweet": {
+    "about": "Sixteen pastel confection and dream icons: wrapped candies, hearts, stars, bubbles, butterflies and sleepy Z glyphs.",
+    "grid": "4x4", "size": 512,
+    "cells": ["candy", "heart", "star", "bubble", "flower", "butterfly", "paw", "crown", "diamond", "sparkle", { "shape": "glyph", "text": "Z" }, "crescent", { "shape": "candy", "rotation": 35 }, { "shape": "candy", "rotation": -35 }, "clover", "note"]
+  }
+}

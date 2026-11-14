@@ -1,0 +1,340 @@
+{
+  "flash": {
+    "about": "One bright additive pop. The first frame of almost every Hit and Kill.",
+    "burst": 1, "life": [0.12, 0.18], "texture": "glow", "size": 0.9, "dir": "none", "rot": 0,
+    "sizeKeys": [[0, 0.3], [0.25, 1], [1, 1.3]], "alphaKeys": [[0, 1], [0.3, 0.8], [1, 0]], "emissive": 30
+  },
+  "glow_pulse": {
+    "about": "Subtle compact core shimmer for Hold. Keep small and low-alpha so it never forms an opaque ball on the hand.",
+    "burst": 1, "life": [1, 1], "texture": "glow", "size": 0.13, "dir": "none", "rot": 0, "attach": 1,
+    "sizeKeys": [[0, 0.75], [0.5, 1.08], [1, 0.75]], "alphaKeys": [[0, 0], [0.3, 0.26], [0.7, 0.26], [1, 0]], "emissive": 10
+  },
+  "core_glint": {
+    "about": "A single needle-sharp glint that spins and dies. Reads as a metal highlight or a magic spark.",
+    "burst": 1, "life": [0.2, 0.28], "texture": "sparkle", "size": 0.52, "dir": "none", "rot": [0, 45], "spin": [90, 160],
+    "sizeKeys": [[0, 0.2], [0.25, 1], [1, 0.08]], "alphaKeys": [[0, 1], [0.55, 0.9], [1, 0]], "emissive": 40
+  },
+  "glints": {
+    "about": "Several small twinkles scattered in a volume. Jewel, frost and holy themes.",
+    "burst": 8, "life": [0.25, 0.55], "texture": "sparkle", "size": [0.06, 0.15], "radius": 0.4, "dir": "none", "rot": [0, 45],
+    "sizeKeys": [[0, 0], [0.35, 1], [1, 0]], "alphaKeys": [[0, 1], [1, 0.85]], "emissive": 30
+  },
+  "motes": {
+    "about": "Fine optical glints drifting off the weapon and detaching smoothly into world space.",
+    "rate": 10, "life": [0.45, 0.85], "texture": "sparkle", "size": [0.025, 0.055], "shape": "box", "radius": [0.14, 0.05, 0.05], "dir": "out", "distance": 0.25, "speed": [0.05, 0.18],
+    "spin": [-120, 120], "attach": [[0, 1], [0.25, 0.45], [0.6, 0]], "sizeKeys": [[0, 0], [0.25, 1], [1, 0]], "alphaKeys": [[0, 0.95], [0.7, 0.8], [1, 0]], "emissive": 24
+  },
+  "ember_rise": {
+    "about": "Crisp micro-embers detaching from the weapon and rising with world-space lift and turbulence.",
+    "rate": 14, "life": [0.65, 1.3], "texture": "sparkle", "size": [0.018, 0.042], "shape": "box", "radius": [0.14, 0.05, 0.05], "dir": "out", "speed": [0.06, 0.24],
+    "attach": [[0, 0.85], [0.18, 0]], "noise": 0.55, "gravity": -0.65, "spin": [-90, 90], "sizeKeys": [[0, 0.4], [0.2, 1], [1, 0.15]], "alphaKeys": [[0, 0], [0.15, 1], [0.75, 0.85], [1, 0]], "emissive": 32
+  },
+  "spark_burst": {
+    "about": "Fast streaks thrown outward that fall with gravity. Velocity aligned; see the alignment note in particles.md.",
+    "burst": 26, "life": [0.25, 0.55], "texture": "streak", "sprite": { "rotation": 90 }, "align": "velocity", "size": [0.012, 0.024], "aspect": 9,
+    "dir": "out", "speed": [3, 7], "gravity": 6, "drag": [1, 1.4], "sizeKeys": [[0, 1], [1, 0.3]], "fadeIn": 0, "fadeOut": 0.5, "emissive": 40
+  },
+  "speed_lines": {
+    "about": "Thin radial lines that shoot out and vanish. Anime impact, cyber and arcade hits.",
+    "burst": 14, "life": [0.12, 0.2], "texture": "streak", "sprite": { "rotation": 90 }, "align": "velocity", "size": [0.02, 0.04], "aspect": 14,
+    "radius": 0.15, "dir": "out", "speed": [8, 14], "fadeIn": 0, "fadeOut": 0.3, "emissive": 30
+  },
+  "implode": {
+    "about": "Streaks pulled inward to the centre. Use before a flash to sell a charge-up.",
+    "burst": 20, "life": [0.3, 0.45], "texture": "streak", "sprite": { "rotation": 90 }, "align": "velocity", "size": [0.012, 0.02], "aspect": 10,
+    "radius": 1.2, "inner": 1, "dir": "in", "speed": [2.5, 4], "fadeIn": 0.2, "fadeOut": 0.8, "emissive": 30
+  },
+  "shock_ring": {
+    "about": "Camera-facing ring that expands and fades. Scale it with sizeKeys rather than speed.",
+    "burst": 1, "life": [0.35, 0.45], "texture": "ring", "size": 0.4, "dir": "none", "rot": 0,
+    "sizeKeys": [[0, 0.15], [1, 2.2]], "alphaKeys": [[0, 1], [0.6, 0.6], [1, 0]], "emissive": 20
+  },
+  "ground_ring": {
+    "about": "Shock ring lying flat on the ground under the victim. offset z is measured from the ped origin, about 0.95 m above the floor.",
+    "use": "shock_ring", "align": "ground", "offset": [0, 0, -0.95], "size": 0.6, "sizeKeys": [[0, 0.2], [1, 3]]
+  },
+  "rune_circle": {
+    "about": "Rotating glyph circle on the ground. Kill effects for magic, holy, demon and cosmic sets.",
+    "burst": 1, "life": [1.2, 1.2], "texture": "rune", "size": 1.6, "align": "ground", "offset": [0, 0, -0.95], "dir": "none", "rot": 0, "spin": [40, 40],
+    "sizeKeys": [[0, 0.6], [0.15, 1], [1, 1.05]], "alphaKeys": [[0, 0], [0.1, 1], [0.7, 1], [1, 0]], "emissive": 12
+  },
+  "slash_arc": {
+    "about": "One crescent cut that snaps open and fades. Blade Hit. Stack two with different rot for a cross cut.",
+    "burst": 1, "life": [0.18, 0.26], "texture": "slash", "size": 1.1, "dir": "none", "rot": [-35, 35],
+    "sizeKeys": [[0, 0.6], [0.3, 1], [1, 1.15]], "alphaKeys": [[0, 1], [0.4, 0.9], [1, 0]], "emissive": 35
+  },
+  "claw_marks": {
+    "about": "Three parallel rakes. Beast, wolf and dragon sets.",
+    "use": "slash_arc", "texture": "claw", "size": 0.9, "life": [0.22, 0.3], "rot": [-25, 25]
+  },
+  "pillar": {
+    "about": "Tall vertical light column. Kill finisher; pair with rune_circle.",
+    "burst": 1, "life": [0.7, 0.9], "texture": "glow", "size": 0.4, "aspect": 9, "dir": "none", "rot": 0, "offset": [0, 0, 0.8],
+    "sizeKeys": [[0, 0.3], [0.12, 1], [1, 0.5]], "alphaKeys": [[0, 0], [0.1, 1], [0.6, 0.7], [1, 0]], "emissive": 25
+  },
+  "shape_burst": {
+    "about": "Icons thrown out with spin and gravity. Set texture to heart, star, note, paw, petal, spade, skull and so on.",
+    "burst": 14, "life": [0.6, 1], "texture": "heart", "size": [0.08, 0.16], "radius": 0.1, "dir": "out", "speed": [1.5, 3.5], "gravity": 3, "drag": [1.2, 1.8],
+    "spin": [-180, 180], "sizeKeys": [[0, 0.4], [0.2, 1], [1, 0.6]], "emissive": 6
+  },
+  "shape_float": {
+    "about": "Icons drifting upward. Cute Hold or a gentle Kill aftermath.",
+    "rate": 6, "life": [1, 1.6], "texture": "heart", "size": [0.06, 0.12], "radius": 0.2, "dir": "out", "speed": [0.04, 0.15], "gravity": -0.5,
+    "spin": [-60, 60], "noise": 0.3, "sizeKeys": [[0, 0.3], [0.25, 1], [1, 0.8]], "emissive": 5
+  },
+  "confetti": {
+    "about": "Tumbling paper squares in two random colours. Give color and color2.",
+    "burst": 40, "life": [1, 1.8], "texture": "square", "size": [0.03, 0.05], "aspect": 0.6, "blend": "normal", "radius": 0.1, "dir": "up", "spread": 1.2,
+    "speed": [2, 5], "gravity": 5, "drag": [1.6, 2.4], "spin": [-720, 720], "fadeIn": 0, "fadeOut": 0.8, "emissive": 2
+  },
+  "petals": {
+    "about": "Petals or leaves falling from above with sway. Sakura, floral and autumn sets.",
+    "rate": 10, "life": [1.5, 2.5], "texture": "petal", "size": [0.05, 0.09], "blend": "normal", "shape": "box", "radius": [0.6, 0.6, 0.1], "offset": [0, 0, 1.2],
+    "dir": "out", "speed": [0.05, 0.2], "gravity": 0.8, "drag": [0.9, 1.3], "noise": 0.8, "spin": [-90, 90], "fadeIn": 0.1, "fadeOut": 0.8, "emissive": 2
+  },
+  "shards": {
+    "about": "Hard fragments flying and dropping. Glass, ice, crystal and metal breaks.",
+    "burst": 16, "life": [0.5, 0.9], "texture": "shard", "size": [0.05, 0.12], "blend": "normal", "dir": "out", "speed": [3, 6], "gravity": 9, "drag": [0.4, 0.8],
+    "spin": [-540, 540], "fadeIn": 0, "fadeOut": 0.7, "emissive": 4
+  },
+  "snow": {
+    "about": "Slow flakes wandering down. Winter and frost Hold.",
+    "use": "petals", "texture": "snowflake", "blend": "add", "size": [0.03, 0.06], "gravity": 0.45, "noise": 0.5, "emissive": 8
+  },
+  "bubbles": {
+    "about": "Rising bubbles drawn by the sprite generator. Ocean and candy sets.",
+    "rate": 8, "life": [0.9, 1.5], "texture": "bubble", "size": [0.04, 0.1], "radius": 0.18, "dir": "out", "speed": [0.04, 0.15], "gravity": -0.5, "noise": 0.4,
+    "sizeKeys": [[0, 0.4], [0.3, 1], [1, 1.2]], "emissive": 4
+  },
+  "smoke_puff": {
+    "about": "Lit volumetric smoke from the game's own animated sheet. Tint it with color; alpha controls density.",
+    "burst": 6, "life": [0.8, 1.4], "texture": "ptfx_smoke_wispy_anim", "lit": true, "size": [0.3, 0.5], "grow": 2.2, "radius": 0.12, "dir": "up", "spread": 0.8,
+    "speed": [0.3, 0.8], "drag": [1.2, 1.8], "spin": [-20, 20], "alpha": 0.5, "fadeIn": 0.1, "fadeOut": 0.4,
+    "frames": [0, 8], "anim": { "mode": "smoke", "last": 48 }
+  },
+  "energy_wisp": {
+    "about": "The same game smoke sheet drawn additively, which reads as coloured energy or spirit fire.",
+    "use": "smoke_puff", "lit": false, "technique": "RGBA_soft", "blend": "add", "burst": 5, "alpha": 0.7, "emissive": 10, "size": [0.2, 0.35], "grow": 1.8
+  },
+  "mist": {
+    "about": "Wide, thin, slow fog hugging the ground.",
+    "use": "smoke_puff", "burst": 5, "life": [1.6, 2.4], "size": [0.6, 0.9], "grow": 1.6, "shape": "box", "radius": [0.6, 0.6, 0.05], "offset": [0, 0, -0.85],
+    "dir": "out", "speed": [0.1, 0.3], "alpha": 0.25
+  },
+  "electric_arcs": {
+    "about": "Lightning arcs from the game's 2x2 arc sheet, a new random frame fifteen times a second.",
+    "burst": 6, "life": [0.08, 0.16], "texture": "ptfx_sparks_arcing_anim", "technique": "RGBA_soft", "frames": [0, 3], "anim": { "mode": "random", "last": 3 }, "size": [0.3, 0.6], "radius": 0.15, "dir": "none",
+    "alphaKeys": [[0, 1], [0.7, 1], [1, 0]], "emissive": 60
+  },
+  "arc_crackle": {
+    "about": "Continuous crisp micro-arcs crawling along the weapon for Hold.",
+    "use": "electric_arcs", "rate": 11, "life": [0.07, 0.14], "size": [0.08, 0.16], "shape": "box", "radius": [0.14, 0.04, 0.04], "attach": [[0, 1], [0.5, 0.6], [1, 0]], "emissive": 42
+  },
+  "bolt_strike": {
+    "about": "One generated lightning bolt, tall and brief. Kill for storm sets; offset lifts it above the victim.",
+    "burst": 1, "life": [0.14, 0.2], "texture": "bolt", "size": 0.7, "aspect": 3.2, "dir": "none", "rot": 0, "offset": [0, 0, 1.1],
+    "alphaKeys": [[0, 1], [0.25, 0.4], [0.4, 1], [1, 0]], "emissive": 70
+  },
+  "star_flare": {
+    "about": "The game's starburst flare, large and brief.",
+    "burst": 1, "life": [0.2, 0.3], "texture": "ptfx_starbursts_rgb", "size": 1.2, "dir": "none", "spin": [-40, 40],
+    "sizeKeys": [[0, 0.4], [0.3, 1], [1, 0.7]], "alphaKeys": [[0, 1], [1, 0]], "emissive": 20
+  },
+  "ribbon": {
+    "about": "A ptfx_trail ribbon dragged behind the emitter in world space, for Hold or slash trails.",
+    "rate": 28, "rateOverDist": 18, "life": [0.7, 0.7], "trail": true, "texture": "ribbon_line", "technique": "RGBA_soft", "blend": "normal", "size": 0.11, "radius": 0.002, "dir": "none", "speed": 0,
+    "tessU": 2, "tessV": 4, "smoothness": 0.1, "trailWrap": 1,
+    "sizeKeys": [[0, 0.15], [0.08, 1], [0.55, 0.72], [0.85, 0.25], [1, 0]], "alphaKeys": [[0, 0], [0.06, 0.92], [0.58, 0.8], [1, 0]], "emissive": 3.5
+  },
+  "ribbon_trail": {
+    "about": "Clean single-line movement ribbon for Hold: zero stationary puffing on the hand, floats in world space as the player runs or swings and tapers away.",
+    "use": "ribbon", "rate": 32, "rateOverDist": 22, "life": [0.78, 0.78], "size": 0.10, "accel": [0, 0, 0.02]
+  },
+  "shadow_smoke": {
+    "about": "Pitch-dark normal-blended obsidian smoke that darkens bright daytime concrete instead of washing out to pink/grey.",
+    "burst": 6, "life": [0.8, 1.35], "texture": "ptfx_smoke_wispy_anim", "lit": false, "technique": "RGBA_soft", "blend": "normal", "color": "#050304",
+    "size": [0.35, 0.6], "grow": 2.0, "radius": 0.15, "dir": "up", "spread": 0.85, "speed": [0.35, 0.85], "drag": [1.3, 1.9], "spin": [-22, 22],
+    "alphaKeys": [[0, 0], [0.12, 0.78], [0.55, 0.65], [1, 0]], "emissive": 0.5, "frames": [0, 8], "anim": { "mode": "smoke", "last": 48 }
+  },
+
+  "shockwave": {
+    "about": "Shock ring with radial streaks and a hard leading edge, camera facing.",
+    "use": "shock_ring", "texture": "shockwave", "size": 0.55, "sizeKeys": [[0, 0.15], [0.35, 1.3], [1, 2.3]], "emissive": 26
+  },
+  "ground_shock": {
+    "about": "The streaked shock ring lying on the ground under the victim.",
+    "use": "shockwave", "align": "ground", "offset": [0, 0, -0.95], "size": 0.7, "sizeKeys": [[0, 0.2], [1, 3.2]]
+  },
+  "ripples": {
+    "about": "Concentric rings spreading on the ground. Water, sonar and sound sets.",
+    "burst": 1, "life": [0.8, 1], "texture": "ripple", "size": 1.4, "align": "ground", "offset": [0, 0, -0.95], "dir": "none", "rot": 0,
+    "sizeKeys": [[0, 0.3], [1, 1.6]], "alphaKeys": [[0, 0], [0.15, 0.9], [1, 0]], "emissive": 14
+  },
+  "magic_circle": {
+    "about": "Ornate circle with a ring of runic letters, flat on the ground and turning. sprite.points sets the star, sprite.text the letters.",
+    "use": "rune_circle", "texture": "magic_circle", "size": 2.0, "sprite": { "size": 512 }
+  },
+  "magic_circle_air": {
+    "about": "The same circle upright and facing the camera, behind the victim or the weapon.",
+    "use": "magic_circle", "align": "camera", "offset": [0, 0, 0.2], "size": 1.4
+  },
+  "energy_slash": {
+    "about": "Blade arc with a bright rim, streaks along the cut and a soft trailing side. The detailed version of slash_arc.",
+    "use": "slash_arc", "texture": "energy_slash", "size": 1.3, "emissive": 40
+  },
+  "impact_star": {
+    "about": "Irregular spiked burst, the hit mark of fighting games and anime.",
+    "burst": 1, "life": [0.12, 0.18], "texture": "impact", "size": 0.9, "dir": "none", "rot": [-180, 180],
+    "sizeKeys": [[0, 0.5], [0.3, 1], [1, 1.1]], "alphaKeys": [[0, 1], [0.5, 0.9], [1, 0]], "emissive": 45
+  },
+  "nova_rays": {
+    "about": "Rays of light turning slowly behind the action. Holy, solar and victory moments.",
+    "burst": 1, "life": [0.5, 0.7], "texture": "nova", "size": 2.2, "dir": "none", "rot": [-180, 180], "spin": [20, 45],
+    "sizeKeys": [[0, 0.4], [0.2, 1], [1, 1.15]], "alphaKeys": [[0, 0], [0.12, 0.9], [0.5, 0.6], [1, 0]], "emissive": 22
+  },
+  "light_beam": {
+    "about": "Tall beam with moving striations. The detailed version of pillar.",
+    "use": "pillar", "texture": "beam", "size": 0.8, "aspect": 4.5, "emissive": 30
+  },
+  "lens_flare": {
+    "about": "Wide anamorphic flare with a hot centre. Sci-fi and cinematic hits.",
+    "burst": 1, "life": [0.2, 0.3], "texture": "flare", "size": 1.6, "dir": "none", "rot": 0,
+    "sizeKeys": [[0, 0.3], [0.2, 1], [1, 0.6]], "alphaKeys": [[0, 1], [0.4, 0.8], [1, 0]], "emissive": 35
+  },
+  "vortex": {
+    "about": "Animated spiral on the ground whose arms flow inward. Portals, dark and galaxy Kill effects.",
+    "burst": 1, "life": [1.2, 1.4], "texture": "sheet_vortex", "frames": [0, 0], "anim": { "mode": "loop", "fps": [14, 14] }, "size": 1.8,
+    "align": "ground", "offset": [0, 0, -0.95], "dir": "none", "rot": 0, "spin": [-90, -90],
+    "sizeKeys": [[0, 0.4], [0.2, 1], [1, 0.7]], "alphaKeys": [[0, 0], [0.15, 1], [0.7, 0.9], [1, 0]], "emissive": 16
+  },
+  "aura_swirl": {
+    "about": "Delicate animated energy spiral around the weapon; compact and low-alpha so it never hides the model.",
+    "burst": 1, "life": [1, 1], "texture": "sheet_vortex", "frames": [0, 0], "anim": { "mode": "loop", "fps": [12, 12] }, "size": 0.22,
+    "dir": "none", "rot": 0, "spin": [65, 65], "attach": 1, "alphaKeys": [[0, 0], [0.25, 0.34], [0.75, 0.34], [1, 0]], "emissive": 12
+  },
+  "plasma_orb": {
+    "about": "Crackling filaments of energy.",
+    "burst": 1, "life": [0.5, 0.7], "texture": "sheet_energy", "anim": { "mode": "loop", "fps": [20, 26] }, "size": 0.55, "dir": "none", "rot": [-180, 180],
+    "sizeKeys": [[0, 0.3], [0.2, 1], [1, 0.4]], "alphaKeys": [[0, 0], [0.1, 0.9], [0.7, 0.85], [1, 0]], "emissive": 30
+  },
+  "flames": {
+    "about": "Shredded animated flames from the 25-frame sheet that lick upward and detach naturally from the weapon.",
+    "rate": 9, "life": [0.4, 0.7], "texture": "sheet_fire", "size": [0.09, 0.16], "aspect": 1.55, "shape": "box", "radius": [0.12, 0.04, 0.04], "dir": "out", "speed": [0.03, 0.1],
+    "attach": [[0, 0.85], [0.28, 0]], "gravity": -0.75, "rot": [-10, 10],
+    "sizeKeys": [[0, 0.45], [0.28, 1], [1, 0.6]], "alphaKeys": [[0, 0], [0.15, 0.72], [0.65, 0.52], [1, 0]], "emissive": 18
+  },
+  "fire_ring": {
+    "about": "Shredded flames standing in a ring on the ground around the victim.",
+    "use": "flames", "burst": 18, "life": [0.7, 1.1], "size": [0.32, 0.52], "attach": 0, "shape": "sphere", "radius": [0.82, 0.82, 0.03], "inner": [0.66, 0.66, 0], "offset": [0, 0, -0.75],
+    "alphaKeys": [[0, 0], [0.14, 0.9], [0.7, 0.75], [1, 0]]
+  },
+  "wisp_rise": {
+    "about": "Fine multi-strand tendrils that sway, detach from the weapon and climb.",
+    "rate": 6, "life": [0.75, 1.25], "texture": "sheet_wisps", "anim": { "mode": "loop", "fps": [11, 15] }, "size": [0.11, 0.2], "aspect": 2.0, "shape": "box", "radius": [0.13, 0.04, 0.04], "dir": "out",
+    "attach": [[0, 0.8], [0.3, 0]], "speed": [0.03, 0.09], "gravity": -0.45, "rot": [-15, 15], "alphaKeys": [[0, 0], [0.2, 0.58], [1, 0]], "emissive": 12
+  },
+  "arc_bolts": {
+    "about": "Generated lightning bolts, four shapes that keep re-rolling. Tintable to any colour, unlike the game sheet.",
+    "burst": 5, "life": [0.1, 0.18], "texture": "sheet_arcs", "anim": "random", "size": [0.35, 0.6], "radius": 0.18, "dir": "none",
+    "alphaKeys": [[0, 1], [0.7, 1], [1, 0]], "emissive": 60
+  },
+  "rune_glyphs": {
+    "about": "Runic letters drifting upward, each particle a random one of sixteen.",
+    "rate": 5, "life": [1, 1.5], "texture": "sheet_runes", "size": [0.07, 0.11], "radius": 0.25, "dir": "out", "speed": [0.03, 0.1], "gravity": -0.35, "rot": [-15, 15],
+    "sizeKeys": [[0, 0.4], [0.2, 1], [1, 0.9]], "emissive": 14
+  },
+  "icon_burst": {
+    "about": "Sixteen mixed icons thrown out at once. Swap texture for sheet_gothic, sheet_casino, sheet_tech or sheet_nature.",
+    "use": "shape_burst", "texture": "sheet_kawaii", "burst": 16
+  },
+  "petal_storm": {
+    "about": "Petals, leaves and blossoms whirling outward.",
+    "use": "shape_burst", "texture": "sheet_petals", "blend": "normal", "burst": 24, "speed": [2, 4.5], "gravity": 1.5, "spin": [-360, 360], "emissive": 2
+  },
+  "star_shower": {
+    "about": "Stars, glints and bursts thrown out and falling slowly.",
+    "use": "shape_burst", "texture": "sheet_stars", "burst": 18, "gravity": 2, "emissive": 16
+  },
+  "card_throw": {
+    "about": "The four card suits scattered.",
+    "use": "shape_burst", "texture": "sheet_suits", "burst": 12
+  },
+  "crystal_break": {
+    "about": "Four kinds of crystal fragment flying and dropping. The varied version of shards.",
+    "use": "shards", "texture": "sheet_shards", "burst": 20
+  },
+  "ink_splats": {
+    "about": "Paint or ink splats that pop open and stay a moment. Graffiti and toxic sets.",
+    "burst": 5, "life": [0.5, 0.8], "texture": "sheet_splats", "blend": "normal", "size": [0.25, 0.45], "radius": 0.3, "dir": "none",
+    "sizeKeys": [[0, 0.3], [0.12, 1], [1, 1.05]], "alphaKeys": [[0, 1], [0.6, 1], [1, 0]], "emissive": 2
+  },
+  "ground_crack": {
+    "about": "Glowing cracks spreading on the ground under a heavy hit.",
+    "burst": 1, "life": [1.2, 1.6], "texture": "sheet_cracks", "size": 1.8, "align": "ground", "offset": [0, 0, -0.95], "dir": "none", "rot": [-180, 180],
+    "sizeKeys": [[0, 0.5], [0.08, 1], [1, 1.02]], "alphaKeys": [[0, 1], [0.6, 0.8], [1, 0]], "emissive": 28
+  },
+  "glitch_bits": {
+    "about": "Digital blocks that flicker in and out. Cyber and arcade sets.",
+    "burst": 7, "life": [0.08, 0.2], "texture": "glitch", "size": [0.25, 0.5], "aspect": 0.6, "radius": 0.3, "dir": "none", "rot": 0,
+    "alphaKeys": [[0, 1], [0.8, 1], [1, 0]], "emissive": 28
+  },
+  "hex_shield": {
+    "about": "A hexagon grid that flashes like a force field taking the hit.",
+    "burst": 1, "life": [0.45, 0.6], "texture": "hexgrid", "size": 1.4, "dir": "none", "rot": 0,
+    "sizeKeys": [[0, 0.7], [0.25, 1], [1, 1.08]], "alphaKeys": [[0, 0], [0.1, 0.9], [0.5, 0.5], [1, 0]], "emissive": 18
+  },
+  "wings": {
+    "about": "A pair of wings that unfold behind the target and fade. Angel, demon and phoenix Kill effects.",
+    "burst": 1, "life": [0.9, 1.1], "texture": "wings", "sprite": { "size": 512 }, "size": 2.0, "dir": "none", "rot": 0, "offset": [0, 0, 0.35],
+    "sizeKeys": [[0, 0.35], [0.18, 1.05], [0.3, 1], [1, 1.03]], "alphaKeys": [[0, 0], [0.1, 1], [0.65, 0.85], [1, 0]], "emissive": 16
+  },
+  "halo": {
+    "about": "A thin ring floating flat above the head.",
+    "burst": 1, "life": [1, 1.2], "texture": "ring", "sprite": { "thickness": 0.05 }, "size": 0.45, "align": "ground", "offset": [0, 0, 0.85], "dir": "none", "rot": 0,
+    "alphaKeys": [[0, 0], [0.15, 1], [0.7, 1], [1, 0]], "emissive": 30
+  },
+  "soft_smoke": {
+    "about": "Stylised lit smoke from four generated puffs, for sets that should not look like the game's smoke.",
+    "burst": 6, "life": [0.8, 1.3], "texture": "sheet_puffs", "lit": true, "size": [0.3, 0.5], "grow": 2, "radius": 0.12, "dir": "up", "spread": 0.8,
+    "speed": [0.3, 0.7], "drag": [1.2, 1.8], "spin": [-25, 25], "alpha": 0.55, "fadeIn": 0.1, "fadeOut": 0.4
+  },
+  "twinkle_glints": {
+    "about": "Multi-pulse twinkling stars that blink three times over a single particle life without needing high spawn rates.",
+    "rate": 8, "life": [1.1, 1.7], "texture": "sparkle", "size": [0.07, 0.14], "radius": 0.24, "dir": "up", "speed": [0.02, 0.08], "rot": [0, 45],
+    "alphaKeys": [[0, 0], [0.05, 1], [0.22, 1], [0.25, 0.06], [0.34, 0.06], [0.38, 1], [0.58, 1], [0.62, 0.08], [0.72, 0.08], [0.76, 1], [0.9, 0.9], [1, 0]],
+    "emissive": 18
+  },
+  "lantern_float": {
+    "about": "Sky lanterns rising gently in a hollow ring around the target with warm candle-flicker emissive keyframes.",
+    "burst": 10, "life": [2.0, 2.6], "texture": "lantern", "blend": "normal", "size": [0.24, 0.34], "radius": [1.45, 1.45, 0.35], "inner": [0.8, 0.8, 0.1],
+    "offset": [0, 0, 0.25], "dir": "up", "spread": 0.25, "speed": [0.35, 0.65], "rot": [-6, 6],
+    "alphaKeys": [[0, 0], [0.12, 0.95], [0.8, 0.92], [1, 0]],
+    "emissiveKeys": [[0, 3.2, 3.8], [0.2, 4.6, 5.2], [0.42, 3.3, 3.9], [0.68, 4.5, 5.0], [0.88, 3.5, 4.1], [1, 0, 0]]
+  },
+  "delayed_petal_burst": {
+    "about": "Second-act climax layer: stays invisible while ground seals bloom, then bursts upward with breeze at 58% of its life.",
+    "burst": 28, "life": [2.2, 2.6], "texture": "petal", "blend": "normal", "size": [0.08, 0.14], "radius": [0.55, 0.55, 0.2], "offset": [0, 0, -0.35],
+    "dir": "out", "speed": [0.15, 0.45], "drag": [1.1, 1.6], "spin": [-200, 200], "noise": 0.9,
+    "accelKeys": [[0, 0, 0, 0], [0.56, 0, 0, 0], [0.58, 0, 0, 1.45], [1, 0, 0, 1.1]],
+    "alphaKeys": [[0, 0], [0.56, 0], [0.6, 0.95], [0.86, 0.9], [1, 0]], "emissive": 3.5
+  },
+  "ribbon_halo": {
+    "about": "Soft wide additive sheath ribbon designed to stack under ribbon_trail for a dual-layer core+halo motion trail.",
+    "use": "ribbon_trail", "blend": "add", "size": 0.20, "life": [0.88, 0.88],
+    "alphaKeys": [[0, 0], [0.08, 0.36], [0.55, 0.28], [1, 0]], "emissive": 7
+  },
+  "pop_seal": {
+    "about": "Ground-aligned emblem with elastic overshoot pop (0.3 -> 1.12 -> 0.98 -> 1.02) for lotus, sakura or rune finishers.",
+    "burst": 1, "life": [1.6, 1.8], "texture": "lotus", "size": 1.9, "align": "ground", "offset": [0, 0, -0.95], "dir": "none", "rot": 0, "spin": [22, 22],
+    "sizeKeys": [[0, 0.3], [0.16, 1.12], [0.25, 0.98], [1, 1.02]], "alphaKeys": [[0, 0], [0.08, 1], [0.76, 0.95], [1, 0]], "emissive": 12
+  },
+  "light_flash": {
+    "about": "Bright additive burst carrying a real dynamic point light that illuminates the floor and nearby peds.",
+    "use": "flash", "size": 1.4, "life": [0.28, 0.38], "emissive": 26,
+    "light": { "intensity": 14, "range": 4.5 }
+  },
+  "dream_float": {
+    "about": "Sweet icons, bubbles and sleepy Z glyphs drifting gently upward around the hand or target.",
+    "use": "shape_float", "texture": "sheet_sweet", "rate": 4.5, "size": [0.055, 0.095], "emissive": 8
+  }
+}

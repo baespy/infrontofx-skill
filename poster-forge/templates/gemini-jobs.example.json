@@ -1,0 +1,22 @@
+[
+  {
+    "ref": ["work\\src\\IMG_char.jpg"],
+    "out": "work\\ai2\\char_edit.png",
+    "prompt": "Edit the reference picture. Keep this exact same character: identical face, identical expression, identical glasses, identical outfit, identical camera framing and identical 3D game-avatar render style and lighting. Change ONLY these things: (1) the hair colour becomes <colour>, same hair shape and strands; (2) the <old head accessory> is replaced by <new accessory>; (3) remove any sticker, watermark, logo text and cartoon print on the clothes. Replace the whole white background with one flat solid chroma-key green (#00FF00), no gradient and no shadow on the background. Do not add any other object. Same composition as the reference."
+  },
+  {
+    "ref": ["work\\ai2\\char_edit.png"],
+    "out": "work\\ai2\\char_med.png",
+    "prompt": "The reference image is the character to keep EXACTLY: <same face, expression, glasses, HAIR COLOUR IN CAPITALS, accessory, pose, render style>. Change ONLY the camera framing: a medium close-up portrait from the top of the <accessory> down to the waist, the head (from the top of the hair to the chin) occupying about 45 percent of the image height and centred, the shoulders and clothes filling the rest of the frame down to the bottom edge with no gap at the bottom. Do not crop the top of the hair or the accessory. Flat solid chroma-key green background (#00FF00), no gradient, no shadow on the background. Square 1:1 image."
+  },
+  {
+    "ref": ["work\\ai2\\char_med.png"],
+    "out": "work\\ai2\\char_outfit.png",
+    "prompt": "The reference image is the character to keep EXACTLY: <same face, expression, glasses, HAIR COLOUR IN CAPITALS, accessory, pose, camera framing, render style>. Change ONLY the clothes: replace <old clothes> with <new clothes>. No logos, no text and no patterns on the clothes. Flat solid chroma-key green background (#00FF00), no gradient, no shadow on the background. Square 1:1 image."
+  },
+  {
+    "ref": ["<skill>\\references\\targets\\userref-gang.jpg | userref-gang-lady.jpg | userref-family.jpg (pick the poster closest to the colour you want)"],
+    "out": "work\\ai2\\bg_colour.png",
+    "prompt": "Create a cinematic poster BACKGROUND only, square 1:1, copying the mood, composition and texture of the reference poster but ignoring the person, the title text and the item cards in it (do not draw any of them). Very dark, moody, single-colour toned image: two large diagonal torn-paper slabs crossing behind the centre to form a big X shape, rough torn edges, a fine halftone and woven dot texture on the slabs, a soft hard-edged spotlight beam falling diagonally from the upper-left, a small bright anamorphic lens flare to the right of centre, heavy fine film grain, dark vignette in the corners, subtle dust. NO people, NO faces, NO text, NO logos, NO cards, NO objects. The whole frame is toned in ONE colour family, deep and rich, and even the darkest areas keep a hint of that colour (never pure black). Colour theme: <deep crimson red | deep violet purple | deep cobalt navy blue>."
+  }
+]

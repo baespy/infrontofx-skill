@@ -1,0 +1,30 @@
+{
+  "id": "emberfang",
+  "skinType": "Emberfang",
+  "label": "EMBERFANG",
+  "family": "obsidian_beast",
+  "seed": 11,
+  "weapons": ["poolcue", "bottle", "knuckle", "machete", "revolver"],
+  "palette": {
+    "primary": "#140a08",
+    "secondary": "#ff6a1a",
+    "accent": "#ffb23a",
+    "glow": "#ff4a1a",
+    "grip": "#1a0e0a",
+    "metal": "#3a2a26"
+  },
+  "style": {
+    "motif": "flame",
+    "wrap": "thorn",
+    "charm": "fang",
+    "serrate": true,
+    "fuller": true,
+    "optic": false,
+    "tac_light": false
+  },
+  "fx": {
+    "theme": "inferno",
+    "theme_colors": "primary=#ff5a14,accent=#ff2a2a",
+    "sound": { "hit_volume": 0.3, "kill_volume": 0.3 }
+  }
+}

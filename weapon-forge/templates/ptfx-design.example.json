@@ -1,0 +1,66 @@
+{
+  // A full design written by hand. Start from a theme instead when one is close:
+  //   scripts\ptfx\ptfx.ps1 new -Theme holy -Name moonveil -Out moonveil.ptfx.json
+  "dict": "moonveil_fx",
+  "palette": {
+    "core": "#ffffff",
+    "primary": "#bcd4ff",
+    "secondary": "#7fa2ee",
+    "deep": "#2a3a7a",
+    "veil": "#c9d2e6"
+  },
+
+  // A sheet is one texture that holds several frames. "cells" gives every particle a random picture;
+  // "flipbook" plays an animation. The set's own motif goes here so no other set has the same sparkle.
+  "sheets": {
+    "moons": { "grid": "2x2", "cells": [
+      "crescent",
+      { "shape": "crescent", "rotation": 180 },
+      { "shape": "ring", "thickness": 0.06 },
+      "sparkle"
+    ] }
+  },
+
+  "effects": [
+    {
+      "name": "moonveil_hold", "loop": true, "duration": 1.2,
+      "layers": [
+        { "use": "glow_pulse", "color": "secondary", "size": 0.28, "life": [1.2, 1.2] },
+        { "use": "motes", "color": "primary", "color2": "core", "rate": 8 },
+        { "name": "moons", "use": "shape_float", "texture": "moons", "color": "primary", "rate": 2, "size": [0.04, 0.07], "blend": "add", "emissive": 12 }
+      ]
+    },
+    {
+      "name": "moonveil_hit", "duration": 0.6,
+      "layers": [
+        { "use": "flash", "color": "core", "size": 0.6 },
+        { "use": "core_glint", "color": "primary", "start": 0.03 },
+        { "use": "energy_slash", "color": "core", "color2": "primary", "sprite": { "sweep": 170 } },
+        { "use": "spark_burst", "color": "primary", "colorEnd": "deep", "burst": 18 },
+        { "use": "shockwave", "color": "secondary", "start": 0.06 }
+      ]
+    },
+    {
+      // Seven layers is the most one effect can hold, so the kill is two effects that Lua starts together.
+      "name": "moonveil_kill", "duration": 2,
+      "layers": [
+        { "use": "implode", "color": "primary" },
+        { "use": "flash", "color": "core", "size": 1.5, "start": 0.15 },
+        { "use": "magic_circle", "color": "primary", "sprite": { "points": 8, "seed": 21, "size": 512 }, "start": 0.15 },
+        { "use": "light_beam", "color": "secondary", "start": 0.18 },
+        { "use": "ground_shock", "color": "primary", "start": 0.18 },
+        { "use": "glints", "color": "core", "color2": "primary", "burst": 14, "radius": 0.8, "start": 0.2 },
+        { "use": "mist", "color": "veil", "start": 0.25 }
+      ]
+    },
+    {
+      "name": "moonveil_kill_veil", "duration": 2,
+      "layers": [
+        { "name": "bigmoon", "use": "flash", "texture": "crescent", "color": "primary", "size": 1.1, "offset": [0, 0, 0.9], "rot": -160, "life": [0.9, 1.1],
+          "sizeKeys": [[0, 0.4], [0.2, 1.05], [0.35, 1], [1, 1.08]], "alphaKeys": [[0, 0], [0.12, 1], [0.6, 0.9], [1, 0]], "emissive": 20, "start": 0.2 },
+        { "name": "feathers", "use": "shape_float", "texture": "feather", "color": "veil", "blend": "normal", "burst": 9, "radius": 0.5, "life": [1.2, 1.8], "start": 0.22 },
+        { "name": "moons", "use": "shape_float", "texture": "moons", "color": "primary", "burst": 12, "radius": 0.7, "size": [0.08, 0.14], "life": [1, 1.5], "emissive": 14, "start": 0.25 }
+      ]
+    }
+  ]
+}

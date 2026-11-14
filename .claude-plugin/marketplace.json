@@ -1,0 +1,13 @@
+{
+    "name": "infrontofx",
+    "owner": { "name": "baespy" },
+    "plugins": [
+        {
+            "name": "infrontofx-skill",
+            "source": "./",
+            "description": "infrontofx FiveM toolkit: Lua + NUI/DUI standard, poster-forge, weapon-forge.",
+            "skills": ["./", "./poster-forge", "./weapon-forge"],
+            "strict": false
+        }
+    ]
+}

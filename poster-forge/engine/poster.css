@@ -1,0 +1,133 @@
+@font-face { font-family: Anton; src: url(fonts/Anton-Regular.ttf); }
+@font-face { font-family: Bebas; src: url(fonts/BebasNeue-Regular.ttf); }
+@font-face { font-family: Russo; src: url(fonts/RussoOne-Regular.ttf); }
+@font-face { font-family: Michroma; src: url(fonts/Michroma-Regular.ttf); }
+@font-face { font-family: Signature; src: url(fonts/MrsSaintDelafield-Regular.ttf); }
+@font-face { font-family: Titan; src: url(fonts/TitanOne-Regular.ttf); }
+@font-face { font-family: Mitr; src: url(fonts/Mitr-Bold.ttf); font-weight: 700; }
+@font-face { font-family: Kanit; src: url(fonts/Kanit-Medium.ttf); font-weight: 500; }
+@font-face { font-family: Kanit; src: url(fonts/Kanit-Bold.ttf); font-weight: 700; }
+@font-face { font-family: Kanit; src: url(fonts/Kanit-BlackItalic.ttf); font-weight: 900; font-style: italic; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #000; overflow: hidden; }
+#poster { position: relative; overflow: hidden; color: #fff; font-family: Kanit, Tahoma, sans-serif; font-weight: 700; }
+.layer { position: absolute; inset: 0; }
+.subject { position: absolute; }
+.grain { mix-blend-mode: overlay; pointer-events: none; }
+
+.column { position: absolute; display: flex; flex-direction: column; }
+.title { position: relative; display: flex; flex-direction: column; width: max-content; max-width: 100%; align-items: center; }
+.title .line { display: block; white-space: nowrap; line-height: 1.06; }
+.title .line > span { display: inline-block; padding: .22em .06em .2em; margin: -.2em 0 -.18em; }
+.title .kicker, .title .sub { white-space: nowrap; }
+
+/* Each style sets typeface, fill and glow; size comes from the fit step in poster.js. */
+.t-stack .line { font-family: Anton, Kanit, sans-serif; font-weight: 400; line-height: 1.12; }
+.t-stack .line > span { background: linear-gradient(180deg, #fff 40%, var(--soft)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.t-stack { filter: drop-shadow(0 calc(var(--u)*4) calc(var(--u)*14) rgba(0,0,0,.65)); }
+
+.t-tone .line { font-family: Anton, Kanit, sans-serif; font-weight: 400; line-height: 1.14; }
+.t-tone .l-odd > span { color: var(--a); }
+.t-tone .l-even > span { color: #fff; }
+.t-tone { filter: drop-shadow(0 calc(var(--u)*5) calc(var(--u)*12) rgba(0,0,0,.6)); }
+
+.t-racing .line { font-family: Russo, Kanit, sans-serif; font-weight: 400; font-style: italic; line-height: 1.08; }
+.t-racing .line > span { transform: skewX(-12deg); background: linear-gradient(180deg, #fff 35%, #c9ced8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.t-racing .l-last:not(.l-first) > span { background: linear-gradient(180deg, var(--a2), var(--a) 60%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.t-racing { filter: drop-shadow(0 0 calc(var(--u)*14) var(--glow)) drop-shadow(0 calc(var(--u)*5) calc(var(--u)*8) rgba(0,0,0,.7)); }
+
+.t-gold .line { font-family: Russo, Kanit, sans-serif; font-weight: 400; font-style: italic; line-height: 1.08; }
+.t-gold .line > span { transform: skewX(-10deg); background: linear-gradient(180deg, #ffe9a8, #f3b23a 55%, #a86a12); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.t-gold .l-last:not(.l-first) > span { background: linear-gradient(180deg, #fff 40%, #cfd6e4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.t-gold { filter: drop-shadow(0 calc(var(--u)*5) calc(var(--u)*10) rgba(0,0,0,.75)); }
+
+.t-neon .line { font-family: Michroma, Kanit, sans-serif; font-weight: 400; line-height: 1.2; }
+.t-neon .line > span { color: var(--a); -webkit-text-stroke: calc(var(--u)*1.2) var(--a); }
+.t-neon .l-first:not(.l-last) > span { color: #fff; -webkit-text-stroke: 0; }
+.t-neon { filter: drop-shadow(0 0 calc(var(--u)*5) var(--a)) drop-shadow(0 0 calc(var(--u)*22) var(--glow)); }
+
+.t-bubble .line { font-family: Titan, Mitr, sans-serif; font-weight: 700; line-height: 1.12; }
+.t-bubble .line > span { color: #fff; -webkit-text-stroke: calc(var(--u)*9) var(--a); paint-order: stroke fill; }
+.t-bubble { filter: drop-shadow(0 calc(var(--u)*6) 0 rgba(120,50,90,.28)) drop-shadow(0 calc(var(--u)*10) calc(var(--u)*16) rgba(120,50,90,.3)); }
+
+.kicker { font-family: Anton, Kanit, sans-serif; font-weight: 400; letter-spacing: .03em; color: #fff; margin-bottom: .1em; }
+.sub { font-family: Michroma, Kanit, sans-serif; font-weight: 400; letter-spacing: .02em; color: #fff; margin-top: -.25em; position: relative; z-index: 2; text-shadow: 0 0 .5em rgba(0,0,0,.65); }
+.note { font-family: Kanit, sans-serif; font-weight: 700; color: #fff; text-shadow: 0 .06em .3em rgba(0,0,0,.75); white-space: nowrap; }
+.script { position: absolute; font-family: Signature, cursive; font-weight: 400; white-space: nowrap; line-height: 1; transform: translate(-50%,-50%) rotate(-9deg); color: var(--scriptc); -webkit-text-stroke: calc(var(--u)*3.4) var(--scriptc); filter: drop-shadow(0 0 calc(var(--u)*10) rgba(0,0,0,.55)); z-index: 3; }
+
+.badge { font-family: Kanit, sans-serif; font-weight: 900; font-style: italic; white-space: nowrap; padding: .28em 2.2em .28em .9em; background: linear-gradient(90deg, var(--badge), var(--badge) 55%, transparent); color: #fff; }
+.a-center .badge { background: linear-gradient(90deg, transparent, var(--badge) 22%, var(--badge) 78%, transparent); padding: .28em 2.2em; }
+.a-right .badge { background: linear-gradient(270deg, var(--badge), var(--badge) 55%, transparent); padding: .28em .9em .28em 2.2em; }
+
+.a-left { align-items: flex-start; text-align: left; }
+.a-center { align-items: center; text-align: center; }
+.a-right { align-items: flex-end; text-align: right; }
+
+.cards { display: grid; }
+.card { position: relative; }
+.card .art { position: absolute; display: flex; align-items: center; justify-content: center; }
+.card .art img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 calc(var(--c)*.03) calc(var(--c)*.05) rgba(0,0,0,.6)); }
+.card .name, .card .qty { position: absolute; white-space: nowrap; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+.c-stripe .card { aspect-ratio: 1 / .78; }
+.c-stripe .face { position: absolute; inset: 0 0 8% 3%; background: linear-gradient(135deg, var(--a) 0%, var(--cardmid) 55%, var(--cardend) 100%); }
+.c-stripe .face::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,.2) 0 calc(var(--c)*.09), transparent calc(var(--c)*.09) calc(var(--c)*.2)); -webkit-mask-image: linear-gradient(115deg, #000, transparent 58%); mask-image: linear-gradient(115deg, #000, transparent 58%); }
+.c-stripe .face::after { content: ""; position: absolute; top: 8%; right: 4%; width: calc(var(--c)*.05); height: 30%; background: repeating-linear-gradient(170deg, rgba(255,255,255,.85) 0 calc(var(--c)*.012), transparent calc(var(--c)*.012) calc(var(--c)*.04)); }
+.c-stripe .art { inset: 2% 6% 25% 9%; }
+.c-stripe .name { left: 0; bottom: 0; width: 49%; height: 22%; background: linear-gradient(180deg, var(--a), var(--cardmid)); clip-path: polygon(0 0, 100% 0, 100% 62%, 88% 100%, 12% 100%, 0 70%); font-family: Anton, Kanit, sans-serif; font-weight: 400; font-size: calc(var(--c)*.095); padding: 0 4%; }
+.c-stripe .qty { left: 52%; bottom: 6%; width: 33%; height: 13%; background: rgba(5,8,14,.86); border-radius: calc(var(--c)*.02); font-family: Anton, Kanit, sans-serif; font-weight: 400; font-size: calc(var(--c)*.07); }
+
+.c-chamfer .card { aspect-ratio: 1 / .94; filter: drop-shadow(0 0 calc(var(--c)*.04) var(--a)) drop-shadow(0 0 calc(var(--c)*.1) var(--glow)); }
+.c-chamfer .face { position: absolute; inset: 0; background: linear-gradient(180deg, var(--a2), var(--a)); clip-path: polygon(7% 0, 28% 0, 31% 2%, 69% 2%, 72% 0, 93% 0, 100% 7%, 100% 93%, 93% 100%, 72% 100%, 69% 98%, 31% 98%, 28% 100%, 7% 100%, 0 93%, 0 7%); }
+.c-chamfer .face::after { content: ""; position: absolute; inset: 2.6%; background: radial-gradient(ellipse at 50% 42%, var(--cardmid), var(--cardend) 80%); clip-path: polygon(6% 0, 94% 0, 100% 6%, 100% 94%, 94% 100%, 6% 100%, 0 94%, 0 6%); }
+.c-chamfer .art { inset: 22% 14% 18% 14%; }
+.c-chamfer .name { left: 12%; right: 12%; top: 8%; height: 12%; background: rgba(4,2,3,.86); border-radius: calc(var(--c)*.02); font-family: Kanit, sans-serif; font-size: calc(var(--c)*.072); padding: 0 4%; }
+.c-chamfer .qty { left: 10%; bottom: 7%; height: 12%; justify-content: flex-start; font-family: Kanit, sans-serif; font-size: calc(var(--c)*.09); }
+
+.c-dark .card { aspect-ratio: 1 / 1.2; background: rgba(18,16,14,.92); border-radius: calc(var(--c)*.1); }
+.c-dark .art { inset: 19% 12% 16% 12%; }
+.c-dark .name { left: 8%; right: 8%; top: 6%; height: 12%; font-family: Anton, Kanit, sans-serif; font-weight: 400; font-size: calc(var(--c)*.1); }
+.c-dark .qty { left: 8%; right: 8%; bottom: 5%; height: 11%; color: var(--a); font-family: Anton, Kanit, sans-serif; font-weight: 400; font-size: calc(var(--c)*.095); }
+
+.c-glass .card { aspect-ratio: 1 / 1.05; background: linear-gradient(160deg, rgba(255,255,255,.72), rgba(255,255,255,.36)); border: calc(var(--c)*.015) solid rgba(255,255,255,.85); border-radius: calc(var(--c)*.12); box-shadow: 0 calc(var(--c)*.04) calc(var(--c)*.12) rgba(120,60,110,.25); }
+.c-glass .art { inset: 8% 12% 28% 12%; }
+.c-glass .name { left: 6%; right: 6%; bottom: 14%; height: 13%; color: #5a3a55; font-family: Mitr, sans-serif; font-size: calc(var(--c)*.09); }
+.c-glass .qty { left: 6%; right: 6%; bottom: 3%; height: 11%; color: var(--a); font-family: Mitr, sans-serif; font-size: calc(var(--c)*.085); }
+
+.c-hex .card { aspect-ratio: 1 / 1.12; filter: drop-shadow(0 0 calc(var(--c)*.03) rgba(255,255,255,.55)); }
+.c-hex .face { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,.22), rgba(20,16,30,.55)); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+.c-hex .art { inset: 14% 14% 22% 14%; }
+.c-hex .name { left: 16%; right: 16%; bottom: 13%; height: 10%; font-family: Anton, Kanit, sans-serif; font-weight: 400; font-size: calc(var(--c)*.08); }
+.c-hex .qty { left: 30%; right: 30%; top: 8%; height: 9%; font-family: Anton, Kanit, sans-serif; font-weight: 400; font-size: calc(var(--c)*.07); }
+
+.footer { position: absolute; display: flex; align-items: center; font-family: Anton, Kanit, sans-serif; font-weight: 400; white-space: nowrap; }
+.footer .chip { display: inline-flex; align-items: center; }
+.footer svg { display: block; fill: currentColor; }
+.f-pill .chip { background: var(--pill); color: #fff; border-radius: .25em; padding: .3em 1.4em; }
+.f-slash { left: 0 !important; bottom: 0 !important; top: auto !important; transform: none !important; background: linear-gradient(90deg, var(--a), var(--cardmid)); clip-path: polygon(0 0, 86% 0, 100% 100%, 0 100%); }
+.logo { position: absolute; object-fit: contain; filter: drop-shadow(0 calc(var(--u)*3) calc(var(--u)*10) rgba(0,0,0,.55)); }
+
+/* card background: brand logo cropped to roughly half, replaces the diagonal stripes */
+.c-stripe.has-logo .face::before { background: var(--logo) no-repeat; background-size: 210% auto; background-position: 92% 58%; -webkit-mask-image: none; mask-image: none; opacity: .34; filter: grayscale(1) brightness(1.9) contrast(.9); mix-blend-mode: screen; }
+
+
+/* card style "tag": softly squared card (small radius, same on card and quantity chip) with a gradient edge, icon above, name and quantity pill on one line */
+.c-tag .card { aspect-ratio: 1 / var(--ar, .74); filter: drop-shadow(0 0 calc(var(--c)*.035) var(--a)) drop-shadow(0 calc(var(--c)*.05) calc(var(--c)*.08) rgba(0,0,0,.6)); }
+.c-tag .card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, var(--a), var(--a2) 50%, var(--a)); clip-path: polygon(calc(var(--c)*.1) 0, 100% 0, 100% calc(100% - var(--c)*.1), calc(100% - var(--c)*.1) 100%, 0 100%, 0 calc(var(--c)*.1)); }
+.c-tag .card::after { content: ""; position: absolute; z-index: 3; top: 9%; right: 8%; width: 17%; height: 11%; background: repeating-linear-gradient(115deg, rgba(255,255,255,.75) 0 calc(var(--c)*.012), rgba(255,255,255,0) calc(var(--c)*.012) calc(var(--c)*.032)); opacity: .55; pointer-events: none; }
+.c-tag .face { position: absolute; inset: calc(var(--c)*.012); overflow: hidden; background: linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,0) 42%), linear-gradient(135deg, var(--a) 0%, var(--cardmid) 62%, var(--cardend) 100%); clip-path: polygon(calc(var(--c)*.09) 0, 100% 0, 100% calc(100% - var(--c)*.09), calc(100% - var(--c)*.09) 100%, 0 100%, 0 calc(var(--c)*.09)); }
+.c-tag .face::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 48%; background: linear-gradient(0deg, rgba(0,0,0,.82), rgba(0,0,0,0)); }
+.c-tag .art { inset: 5% 12% 31% 12%; z-index: 1; }
+.c-tag .row { position: absolute; z-index: 2; left: 7%; right: 7%; bottom: 7%; height: 19%; display: flex; align-items: center; justify-content: space-between; gap: 5%; font-family: Russo, Kanit, sans-serif; font-weight: 400; letter-spacing: .02em; color: #fff; white-space: nowrap; }
+.c-tag .row .name { position: static; flex: 1 1 auto; min-width: 0; text-align: left; text-shadow: 0 2px calc(var(--c)*.03) rgba(0,0,0,.8); }
+.c-tag .row .qty { position: static; flex: 0 0 auto; align-self: stretch; display: flex; align-items: center; padding: 0 .7em; background: linear-gradient(90deg, var(--badge), var(--a)); clip-path: polygon(.4em 0, 100% 0, 100% calc(100% - .4em), calc(100% - .4em) 100%, 0 100%, 0 .4em); text-shadow: 0 1px calc(var(--c)*.015) rgba(0,0,0,.5); }
+.has-logo .face::before { content: ""; position: absolute; inset: 0; background: var(--logo) no-repeat; background-size: 210% auto; background-position: 92% 58%; opacity: .2; filter: grayscale(1) brightness(1.9) contrast(.9); mix-blend-mode: screen; -webkit-mask-image: none; mask-image: none; z-index: 0; }
+
+
+
+/* items.opacity < 1 (tag cards): frosted-glass look. Poster shows through the face; the edge is a thin ring (--ring is set by poster.js). */
+.c-tag.glass .card { filter: drop-shadow(0 0 calc(var(--c)*.03) var(--a)); }
+.c-tag.glass .card::before { clip-path: var(--ring); }
+.c-tag.glass .face { background: linear-gradient(160deg, rgba(255,255,255,.22), rgba(255,255,255,0) 46%), linear-gradient(135deg, color-mix(in srgb, var(--a) calc(var(--fa)*.7%), transparent) 0%, color-mix(in srgb, var(--cardmid) calc(var(--fa)*1%), transparent) 62%, color-mix(in srgb, var(--cardend) calc(var(--fa)*1%), transparent) 100%); }
+.c-tag.glass .face::after { background: linear-gradient(0deg, rgba(0,0,0,calc(.3 + .3*var(--fan))), rgba(0,0,0,0)); }

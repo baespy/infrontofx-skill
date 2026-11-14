@@ -1,18 +1,31 @@
 ---
 name: infrontofx
-description: มาตรฐานการเขียน/รีไรต์ resource FiveM (Lua 5.4 + ox_lib, NUI/DUI) แบบ OOP ไม่มี comment ไม่มีค่าคงที่ระดับไฟล์ ใช้ทุกครั้งที่เขียนใหม่ ปรับปรุง optimize แยกสคริป หรือออกแบบ UI ของ resource FiveM. Triggers - "infrontofx", "1nfx", "เขียนใหม่", "รีไรต์", "optimize", "แยกสคริป", "NUI", "DUI".
+description: ชุดเดียวครบสำหรับงาน FiveM ของเซิร์ฟเวอร์ (1) มาตรฐานเขียน/รีไรต์ resource Lua 5.4 + ox_lib, NUI/DUI แบบ OOP ไม่มี comment ไม่มี FC ไม่มีค่าคงที่ระดับไฟล์ (2) poster-forge ทำโปสเตอร์ Support/Welfare จากรูปตัวละครและไอเทม (3) weapon-forge ทำสกิน/โมเดลอาวุธ ptfx เอฟเฟกต์หน้าจอและเสียง. ใช้ทุกครั้งที่เขียนใหม่ optimize แยกสคริป ทำ UI สร้าง resource ใหม่ ทำโปสเตอร์ หรือทำสกินอาวุธ. Triggers - "infrontofx", "1nfx", "เขียนใหม่", "รีไรต์", "optimize", "แยกสคริป", "NUI", "DUI", "โปสเตอร์", "support", "สวัสดิการ", "สกินอาวุธ", "weapon skin", "ptfx", "ypt".
 ---
 
 # infrontofx
 
-มาตรฐานการเขียน resource FiveM ตระกูล `1nfx_*`
-เป้าหมาย: การทำงานในเกมของแต่ละ resource เหมือนเดิมทุกอย่าง โค้ดสั้นลง ลื่นขึ้น ไม่มีของซ้ำ
+ชุดเดียวครบสำหรับเซิร์ฟเวอร์ FiveM ตระกูล `1nfx_*` มี 3 ส่วน: มาตรฐานโค้ด (ไฟล์นี้และโฟลเดอร์ `skills/`), `poster-forge/` และ `weapon-forge/`
+เป้าหมายของมาตรฐานโค้ด: การทำงานในเกมของแต่ละ resource เหมือนเดิมทุกอย่าง โค้ดสั้นลง ลื่นขึ้น ไม่มีของซ้ำ
 
-ไฟล์ในชุดนี้ (อ่านเฉพาะที่ต้องใช้ เพื่อประหยัด token):
+## ตัวเลือกเส้นทาง (อ่านเฉพาะที่ต้องใช้ เพื่อประหยัด token)
 
-- `SKILL.md` (ไฟล์นี้) กฎหลักทุกงาน
-- `NUI_DUI.md` เมื่อทำ UI
-- `TOOLING.md` เมื่อเลือกเครื่องมือเสริม MCP หรือวิธีจำข้ามเซสชัน
+| งาน | อ่านไฟล์นี้ก่อน |
+| --- | --- |
+| เขียน/รีไรต์/optimize resource | `SKILL.md` (ไฟล์นี้) แล้วตามด้วยหัวข้อด้านล่าง |
+| สร้าง resource ใหม่ | `checklists/new-resource.md`, `templates/resource/`, `scripts/new-resource.mjs` |
+| ตรวจ/รีวิวโค้ด | `checklists/review.md`, `scripts/lint-resource.mjs`, `rules/contracts.md` |
+| สถาปัตยกรรม, config, event, network | `skills/common/architecture.md`, `config.md`, `events.md`, `networking.md` |
+| เรียก framework, แจ้งเตือน, log (ไม่ใช้ FC) | `skills/common/core-api.md`, `references/esx-api.md`, `references/pnotify-api.md` |
+| ฐานข้อมูล | `skills/common/database.md` |
+| ประสิทธิภาพ, native, ox_lib, runtime | `skills/common/performance.md`, `natives.md`, `ox-lib.md`, `runtime.md`, `memory/performance-research.md`, `memory/native-gotchas.md` |
+| ความปลอดภัย, ดีบัก, สไตล์ | `skills/common/security.md`, `debugging.md`, `style.md`, `memory/security-exploits.md`, `memory/patterns.md` |
+| UI (NUI/DUI) | `NUI_DUI.md` แล้วตามด้วย `skills/ui/design-system.md`, `nui-bridge.md`, `dui.md`, `vanilla-ui.md`, `react-vite.md`, `vue-svelte.md` |
+| เครื่องมือเสริม MCP ความจำ ประหยัด token | `TOOLING.md` |
+| โปสเตอร์ Support / Welfare / แจกของ | `poster-forge/SKILL.md` |
+| สกินอาวุธ, โมเดล, ptfx (.ypt), เอฟเฟกต์หน้าจอ, เสียง | `weapon-forge/SKILL.md` |
+
+เมื่อเข้าเส้นทางของ `poster-forge` หรือ `weapon-forge` ให้เปิด `SKILL.md` ของโฟลเดอร์นั้นและทำตามนั้นทั้งหมด พาธใน skill เหล่านั้นอิงจากโฟลเดอร์ของมันเอง
 
 ## หลักการ
 

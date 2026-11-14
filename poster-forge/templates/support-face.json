@@ -1,0 +1,191 @@
+﻿{
+    "size":  "1:1",
+    "layout":  "square-support",
+    "theme":  "cobalt",
+    "accent2":  "#36d6ff",
+    "seed":  53,
+    "background":  {
+                       "shape":  "none",
+                       "lightX":  0.35,
+                       "lightY":  0.3,
+                       "graffiti":  0,
+                       "grid":  0,
+                       "darken":  0,
+                       "texture":  0,
+                       "wmAlpha":  0,
+                       "image":  "ai2/bg3_blue.png",
+                       "brightness":  1,
+                       "tint":  0
+                   },
+    "fx":  {
+               "sparks":  14,
+               "beams":  0,
+               "leaks":  0,
+               "lightning":  0,
+               "bokeh":  0,
+               "bokehFront":  0,
+               "arcs":  0,
+               "arcsY":  [
+                             0.52,
+                             0.64
+                         ]
+           },
+    "grain":  0.18,
+    "vignette":  0.5,
+    "shade":  "none",
+    "heroes":  [
+                   {
+                       "src":  "hero9_newbie.png",
+                       "x":  0.36,
+                       "y":  1,
+                       "h":  0.96,
+                       "grade":  0.3,
+                       "rim":  0.6,
+                       "fade":  {
+                                    "bottom":  0
+                                },
+                       "flip":  false,
+                       "soften":  1,
+                       "glowSize":  6,
+                       "saturate":  0.85,
+                       "contrast":  1.06
+                   }
+               ],
+    "column":  {
+                   "x":  0.7,
+                   "w":  0.26,
+                   "top":  0.22,
+                   "bottom":  0.56,
+                   "justify":  "center",
+                   "align":  "center"
+               },
+    "title":  {
+                  "style":  "stack",
+                  "lines":  [
+                                {
+                                    "t":  "NEWBIE",
+                                    "color":  "#cdd6e4"
+                                }
+                            ],
+                  "script":  "Extreme",
+                  "sub":  "WELFARE",
+                  "scriptColor":  "#ffffff"
+              },
+    "items":  {
+                  "style":  "tag",
+                  "cols":  5,
+                  "cardLogo":  "logo.png",
+                  "list":  [
+                               {
+                                   "name":  "CASH",
+                                   "qty":  "X50,000",
+                                   "img":  "items/money.png"
+                               },
+                               {
+                                   "name":  "PHONE",
+                                   "qty":  "X1",
+                                   "img":  "items/phone.png"
+                               },
+                               {
+                                   "name":  "RADIO",
+                                   "qty":  "X1",
+                                   "img":  "items/radio.png"
+                               },
+                               {
+                                   "name":  "VAULT KEY",
+                                   "qty":  "X1",
+                                   "img":  "items/vault_key.png"
+                               },
+                               {
+                                   "name":  "RESKIN CARD",
+                                   "qty":  "X1",
+                                   "img":  "items/reskin_card.png"
+                               },
+                               {
+                                   "name":  "REPAIR KIT",
+                                   "qty":  "X5",
+                                   "img":  "items/repair_kit.png"
+                               },
+                               {
+                                   "name":  "SUPPLY BOX",
+                                   "qty":  "X20",
+                                   "img":  "items/supply_box.png"
+                               },
+                               {
+                                   "name":  "GACHA PROMOTE",
+                                   "qty":  "X100",
+                                   "img":  "items/gacha_promote_v1.png"
+                               },
+                               {
+                                   "name":  "SEED SUNFLOWER",
+                                   "qty":  "X10",
+                                   "img":  "items/seed_sunflower.png"
+                               },
+                               {
+                                   "name":  "FORGE BOX",
+                                   "qty":  "X1",
+                                   "img":  "items/forge_box.png"
+                               },
+                               {
+                                   "name":  "BOTTLE",
+                                   "qty":  "X1",
+                                   "img":  "items/WEAPON_BOTTLE.png"
+                               },
+                               {
+                                   "name":  "POOLCUE",
+                                   "qty":  "X1",
+                                   "img":  "items/WEAPON_POOLCUE.png"
+                               },
+                               {
+                                   "name":  "ISSI7",
+                                   "qty":  "X1",
+                                   "img":  "items/issi7.png"
+                               }
+                           ],
+                  "x":  0.18,
+                  "w":  0.64,
+                  "band":  [
+                               0.6,
+                               0.905
+                           ],
+                  "gap":  0.02,
+                  "opacity":  0.55
+              },
+    "footer":  {
+                   "style":  "chips",
+                   "size":  10,
+                   "socials":  [
+                                   {
+                                       "text":  "EXTREME COMMUNITY",
+                                       "type":  "facebook"
+                                   },
+                                   {
+                                       "text":  "EXTREME COMMUNITY",
+                                       "type":  "discord"
+                                   }
+                               ],
+                   "y":  0.968
+               },
+    "logo":  {
+                 "w":  0.11,
+                 "corner":  "tr",
+                 "src":  "../extreme_logo.png"
+             },
+    "bloom":  {
+                  "blur":  22,
+                  "bright":  1.3,
+                  "saturate":  1.25,
+                  "alpha":  0.1
+              },
+    "grainTop":  0.2,
+    "panel":  [
+                  0.14,
+                  0.585,
+                  0.72,
+                  0.36
+              ],
+    "frontShade":  [
+                       0.14,
+                       0
+                   ]
+}

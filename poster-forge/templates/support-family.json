@@ -1,0 +1,258 @@
+﻿{
+    "size":  "1:1",
+    "layout":  "square-support",
+    "theme":  "violet",
+    "accent2":  "#ff8ad2",
+    "seed":  52,
+    "background":  {
+                       "shape":  "none",
+                       "lightX":  0.35,
+                       "lightY":  0.3,
+                       "graffiti":  0,
+                       "grid":  0,
+                       "darken":  0,
+                       "texture":  0,
+                       "wmAlpha":  0,
+                       "image":  "ai2/bg3_violet.png",
+                       "brightness":  1,
+                       "tint":  0
+                   },
+    "fx":  {
+               "sparks":  14,
+               "beams":  0,
+               "leaks":  0,
+               "lightning":  0,
+               "bokeh":  0,
+               "bokehFront":  0,
+               "arcs":  0,
+               "arcsY":  [
+                             0.52,
+                             0.64
+                         ]
+           },
+    "grain":  0.18,
+    "vignette":  0.5,
+    "shade":  "none",
+    "heroes":  [
+                   {
+                       "src":  "hero9_family.png",
+                       "x":  0.37,
+                       "y":  1,
+                       "h":  0.96,
+                       "grade":  0.3,
+                       "rim":  0.6,
+                       "fade":  {
+                                    "bottom":  0
+                                },
+                       "flip":  false,
+                       "soften":  1,
+                       "glowSize":  6,
+                       "saturate":  0.85,
+                       "contrast":  1.06
+                   }
+               ],
+    "column":  {
+                   "x":  0.7,
+                   "w":  0.26,
+                   "top":  0.22,
+                   "bottom":  0.56,
+                   "justify":  "center",
+                   "align":  "center"
+               },
+    "title":  {
+                  "style":  "stack",
+                  "lines":  [
+                                {
+                                    "t":  "FAMILY",
+                                    "color":  "#d6d0e0"
+                                }
+                            ],
+                  "script":  "Extreme",
+                  "sub":  "WELFARE",
+                  "scriptColor":  "#ffffff"
+              },
+    "items":  {
+                  "style":  "tag",
+                  "cols":  7,
+                  "y":  0.618,
+                  "cardLogo":  "logo.png",
+                  "list":  [
+                               {
+                                   "name":  "CASH",
+                                   "qty":  "X1,100,000",
+                                   "img":  "items/money.png"
+                               },
+                               {
+                                   "name":  "RED MONEY",
+                                   "qty":  "X68,000",
+                                   "img":  "items/black_money.png"
+                               },
+                               {
+                                   "name":  "SUPPLY BOX",
+                                   "qty":  "X50",
+                                   "img":  "items/supply_box.png"
+                               },
+                               {
+                                   "name":  "GACHA PROMOTE",
+                                   "qty":  "X100",
+                                   "img":  "items/gacha_promote_v1.png"
+                               },
+                               {
+                                   "name":  "MERGING BOX",
+                                   "qty":  "X308",
+                                   "img":  "items/merging_box.png"
+                               },
+                               {
+                                   "name":  "BP SCRAP",
+                                   "qty":  "X50",
+                                   "img":  "items/bp_scrap.png"
+                               },
+                               {
+                                   "name":  "WEAPON BOX",
+                                   "qty":  "X202",
+                                   "img":  "items/weaponbox.png"
+                               },
+                               {
+                                   "name":  "CEMENT",
+                                   "qty":  "X1,160",
+                                   "img":  "items/cement.png"
+                               },
+                               {
+                                   "name":  "EXP",
+                                   "qty":  "X116,000",
+                                   "img":  "items/exp.png"
+                               },
+                               {
+                                   "name":  "BP POOLCUE",
+                                   "qty":  "X4",
+                                   "img":  "items/bp_poolcue.png"
+                               },
+                               {
+                                   "name":  "BP KNUCKLE",
+                                   "qty":  "X3",
+                                   "img":  "items/bp_knuckle.png"
+                               },
+                               {
+                                   "name":  "BP MACHETE",
+                                   "qty":  "X3",
+                                   "img":  "items/bp_machete.png"
+                               },
+                               {
+                                   "name":  "BP REVOLVER",
+                                   "qty":  "X1",
+                                   "img":  "items/bp_revolver.png"
+                               },
+                               {
+                                   "name":  "GUN A",
+                                   "qty":  "X2",
+                                   "img":  "items/gun_a.png"
+                               },
+                               {
+                                   "name":  "GUN B",
+                                   "qty":  "X2",
+                                   "img":  "items/gun_b.png"
+                               },
+                               {
+                                   "name":  "GUN C",
+                                   "qty":  "X2",
+                                   "img":  "items/gun_c.png"
+                               },
+                               {
+                                   "name":  "GUN D",
+                                   "qty":  "X2",
+                                   "img":  "items/gun_d.png"
+                               },
+                               {
+                                   "name":  "GUN E",
+                                   "qty":  "X2",
+                                   "img":  "items/gun_e.png"
+                               },
+                               {
+                                   "name":  "SCREW A",
+                                   "qty":  "X10",
+                                   "img":  "items/screw_a.png"
+                               },
+                               {
+                                   "name":  "SCREW B",
+                                   "qty":  "X10",
+                                   "img":  "items/screw_b.png"
+                               },
+                               {
+                                   "name":  "SCREW C",
+                                   "qty":  "X10",
+                                   "img":  "items/screw_c.png"
+                               },
+                               {
+                                   "name":  "CELASTINE",
+                                   "qty":  "X20",
+                                   "img":  "items/celastine.png"
+                               },
+                               {
+                                   "name":  "SOLARFLARE",
+                                   "qty":  "X86",
+                                   "img":  "items/solarflare.png"
+                               },
+                               {
+                                   "name":  "MORGANITE",
+                                   "qty":  "X80",
+                                   "img":  "items/morganite.png"
+                               },
+                               {
+                                   "name":  "ITALIGTB",
+                                   "qty":  "X1",
+                                   "img":  "items/car_italigtb.png"
+                               },
+                               {
+                                   "name":  "TOROS",
+                                   "qty":  "X1",
+                                   "img":  "items/car_toros.png"
+                               }
+                           ],
+                  "x":  0.05,
+                  "w":  0.9,
+                  "band":  [
+                               0.585,
+                               0.905
+                           ],
+                  "gap":  0.011,
+                  "aspect":  0.58,
+                  "opacity":  0.55
+              },
+    "footer":  {
+                   "style":  "chips",
+                   "size":  10,
+                   "socials":  [
+                                   {
+                                       "text":  "EXTREME COMMUNITY",
+                                       "type":  "facebook"
+                                   },
+                                   {
+                                       "text":  "EXTREME COMMUNITY",
+                                       "type":  "discord"
+                                   }
+                               ],
+                   "y":  0.968
+               },
+    "logo":  {
+                 "w":  0.11,
+                 "corner":  "tr",
+                 "src":  "../extreme_logo.png"
+             },
+    "bloom":  {
+                  "blur":  22,
+                  "bright":  1.3,
+                  "saturate":  1.25,
+                  "alpha":  0.1
+              },
+    "grainTop":  0.2,
+    "panel":  [
+                  0.04,
+                  0.575,
+                  0.92,
+                  0.375
+              ],
+    "frontShade":  [
+                       0.14,
+                       0
+                   ]
+}

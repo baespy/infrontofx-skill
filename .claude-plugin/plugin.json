@@ -1,0 +1,10 @@
+{
+    "name": "infrontofx-skill",
+    "version": "3.0.0",
+    "description": "infrontofx FiveM toolkit: Lua + NUI/DUI standard (OOP, no comments, no FC), poster-forge and weapon-forge.",
+    "author": {
+        "name": "baespy"
+    },
+    "license": "MIT",
+    "skills": ["./", "./poster-forge", "./weapon-forge"]
+}

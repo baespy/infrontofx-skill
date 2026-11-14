@@ -1,0 +1,8 @@
+﻿{
+    "out":  "work\\ai\\gen_gang.png",
+    "prompt":  "\u003cfull prompt string, see references/character-prompts.md\u003e",
+    "ref":  [
+                "work\\src\\IMG_xxxx.jpg",
+                "work\\ai\\face_xxxx.jpg"
+            ]
+}

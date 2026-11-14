@@ -1,0 +1,129 @@
+﻿{
+    "size":  "2:1",
+    "layout":  "square-support",
+    "theme":  "rose",
+    "accent2":  "#ff9fd6",
+    "seed":  61,
+    "background":  {
+                       "shape":  "none",
+                       "lightX":  0.35,
+                       "lightY":  0.3,
+                       "graffiti":  0,
+                       "grid":  0,
+                       "darken":  0,
+                       "texture":  0,
+                       "wmAlpha":  0,
+                       "image":  "ai2/bg5_stream_wide.png",
+                       "brightness":  0.84,
+                       "tint":  0
+                   },
+    "fx":  {
+               "sparks":  26,
+               "beams":  0,
+               "leaks":  0,
+               "lightning":  0,
+               "bokeh":  10,
+               "bokehFront":  3,
+               "arcs":  0
+           },
+    "grain":  0.34,
+    "grainTop":  0.3,
+    "vignette":  0.28,
+    "shade":  "none",
+    "frontShade":  [
+                       0.1,
+                       0
+                   ],
+    "bloom":  {
+                  "blur":  30,
+                  "bright":  1.35,
+                  "saturate":  1.2,
+                  "alpha":  0.26
+              },
+    "heroes":  [
+                   {
+                       "src":  "hero12_streamer.png",
+                       "x":  0.77,
+                       "y":  1,
+                       "h":  1.0,
+                       "grade":  0.2,
+                       "rim":  0.4,
+                       "fade":  {
+                                    "bottom":  0
+                                },
+                       "flip":  false,
+                       "soften":  1,
+                       "glowSize":  5,
+                       "saturate":  0.95,
+                       "contrast":  1.05
+                   }
+               ],
+    "column":  {
+                   "x":  0.04,
+                   "w":  0.42,
+                   "top":  0.14,
+                   "bottom":  0.6,
+                   "justify":  "center",
+                   "align":  "center"
+               },
+    "title":  {
+                  "style":  "stack",
+                  "lines":  [
+                                {
+                                    "t":  "STREAMER",
+                                    "color":  "#ffffff"
+                                }
+                            ],
+                  "script":  "Extreme",
+                  "scriptY":  88,
+                  "scriptColor":  "#ffffff"
+              },
+    "footer":  {
+                   "style":  "chips",
+                   "size":  12,
+                   "x":  0.25,
+                   "y":  0.64,
+                   "align":  "center",
+                   "socials":  [
+                                   {
+                                       "text":  "EXTREME COMMUNITY",
+                                       "type":  "facebook"
+                                   },
+                                   {
+                                       "text":  "EXTREME COMMUNITY",
+                                       "type":  "discord"
+                                   }
+                               ]
+               },
+    "logo":  {
+                 "w":  0.09,
+                 "corner":  "tl",
+                 "src":  "../extreme_logo.png"
+             },
+    "props":  [
+                  {
+                      "src":  "items/ea_1.png",
+                      "x":  0.45,
+                      "y":  0.87,
+                      "h":  0.66,
+                      "rotate":  "-30",
+                      "flip":  false,
+                      "grade":  0,
+                      "rim":  0,
+                      "glowSize":  7,
+                      "soften":  0
+                  },
+                  {
+                      "src":  "items/ea_2.png",
+                      "x":  0.55,
+                      "y":  0.87,
+                      "h":  0.66,
+                      "rotate":  "-30",
+                      "flip":  false,
+                      "grade":  0,
+                      "rim":  0,
+                      "glowSize":  7,
+                      "soften":  0
+                  }
+              ]
+}

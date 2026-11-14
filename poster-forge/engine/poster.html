@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Poster</title>
+<link rel="stylesheet" href="poster.css">
+</head>
+<body>
+<div id="poster"></div>
+<script>
+  var specUrl = new URLSearchParams(location.search).get('spec');
+  if (specUrl) document.write('<script src="' + specUrl + '"><\/script>');
+</script>
+<script src="poster.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "id": "onikage",
+  "grade": { "black": 0.13, "gamma": 1.3, "red": 0.55 },
+  "pieces": [
+    { "name": "poolcue", "slot": "poolcue", "center": [0.135, -0.028, 0.093], "main": [1.0, 0.0, 0.26], "range": [0.2, 0.8], "sec": [0.25, 0.0, -1.0], "flat": false, "length": 0.95, "grip": 0.2, "tris": 24000, "bake": 2048 },
+    { "name": "bottle", "slot": "bottle", "center": [-0.247, 0.051, 0.243], "main": [0.97, 0.0, -0.24], "range": [0.0, 0.3], "sec": [-0.24, 0.0, -0.97], "flat": true, "length": 0.32, "grip": 0.16, "tris": 20000, "bake": 2048 },
+    { "name": "scabbard", "slot": "bottle", "center": [-0.245, 0.035, 0.175], "main": [0.99, 0.0, -0.15], "sec": [-0.15, 0.0, -0.99], "flat": true, "length": 0.27, "grip": 0.2, "tris": 8000, "bake": 1024 },
+    { "name": "machete", "slot": "machete", "center": [0.314, -0.06, 0.055], "main": [-0.995, 0.0, -0.08], "sec": [0.0, 0.0, -1.0], "flat": true, "length": 0.42, "grip": 0.165, "tris": 18000, "bake": 2048 },
+    { "name": "knife", "slot": "knife", "center": [0.256, 0.003, 0.263], "main": [-0.077, 0.0, -0.997], "fixed": true, "sec": [-1.0, 0.0, 0.0], "flat": true, "length": 0.28, "grip": 0.28, "tris": 16000, "bake": 1024 },
+    { "name": "knuckle", "slot": "knuckle", "center": [-0.342, -0.003, 0.062], "main": [1.0, 0.0, 0.0], "sec": [0.0, 0.0, 1.0], "flat": true, "length": 0.2, "tris": 16000, "bake": 1024 },
+    { "name": "revolver", "slot": "revolver", "center": [-0.028, 0.0185, 0.242], "main": [-1.0, 0.0, 0.0], "range": [0.45, 1.0], "sec": [0.0, 0.0, 1.0], "flat": true, "length": 0.34, "tris": 22000, "bake": 2048, "tassel": 0.5 }
+  ]
+}

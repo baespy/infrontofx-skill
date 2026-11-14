@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>infrontofx_template</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/nui.js" defer></script>
+    <script src="js/app.js" defer></script>
+</head>
+<body>
+    <main id="shop" class="panel" hidden>
+        <header>
+            <div class="brand">
+                <span class="red-pill"></span>
+                <div class="brand-copy">
+                    <span class="brand-eyebrow">EXTREME COMMUNITY</span>
+                    <h1 id="shop-title">SHOP</h1>
+                </div>
+            </div>
+            <button type="button" id="shop-close" class="close-button" aria-label="Close">CLOSE</button>
+        </header>
+
+        <div class="divider"></div>
+
+        <section class="summary">
+            <div>
+                <span>WALLET BALANCE</span>
+                <p>ยอดเงินคงเหลือที่ใช้ได้</p>
+            </div>
+            <strong id="shop-money">$0</strong>
+        </section>
+
+        <div class="list-heading">
+            <span>ITEM</span>
+            <span>PRICE</span>
+        </div>
+
+        <div id="item-list" class="item-list"></div>
+
+        <footer>
+            <div class="amount">
+                <button type="button" id="amount-minus" class="secondary-button">-</button>
+                <input id="amount-input" type="number" min="1" value="1">
+                <button type="button" id="amount-plus" class="secondary-button">+</button>
+            </div>
+            <button type="button" id="buy-button" class="primary-button" disabled>SELECT ITEM</button>
+        </footer>
+    </main>
+</body>
+</html>
