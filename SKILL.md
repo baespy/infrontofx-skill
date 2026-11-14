@@ -20,7 +20,7 @@ description: ชุดเดียวครบสำหรับงาน FiveM 
 | ฐานข้อมูล | `skills/common/database.md` |
 | ประสิทธิภาพ, native, ox_lib, runtime | `skills/common/performance.md`, `natives.md`, `ox-lib.md`, `runtime.md`, `memory/performance-research.md`, `memory/native-gotchas.md` |
 | ความปลอดภัย, ดีบัก, สไตล์ | `skills/common/security.md`, `debugging.md`, `style.md`, `memory/security-exploits.md`, `memory/patterns.md` |
-| UI (NUI/DUI) | `NUI_DUI.md` แล้วตามด้วย `skills/ui/extreme-hp-ui.md` (สไตล์หลัก), `skills/ui/design-system.md`, `nui-bridge.md`, `dui.md`, `vanilla-ui.md`, `react-vite.md`, `vue-svelte.md` |
+| UI (NUI/DUI) | `NUI_DUI.md` แล้วตามด้วย `skills/ui/design-system.md` (สไตล์ 1nfx), `nui-bridge.md`, `dui.md`, `vanilla-ui.md`, `react-vite.md`, `vue-svelte.md` |
 | เครื่องมือเสริม MCP ความจำ ประหยัด token | `TOOLING.md` |
 | โปสเตอร์ Support / Welfare / แจกของ | `poster-forge/SKILL.md` |
 | สกินอาวุธ, โมเดล, ptfx (.ypt), เอฟเฟกต์หน้าจอ, เสียง | `weapon-forge/SKILL.md` |

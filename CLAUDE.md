@@ -16,4 +16,4 @@ repo นี้ (และ workspace FiveM ที่ติดตั้งไว�
 10. ล้างให้ครบใน `onResourceStop` และ `playerDropped`
 11. secret อยู่ในไฟล์ฝั่ง server เท่านั้น ไม่ลงใน repo
 12. manifest ห้ามมี `dependencies`/`dependency` และ `escrow_ignore` ห้ามมีไฟล์ `sh_*.lua`
-13. UI ใช้สไตล์ `skills/ui/extreme-hp-ui.md`: ไม่มีขอบสีขาว ไม่มี blur ใช้ crimson `#ff263d`
+13. UI ใช้สไตล์ 1nfx ใน `skills/ui/design-system.md` (ไม่มีขอบ dark layered panel ปุ่ม crimson `#632524`)
