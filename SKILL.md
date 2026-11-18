@@ -1,11 +1,11 @@
 ---
 name: infrontofx
-description: ชุดเดียวครบสำหรับงาน FiveM ของเซิร์ฟเวอร์ (1) มาตรฐานเขียน/รีไรต์ resource Lua 5.4 + ox_lib, NUI/DUI แบบ OOP ไม่มี comment ไม่มี FC ไม่มีค่าคงที่ระดับไฟล์ (2) poster-forge ทำโปสเตอร์ Support/Welfare จากรูปตัวละครและไอเทม (3) weapon-forge ทำสกิน/โมเดลอาวุธ ptfx เอฟเฟกต์หน้าจอและเสียง. ใช้ทุกครั้งที่เขียนใหม่ optimize แยกสคริป ทำ UI สร้าง resource ใหม่ ทำโปสเตอร์ หรือทำสกินอาวุธ. Triggers - "infrontofx", "1nfx", "เขียนใหม่", "รีไรต์", "optimize", "แยกสคริป", "NUI", "DUI", "โปสเตอร์", "support", "สวัสดิการ", "สกินอาวุธ", "weapon skin", "ptfx", "ypt".
+description: ชุดเดียวครบสำหรับงาน FiveM ของเซิร์ฟเวอร์ (1) มาตรฐานเขียน/รีไรต์ resource Lua 5.4 + 1nfx_lib, NUI/DUI แบบ OOP ไม่มี comment ไม่มี FC ไม่มีค่าคงที่ระดับไฟล์ (2) poster-forge ทำโปสเตอร์ Support/Welfare จากรูปตัวละครและไอเทม (3) weapon-forge ทำสกิน/โมเดลอาวุธ ptfx เอฟเฟกต์หน้าจอและเสียง (4) prop-forge ปั้น prop สไตล์ของเล่นแบรนด์เซิร์ฟเวอร์ (ป้าย ATM ตู้เซฟ กล่อง โต๊ะคราฟต์ marker). ใช้ทุกครั้งที่เขียนใหม่ optimize แยกสคริป ทำ UI สร้าง resource ใหม่ ทำโปสเตอร์ ทำสกินอาวุธ หรือปั้น prop. Triggers - "infrontofx", "1nfx", "เขียนใหม่", "รีไรต์", "optimize", "แยกสคริป", "NUI", "DUI", "โปสเตอร์", "support", "สวัสดิการ", "สกินอาวุธ", "weapon skin", "ptfx", "ypt", "ปั้น prop", "prop", "ytyp".
 ---
 
 # infrontofx
 
-ชุดเดียวครบสำหรับเซิร์ฟเวอร์ FiveM ตระกูล `1nfx_*` มี 3 ส่วน: มาตรฐานโค้ด (ไฟล์นี้และโฟลเดอร์ `skills/`), `poster-forge/` และ `weapon-forge/`
+ชุดเดียวครบสำหรับเซิร์ฟเวอร์ FiveM ตระกูล `1nfx_*` มี 4 ส่วน: มาตรฐานโค้ด (ไฟล์นี้และโฟลเดอร์ `skills/`), `poster-forge/`, `weapon-forge/` และ `prop-forge/`
 เป้าหมายของมาตรฐานโค้ด: การทำงานในเกมของแต่ละ resource เหมือนเดิมทุกอย่าง โค้ดสั้นลง ลื่นขึ้น ไม่มีของซ้ำ
 
 ## ตัวเลือกเส้นทาง (อ่านเฉพาะที่ต้องใช้ เพื่อประหยัด token)
@@ -18,14 +18,15 @@ description: ชุดเดียวครบสำหรับงาน FiveM 
 | สถาปัตยกรรม, config, event, network | `skills/common/architecture.md`, `config.md`, `events.md`, `networking.md` |
 | เรียก framework, แจ้งเตือน, log (ไม่ใช้ FC) | `skills/common/core-api.md`, `references/esx-api.md`, `references/pnotify-api.md` |
 | ฐานข้อมูล | `skills/common/database.md` |
-| ประสิทธิภาพ, native, ox_lib, runtime | `skills/common/performance.md`, `natives.md`, `ox-lib.md`, `runtime.md`, `memory/performance-research.md`, `memory/native-gotchas.md` |
+| ประสิทธิภาพ, native, 1nfx_lib, runtime | `skills/common/performance.md`, `natives.md`, `skills/common/1nfx-lib.md`, `runtime.md`, `memory/performance-research.md`, `memory/native-gotchas.md` |
 | ความปลอดภัย, ดีบัก, สไตล์ | `skills/common/security.md`, `debugging.md`, `style.md`, `memory/security-exploits.md`, `memory/patterns.md` |
 | UI (NUI/DUI) | `NUI_DUI.md` แล้วตามด้วย `skills/ui/design-system.md` (สไตล์ 1nfx), `nui-bridge.md`, `dui.md`, `vanilla-ui.md`, `react-vite.md`, `vue-svelte.md` |
 | เครื่องมือเสริม MCP ความจำ ประหยัด token | `TOOLING.md` |
 | โปสเตอร์ Support / Welfare / แจกของ | `poster-forge/SKILL.md` |
 | สกินอาวุธ, โมเดล, ptfx (.ypt), เอฟเฟกต์หน้าจอ, เสียง | `weapon-forge/SKILL.md` |
+| ปั้น prop (ป้าย, ATM, ตู้เซฟ, กล่อง, หีบ, โต๊ะคราฟต์, marker), ytyp, stream prop | `prop-forge/SKILL.md` |
 
-เมื่อเข้าเส้นทางของ `poster-forge` หรือ `weapon-forge` ให้เปิด `SKILL.md` ของโฟลเดอร์นั้นและทำตามนั้นทั้งหมด พาธใน skill เหล่านั้นอิงจากโฟลเดอร์ของมันเอง
+เมื่อเข้าเส้นทางของ `poster-forge`, `weapon-forge` หรือ `prop-forge` ให้เปิด `SKILL.md` ของโฟลเดอร์นั้นและทำตามนั้นทั้งหมด พาธใน skill เหล่านั้นอิงจากโฟลเดอร์ของมันเอง
 
 ## หลักการ
 
@@ -59,8 +60,9 @@ core/sv_main.lua
 ```
 
 - resource ใหญ่ให้แตก `core/` ตามหน้าที่ (`cl_<feature>.lua`, `sv_<feature>.lua`) ไฟล์ละเรื่องเดียว
-- manifest: `lua54 "yes"`, `files` ใส่เฉพาะไฟล์ที่หน้าเว็บอ้างถึงจริง ห้ามมี `dependencies`/`dependency` และห้ามมี `escrow_ignore` ลำดับ start ตั้งใน `server.cfg`
-- ห้ามมีไฟล์ `sh_*.lua` ใส่โค้ดฝั่ง client ใน `cl_*.lua` ฝั่ง server ใน `sv_*.lua` ข้อมูลที่ใช้สองฝั่งอยู่ใน `config/`
+- manifest: `lua54 "yes"`, รายการแรกใน `shared_scripts` คือ `"@1nfx_lib/init.lua"` ตามด้วย `"@1nfx_core/imports.lua"` (แทนที่ `ox_lib`, `er_lib`, `cfxlua-require`), `files` ใส่เฉพาะไฟล์ที่หน้าเว็บอ้างถึงจริง ห้ามมี `dependencies`/`dependency` และห้ามมี `escrow_ignore` ลำดับ start ตั้งใน `server.cfg`
+- ตรรกะบริสุทธิ์ที่ใช้ร่วมกันทั้ง client และ server จริงๆ (เช่น คำนวณโซน, แปลงเวลา, codec, normalize สูตร) ให้แยกไว้ใน `core/sh_<domain>.lua` ภายใต้ `shared_scripts` เป็น `<Module>Shared = {}` แล้วผูก `setmetatable(Module, { __index = <Module>Shared })` ทั้งสองฝั่ง ห้ามก๊อปไฟล์เหมือนกันเป็นคู่แฝด `cl_<x>.lua` + `sv_<x>.lua` และห้ามเอา helper ที่ใช้แค่ฝั่งเดียวไปใส่ `sh_*.lua`
+- ห้ามแยกตารางเทียบค่าหรือ helper เล็กๆ ออกเป็น resource แยกต่างหากเมื่อโมดูลหลักมีอยู่แล้ว และห้าม `ensure <resource>` รายตัวซ้ำใน `server.cfg` เมื่ออยู่ในโฟลเดอร์ `[category]` ที่ถูก `ensure` แล้ว เว้นแต่ต้องบังคับลำดับเปิดก่อนหมวดนั้นจริงๆ
 - export ที่ประกาศด้วย `exports("name", fn)` ในโค้ดแล้ว ไม่ต้องซ้ำใน manifest
 
 ## OOP เท่านั้น
@@ -113,8 +115,9 @@ end
 
 - ไม่มี comment
 - `local scriptname = GetCurrentResourceName()` และชื่อ event เป็น `scriptname .. ":SV:<name>"` / `scriptname .. ":CL:<name>"`
-- global มีได้แค่ `Config` (โมดูลที่แตกหลายไฟล์ ใช้ global ชื่อโมดูลได้หนึ่งตัว)
-- ห้ามเขียน `Config = Config or {}`, `Config.General = Config.General or {}`, `Config.Text = Config.Text or {}` ซ้ำในหลายไฟล์ ให้สร้างแต่ละตารางครั้งเดียวในไฟล์แรกที่ manifest โหลด (`config/config.lua`) ด้วย `Config = {}` แล้วไฟล์ถัดไปเขียนต่อได้เลย และต้องระบุไฟล์ config ใน manifest เรียงตามลำดับโหลดจริง ไม่ใช้ glob
+- global มีได้แค่ `Config` และตารางโมดูลของ resource เท่านั้น (`Module` / `ModuleServer` และ `<Module>Shared` ใน `core/sh_*.lua` กรณีมีตรรกะร่วมสองฝั่ง)
+- ประกาศ `Config = {}` ครั้งเดียวใน `config/config.lua` แล้วกำหนดแต่ละตารางย่อยตรงๆ (`Config.General = { ... }`, `Config.Text = { ... }`) ห้ามเขียน `Config.X = Config.X or {}`, `if not Config.X then Config.X = {} end` หรือ loop รวมค่า default ซ้อนในไฟล์ config และต้องระบุไฟล์ config ใน manifest เรียงตามลำดับโหลดจริง ไม่ใช้ glob
+- ห้ามทิ้ง key หรือไฟล์ตายใน `config/` ที่ `core/` ไม่ได้อ่านจริง และห้ามสร้างไฟล์ config แยกสำหรับค่า tuning ภายในหรือโหมดจำลองที่ไม่ได้ให้เจ้าของเซิร์ฟปรับจริง
 - ห้ามมีตัวแปร global ของสถานะ เช่น `itemCount = itemCount or {}` หรือ `scriptname = GetCurrentResourceName()` ในไฟล์ config ให้เก็บเป็น field ของโมดูล (`Module.PlayerState.itemCount`) และให้แต่ละไฟล์ที่ใช้ประกาศ `local scriptname` เอง
 - ตรวจค่าคงที่ระดับไฟล์ด้วย regex `(?m)^local [A-Z][A-Z0-9_]* = ` ต้องไม่เจอ
 - ดึง `xPlayer` ครั้งเดียวต่อหนึ่งงาน แล้วเช็ก nil ก่อนใช้
@@ -128,12 +131,12 @@ end
 
 Client:
 
-- ใช้ `lib.zones` / `lib.points` แทน loop วัดระยะเอง
+- ใช้ `lib.zones` / `lib.points` / `lib.grid` (stationary-skip + กำลังสองระยะ) และ `lib.spawn` (`prop`, `ped`, `blip`, `pointProp`, `pointPed`, `clearAll`) แทน loop วัดระยะและจัดการ entity เอง
 - `Wait(0)` มีได้เฉพาะตอนที่ต้องใช้จริง (อยู่ในโซน, เปิดเมนู, ต้อง disable ปุ่ม) นอกนั้นใช้ช่วงเวลาที่ยาวที่สุดที่ยังได้ผลเท่าเดิม
 - งานหนักใน loop ต่อเฟรม (หาของในตัว, นับ entity, เรียก export) ต้องมี interval คุม
 - ส่ง NUI เฉพาะตอนค่าเปลี่ยน และห้ามส่งข้อมูลเดียวกันจากสอง loop
 - ห้ามสร้าง thread ใหม่ทุกครั้งที่ส่ง NUI
-- ใช้ `cache.ped`, `cache.vehicle`, `cache.playerId` ของ ox_lib แทนการเรียก native ซ้ำ (ค่าอัปเดตราวทุก 100ms)
+- ใช้ `cache` ของ `1nfx_lib` (`ped`, `coords`, `vehicle`, `seat`, `weapon`, `playerId`, `serverId`, `pauseActive`) แทนการเรียก native ซ้ำ
 - ค่าที่ไม่เปลี่ยนใน loop (config, label, hash) ดึงมาเก็บนอก loop
 - เปรียบเทียบระยะด้วยค่ากำลังสอง ไม่ใช้ `#(a - b)` ใน loop ถี่
 - โหลด model/anim แล้วต้อง `SetModelAsNoLongerNeeded` / `RemoveAnimDict` และลบ entity เมื่อออกจากพื้นที่หรือ resource หยุด
@@ -144,7 +147,7 @@ Server:
 - รวม `while true` หลายตัวเป็น loop กลางตัวเดียว ใช้ตัวนับต่อหัวข้อ แล้วพักยาวเมื่อไม่มีงาน (`next(sessions)` เป็น nil) ปลุกด้วย `promise` จากจุดที่สร้าง state
 - เรียกแต่ละ tick ของ loop รวมผ่าน `pcall` และ print ชื่อ tick เมื่อล้มเหลว
 - broadcast ถึงทุกคนใช้ `TriggerClientEvent(event, -1, ...)` และรวมเป็นรอบ (debounce)
-- request/response ใช้ `lib.callback` แทนคู่ event ไป-กลับ
+- request/response ใช้ 1-packet `lib.callback` แทนคู่ event ไป-กลับ และใช้ `lib.guard` (`throttle`, `isThrottled`, `lock`/`unlock`/`withLock`, `toAmount`, `isNear`) กับโครงสร้างข้อมูล (`lru`, `heap`, `ringbuffer`) ของ `1nfx_lib`
 - ตารางต่อผู้เล่นต้องล้างใน `playerDropped`
 - ก่อนแก้เรื่อง FPS/network ให้วัดก่อนเสมอ (`resmon`, ตัวนับ network ต่อ resource) แล้วเทียบก่อน-หลังในสถานการณ์เดียวกัน
 
@@ -181,6 +184,8 @@ Server:
 - ใน PowerShell: path ที่มี `[ ]` ใช้ `-LiteralPath` เสมอ, ห้ามตั้งชื่อฟังก์ชันตัวช่วยชนกับ alias (`rd`, `mv`, `R`), ใช้ `[IO.File]::WriteAllText(path, text, [Text.UTF8Encoding]::new($false))` เพื่อไม่ให้มี BOM
 - ก่อนเปลี่ยนไฟล์ stream ที่โหลดอัตโนมัติ (`stream/`) ไม่ต้องใส่ใน `files`
 - ระบบที่ซ้ำกันหลาย resource (culling, กราฟิก/FPS) ให้มีเจ้าของที่เดียว ก่อนเพิ่มระบบ sync ใหม่ให้ grep หาระบบเดิมก่อน
+
+- `provide "x"` ใน manifest ไม่ได้ทำให้ `exports["x"]:fn()` ใช้ได้ เพราะ Lua export ผูกกับชื่อ resource จริงผ่าน event `__cfx_export_<resource>_<name>` ถ้าต้องรับ export แทน resource อื่น (เช่น `es_extended:getSharedObject`) ให้ `AddEventHandler("__cfx_export_es_extended_getSharedObject", function(setCB) setCB(fn) end)`
 
 ## UI
 

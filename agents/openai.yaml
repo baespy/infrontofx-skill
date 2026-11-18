@@ -1,4 +1,4 @@
 interface:
   display_name: "infrontofx Skill"
-  short_description: "FiveM resource, NUI/DUI, poster and weapon-skin toolkit"
-  default_prompt: "Use $infrontofx to write, review or optimize a FiveM Lua resource or NUI with OOP modules, no comments, no FC, server authority and cleanup rules; use poster-forge for support posters and weapon-forge for weapon skins and ptfx."
+  short_description: "FiveM resource, NUI/DUI, poster, weapon-skin and prop toolkit"
+  default_prompt: "Use $infrontofx to write, review or optimize a FiveM Lua resource or NUI with OOP modules, no comments, no FC, server authority and cleanup rules; use poster-forge for support posters and weapon-forge for weapon skins and ptfx, and prop-forge for branded toy-style props."

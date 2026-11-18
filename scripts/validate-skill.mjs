@@ -28,7 +28,7 @@ const REQUIRED = [
     "skills/common/networking.md",
     "skills/common/database.md",
     "skills/common/natives.md",
-    "skills/common/ox-lib.md",
+    "skills/common/1nfx-lib.md",
     "skills/common/debugging.md",
     "skills/ui/nui-bridge.md",
     "skills/ui/design-system.md",
@@ -56,13 +56,15 @@ const REQUIRED = [
     "scripts/new-resource.mjs",
     "poster-forge/SKILL.md",
     "weapon-forge/SKILL.md",
+    "prop-forge/SKILL.md",
 ];
 const FORBIDDEN = [
     "skills/common/fc-adapters.md",
+    "skills/common/ox-lib.md",
     "templates/resource/config/function",
 ];
 const LINK_PREFIXES = ["skills/", "memory/", "references/", "rules/", "checklists/", "templates/", "scripts/", "agents/"];
-const SKIP_MARKDOWN_DIRS = new Set(["node_modules", ".git", "templates", "poster-forge", "weapon-forge"]);
+const SKIP_MARKDOWN_DIRS = new Set(["node_modules", ".git", "templates", "poster-forge", "weapon-forge", "prop-forge"]);
 const failures = [];
 
 const read = (path) => readFileSync(join(ROOT, path), "utf8");
@@ -106,7 +108,7 @@ if (!front) {
     }
 }
 
-for (const forge of ["poster-forge", "weapon-forge"]) {
+for (const forge of ["poster-forge", "weapon-forge", "prop-forge"]) {
     if (!existsSync(join(ROOT, forge, "SKILL.md"))) {
         continue;
     }

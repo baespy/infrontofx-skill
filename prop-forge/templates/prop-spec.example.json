@@ -1,0 +1,27 @@
+{
+    "set": "1nfx_goo",
+    "brand": { "name": "GOO LAB", "short": "GOO" },
+    "font": "TitanOne-Regular.ttf",
+    "palette": {
+        "primary": "#8E2DE2",
+        "accent": "#C9F31D",
+        "light": "#F4F0E8",
+        "dark": "#221E28",
+        "gold": "#FFC62E",
+        "trim": "#E04DFF",
+        "screen": "#2B1745",
+        "glow": "#D9FF3B",
+        "glowtrim": "#F06BFF"
+    },
+    "props": [
+        { "id": "1nfx_goo_garage", "archetype": "sign_post", "label": "GARAGE", "icon": "house" },
+        { "id": "1nfx_goo_pound", "archetype": "sign_post", "label": "POUND", "sub": "CENTER", "board": "accent", "text": "light", "sub_role": "primary" },
+        { "id": "1nfx_goo_shop", "archetype": "kiosk_sign", "label": "SHOP" },
+        { "id": "1nfx_goo_atm", "archetype": "atm", "label": "ATM" },
+        { "id": "1nfx_goo_safe", "archetype": "safe", "label": "SAFE" },
+        { "id": "1nfx_goo_stash", "archetype": "crate" },
+        { "id": "1nfx_goo_loot", "archetype": "chest", "open": 42, "coins": 40 },
+        { "id": "1nfx_goo_bench", "archetype": "workbench" },
+        { "id": "1nfx_goo_marker", "archetype": "mascot_marker" }
+    ]
+}
