@@ -12,6 +12,9 @@ Proven implementations for high-performance FiveM resources. Copy the shape, kee
 - DUI Pool
 - Exports Wrapper
 - Gated Actions
+- World-anchored prompt without per-frame NUI (2026-11-14)
+- Skip NUI resend when data is unchanged (2026-11-14)
+- Sorted Texture Override Catalog Slices (2026-11-15)
 
 ## Wire Encoding
 
@@ -113,3 +116,19 @@ end
 ```
 
 Keep the owner-tunable values in `Config`; the methods hold the logic.
+
+## World-anchored prompt without per-frame NUI (2026-11-14)
+
+`1nfx_textuihologram` draws its prompt from one shared DUI (`html/index.html`, 1024x128, created on first use, removed after 60 s idle) with `SetDrawOrigin` + `DrawSprite` every frame. The DUI gets a message only when text/key changes (`set`) or when a hold starts/ends (`hold` with `elapsed`/`duration`, `release`); the ring animates in JS. Readiness comes from NUI callback `duiReady` (page posts to `https://<resource>/duiReady`, resource name passed in the query string) with a 2 s fallback. The old `1nfx_statushud` hub module for the hologram was removed. Use this pattern for any marker that follows a world position instead of sending screen X/Y to NUI each frame.
+
+## Skip NUI resend when data is unchanged (2026-11-14)
+
+`1nfx_allmenu` `AllMenu:ReplaceData(key, value)` compares `json.encode` of old/new before pushing a fetched section (events, gangsList, cooldowns, gangStory, playtimeLeaderboard). Only use it for sections that every other writer pushes or marks dirty; `MyGangData` is excluded because `ResolveCurrentPlayerGang` writes it silently.
+
+## Sorted Texture Override Catalog Slices (2026-11-15)
+
+- Date: 2026-11-15
+- Game build: 3095
+- Symptom: Streaming texture overrides flickered across LOD transitions when 3D drawable meshes and their `+hi`/`+hidr` dictionaries landed in different scanner slices, and native call ring-buffer tracing wasted frame time when left enabled in production.
+- Cause: Grouping drawables separately from texture dictionaries placed paired base and high-detail entries hundreds of indices apart, and native call tracing defaulted on.
+- Fix: Sort compiled catalog entries by target source name during startup catalog compilation so paired drawables and `+hi`/`+hidr` dictionaries sit in the same scan slice, free the raw config table (`Config.<Catalog> = nil`) once Structure-of-Arrays tables are populated, and default native call tracing to `false`.

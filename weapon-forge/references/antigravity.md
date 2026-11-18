@@ -1,122 +1,164 @@
-# Antigravity
+# Antigravity & Blender MCP
 
-ใช้เมื่อทำงานผ่าน Google Antigravity หรือเชื่อม Blender เข้ากับ agent ผ่าน MCP ข้อมูลตรวจเมื่อ 2026-11-08 รัน `scripts/doctor.ps1` เพื่อดูสถานะล่าสุด
+ใช้เมื่อทำงานผ่าน Google Antigravity หรือเชื่อม Blender เข้ากับ agent ผ่าน MCP ข้อมูลตรวจยืนยันล่าสุดเมื่อ 2026-11-16 รัน `scripts/doctor.ps1` เพื่อดูสถานะปัจจุบันทุกครั้ง
 
 ## สถานะในเครื่องนี้
 
-| รายการ | สถานะ |
+| รายการ | สถานะจริงบนเซิร์ฟเวอร์ |
 | --- | --- |
-| Antigravity CLI | `agy` 1.5.3 ที่ `%USERPROFILE%\.gemini\bin\agy.exe` (ไม่อยู่ใน PATH) |
-| Skill ของ workspace | `.agents/skills/` |
-| MCP config | `%USERPROFILE%\.gemini\config\mcp_config.json` ยังไม่มี server |
-| `uv` / `uvx` | ไม่มี ต้องใช้กับ `mcp-for-blender` |
+| Antigravity CLI | `agy 1.5.9` ที่ `%USERPROFILE%\.gemini\bin\agy.exe` |
+| ต้นฉบับ Skill (Source of Truth) | `.claude\skills\infrontofx\weapon-forge\` (**แก้ไฟล์ที่นี่เท่านั้น**) |
+| สำเนา Skill ของ Antigravity | `.agents\skills\weapon-forge\` (ซิงก์ด้วย `scripts\sync-antigravity.ps1`) |
+| Blender 4.2.3 (Headless CLI & Export) | `4.2.3` ที่ `C:\Tools\blender-4.2.3-windows-x64\blender.exe` (ฟอร์แมต `BLENDER-v402` เปิดได้ทั้ง 4.2.3 และ 5.3) |
+| Steam Blender 5.3 (Live GUI + MCP) | `5.3` ที่ `C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe` พร้อม extension ทางการ `bl_ext.lab_blender_org.mcp` บน `localhost:9876` |
+| `uv` สำหรับ Blender MCP | `C:\Users\Administrator\blender-mcp\uv.exe` |
+| MCP Config ที่เชื่อมต่ออยู่ | `%USERPROFILE%\.gemini\antigravity\mcp_config.json` (server ชื่อ `"blender"`) |
+| สคีมาเครื่องมือ MCP ทั้ง 26 ตัว | `%USERPROFILE%\.gemini\antigravity\mcp\blender\*.json` และ `instructions.md` |
 
-**ยังไม่ได้ทดสอบ:** Antigravity โหลด skill นี้จริง และการต่อ Blender ผ่าน MCP บนเครื่องนี้
+## กฎบังคับสำหรับโฟลเดอร์ที่มี `[...]` (`[resources]`, `[weapon]`, `[1nfx]`) ทั้งใน PowerShell และ Python
 
-## ที่อยู่ของ skill
+ทั้งพารามิเตอร์ `-Path` ของ Windows PowerShell 5.1 **และ `glob.glob` ของ Python** ต่างตีความวงเล็บเหลี่ยม `[resources]`, `[weapon]`, `[1nfx]`, `[core]` เป็น **Wildcard Character Class** ทำให้หาไฟล์ไม่เจอเงียบ ๆ:
+- **ใน PowerShell ใช้ `-LiteralPath` เสมอ** (`Get-ChildItem`, `Get-Item`, `Get-Content`, `Set-Content`, `Test-Path`, `Resolve-Path`, `Remove-Item`, `Select-String`) และห้ามใช้ `Copy-Item -LiteralPath "$src\*"` ให้ใช้ **`robocopy $src $dst /E`** หรือ `[IO.File]::Copy($srcFile, $dstFile, $true)` แทนเสมอ
+- **ใน Python / Blender `bpy` ห้ามใช้ `glob.glob(path)` ตรง ๆ กับพาธที่มี `[resources]` หรือ `[weapon]`:** ให้ใช้ **`os.listdir(d)`** หรือ **`glob.glob(glob.escape(d) + "/*.blend")`** เสมอ!
 
-[เอกสาร Antigravity](https://antigravity.google/docs/skills) กำหนดให้ skill ของ workspace อยู่ที่ `.agents/skills/<ชื่อ>/` (`.agent/skills` ยังใช้ได้เพื่อความเข้ากันได้) และ skill รวมอยู่ที่ `~/.gemini/config/skills/` ใน `SKILL.md` ต้องมี `description` ส่วน `name` ใส่หรือไม่ก็ได้ ไฟล์นี้จึงใช้ร่วมกับ Claude Code ได้โดยไม่ต้องแก้
+## การเปิด Live Steam Blender 5.3 GUI คู่กับ Official `mcp` Extension (`localhost:9876`) และกฎความเข้ากันได้ของไฟล์ `.blend`
 
-ต้นฉบับอยู่ที่ `.claude/skills/weapon-forge` แก้ที่นี่เท่านั้น แล้วรัน:
+### 1. วิธีเปิด Live GUI + `bl_ext.lab_blender_org.mcp`
+บนเครื่องนี้ติดตั้ง extension MCP ทางการจาก `https://lab.blender.org/` (`bl_ext.lab_blender_org.mcp`, ตั้ง `prefs.use_autostart = True` แล้ว) บน Steam Blender 5.3 เมื่อต้องการเปิดหน้าต่าง GUI สดให้รับคำสั่ง MCP ทันทีบน `localhost:9876` ให้รัน:
 
 ```powershell
-.claude\skills\weapon-forge\scripts\sync-antigravity.ps1
+& 'C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe' --online-mode --python-expr "import bpy; bpy.context.preferences.system.use_online_access = True; bpy.ops.blmcp.server_start()"
 ```
 
-สคริปต์จะคัดลอกไป `.agents/skills/weapon-forge` และหยุดถ้าสำเนานั้นมีการแก้ที่จะหายไป ใช้สำเนาแทน junction เพราะเอกสารไม่ได้ระบุว่า Antigravity ตาม junction บน Windows
+เมื่อซ็อกเก็ต `localhost:9876` ทำงานแล้ว เครื่องมือ Live GUI ของเซิร์ฟเวอร์ `"blender"` (`execute_blender_code`, `get_objects_summary`, `get_object_detail_summary`, `render_viewport_to_path`, `get_screenshot_of_blender_window` ฯลฯ) จะเชื่อมเข้ากับฉากสดได้โดยตรง (ห้ามให้สอง agent ยิงเข้าซ็อกเก็ตเดียวกันพร้อมกัน)
 
-[Rules](https://antigravity.google/docs/rules) จำกัด 24,000 bytes ต่อไฟล์ และ [Workflows ถูกประกาศเลิกใช้แล้ว](https://antigravity.google/docs/ide/workflows) อย่าสร้าง workflow ใหม่สำหรับงานนี้ ให้ใช้ skill
+### 2. กฎเหล็กความเข้ากันได้ของไฟล์ `.blend`: Blender 5.3 (`BLENDER17`) vs Blender 4.2.3 (`BLENDER-v402`)
+- ไฟล์ `.blend` ที่บันทึกจาก **Blender 5.0+ / 5.3** จะเขียน header ฟอร์แมตใหม่ **`BLENDER17`** ซึ่ง **Blender 4.2.3 CLI เปิดไม่ได้** (`Error: File format is not supported ... not a blend file`) ทำให้สคริปต์ CLI อย่าง `validate_model.py` หรือ `export_ydr.py` ที่รันผ่าน `C:\Tools\blender-4.2.3-windows-x64\blender.exe` ล้มเหลวทันที!
+- ในทางกลับกัน ไฟล์ `.blend` ที่บันทึกผ่าน **Blender 4.2.3** (`BLENDER-v402` header, `bpy.ops.wm.save_as_mainfile(filepath=...)`) **สามารถเปิดได้สะอาดไร้คำเตือนทั้งใน Blender 4.2.3 CLI และใน Steam Blender 5.3 GUI!**
+- **แนวปฏิบัติมาตรฐาน:** สร้าง/บันทึกไฟล์ต้นฉบับ `<model>.blend` ใน `weapon_<id>/source/` ด้วย Blender 4.2.3 (`BLENDER-v402`) เพื่อให้ `validate_model.py` และ `export_ydr.py` รันได้ตลอดเวลา และเปิดไฟล์นั้นขึ้นตรวจ/ปั้นแต่งมุมกล้องแบบโต้ตอบใน Blender 5.3 Live MCP (หากปั้นแก้ใน 5.3 เสร็จและต้องการเก็บไฟล์ถาวรสำหรับ CLI 4.2.3 ให้ส่งออก/บันทึกผ่าน 4.2.3 หรือสคริปต์สร้างฉากของ 4.2.3 เสมอ)
 
-## แบ่งงานกัน
+## ที่อยู่ของ Skill และการซิงก์
 
-| งาน | ใช้ |
+[เอกสาร Antigravity](https://antigravity.google/docs/skills) กำหนดให้ skill ของ workspace อยู่ที่ `.agents/skills/<ชื่อ>/` ใน `SKILL.md` ต้องมี YAML frontmatter ที่มี `name` และ `description` ครบถ้วนจึงใช้ร่วมกันได้ทั้ง Claude Code และ Antigravity
+
+ต้นฉบับในพื้นที่งานนี้อยู่ที่ `.claude\skills\infrontofx\weapon-forge` ห้ามแก้สำเนาใน `.agents\skills\weapon-forge` โดยตรง เมื่อแก้ไขเอกสารหรือสคริปต์เสร็จทุกครั้งต้องรัน:
+
+```powershell
+& 'C:\Users\Administrator\Desktop\mainserver\.claude\skills\infrontofx\weapon-forge\scripts\sync-antigravity.ps1'
+```
+
+สคริปต์จะเดินหาโฟลเดอร์ `.claude` อัตโนมัติ คัดลอกไฟล์ทั้งหมดไปยัง `.agents\skills\weapon-forge` และหยุดเตือนทันทีหากพบว่าไฟล์ฝั่ง `.agents` ถูกแก้ไขใหม่กว่าต้นฉบับ (ส่ง `-Check` เพื่อตรวจความตรงกันโดยไม่เขียนทับ หรือ `-Force` เมื่อตั้งใจเขียนทับ)
+
+## แบ่งงานระหว่าง CLI Scripts กับ Blender MCP
+
+| งาน | เครื่องมือที่เหมาะที่สุด |
 | --- | --- |
-| ฐานโมเดลที่สเกลและโครงถูก | `forge_weapon.py` |
-| รูปทรงละเอียด แก้ทีละจุดแล้วดูผล | Antigravity + Blender MCP |
-| โมเดลจาก AI ทั้งชุดหรือชิ้นเดียว | `split_ai_set.py` |
-| ลองโมเดลจาก AI หรือที่ซื้อมาแบบเร็ว ๆ | `import_ai_model.py` |
-| ตรวจก่อน export | `validate_model.py` |
-| สร้าง `.ydr` และตรวจไฟล์ | ดู `modeling-pipeline.md` และ `inspect-ydr.ps1` |
-| เชื่อมระบบและ QA | `integration.md` |
+| สร้างฐานโมเดลครบชุดที่แกน ขนาด และกระดูกถูก 100% | `scripts/blender/forge_weapon.py` |
+| ปั้นแก้รูปทรงละเอียด ตรวจ datablock หรือเรนเดอร์ดูทีละจุด | Antigravity + `blender` MCP (`execute_blender_code` / `*_for_cli`) |
+| แยกโมเดล AI ทั้งชุดในไฟล์เดียวหรือชิ้นเดียว | `scripts/blender/split_ai_set.py` |
+| นำเข้าโมเดลภายนอกชิ้นเดียวอย่างรวดเร็ว | `scripts/blender/import_ai_model.py` |
+| ตรวจสัญญาช่องอาวุธ กระดูก และความสะอาดหน่วยความจำ | `scripts/blender/validate_model.py` + `references/bone-and-memory-safety.md` |
+| คอมไพล์ `.ydr` / `.ytd` (DXT5 + mipmaps) และตรวจไบนารี | `scripts/blender/export_ydr.py` + `scripts/inspect-ydr.ps1` |
+| เชื่อมเข้าระบบ `[1nfx]` และตรวจครบวงจร | `references/integration.md` + `scripts/check-skin.ps1` |
 
-**หนึ่งสกิน หนึ่ง agent.** Antigravity, Codex และ Claude Code เขียนโฟลเดอร์เดียวกันได้พร้อมกัน ถ้าสองตัวทำ `weapon_<id>` เดียวกันไฟล์จะทับกัน ก่อนเริ่มให้ดูเวลาแก้ล่าสุดในโฟลเดอร์นั้น
+**หนึ่งสกิน หนึ่ง agent:** อย่าให้สอง agent เปิดหรือเขียนโฟลเดอร์ `weapon_<id>` เดียวกันหรือยิงคำสั่งเข้า live Blender GUI พร้อมกัน เช็กเวลาแก้ไขไฟล์ล่าสุดก่อนลงมือเสมอ
 
-## ต่อ Blender ผ่าน MCP
+## เซิร์ฟเวอร์ `blender` MCP ที่เชื่อมต่ออยู่จริง (26 เครื่องมือ)
 
-แนะนำ [`ahujasid/mcp-for-blender`](https://github.com/ahujasid/blender-mcp) (เดิมชื่อ `blender-mcp`, MIT, อัปเดต พ.ย. 2026) เพราะมีตัวอย่าง config สำหรับ Antigravity และยังดูแลอยู่ ส่วน [`kc0ed/Blender-MCP-For-Antigravity`](https://glama.ai/mcp/servers/@kc0ed/Blender-MCP-For-Antigravity) กับ [`MITHRAN-BALACHANDER/Blender-MCP-antigravity`](https://glama.ai/mcp/servers/@MITHRAN-BALACHANDER/Blender-MCP-antigravity) ทำมาเฉพาะ Antigravity แต่ Glama แสดงสถานะ Inactive
-
-การติดตั้งเปลี่ยนแปลงเครื่องของผู้ใช้ ต้องถามก่อน:
-
-1. ติดตั้ง `uv` จากตัวติดตั้งทางการ (README เตือนว่าอย่าใช้ `pip install uv`)
-2. รัน `uvx mcp-for-blender install-addon`
-3. เปิด Blender เปิด add-on `Interface: MCP for Blender` แล้วกดเริ่ม server จาก N-panel
-4. เพิ่มใน `%USERPROFILE%\.gemini\config\mcp_config.json` ([รูปแบบ](https://antigravity.google/docs/mcp)):
+การตั้งค่าใน `%USERPROFILE%\.gemini\antigravity\mcp_config.json`:
 
 ```json
 {
   "mcpServers": {
-    "blender-mcp": {
-      "command": "<user-home>\\.local\\bin\\uvx.exe",
-      "args": ["mcp-for-blender"],
-      "env": {
-        "BLENDER_HOST": "localhost",
-        "BLENDER_PORT": "9876",
-        "BLENDER_MCP_SAFE_MODE": "1"
-      }
+    "blender": {
+      "command": "C:\\Users\\Administrator\\blender-mcp\\uv.exe",
+      "args": [
+        "run",
+        "--project",
+        "C:\\Users\\Administrator\\blender-mcp",
+        "blender-mcp"
+      ]
     }
   }
 }
 ```
 
-ใส่ path เต็มของ `uvx` ตามที่ติดตั้งจริง เพราะ README เตือนเรื่อง `spawn uvx ENOENT` บน Windows
+เครื่องมือของเซิร์ฟเวอร์ `"blender"` แบ่งเป็น **3 กลุ่มหลัก** (รองรับทั้งโหมดต่อ Blender GUI สด และโหมด CLI ไร้หน้าต่างเมื่อไม่ได้เปิด GUI!):
 
-**ความปลอดภัย.** socket ของ add-on ไม่มีการยืนยันตัวตนและไม่เข้ารหัส ใครเข้าถึงพอร์ตได้ก็รัน Python ใน Blender ได้ ให้ใช้เฉพาะ `localhost` อย่าเปิดพอร์ตออกอินเทอร์เน็ต เครื่องนี้เป็น Windows Server ที่รันงานจริง จึงควรเปิด add-on เฉพาะตอนปั้น และอ่านหัวข้อ telemetry ใน README
+### 1. เครื่องมือโหมด CLI ไร้หน้าต่าง (`*_for_cli` — ใช้ได้ทันทีกับไฟล์ `.blend` บนดิสก์โดยไม่ต้องเปิด Blender GUI)
 
-| เครื่องมือ MCP | ใช้ทำอะไร |
-| --- | --- |
-| `get_scene_info` | ดูวัตถุในฉาก |
-| `execute_blender_code` | รัน Python ใน Blender |
-| `look` | ดูภาพจาก viewport หลายมุม |
-| `generate_3d` | สร้างโมเดลด้วย Tripo, Hunyuan3D, Rodin หรือ Meshy |
-| `search_assets`, `import_asset` | ดึงจาก Poly Haven, Sketchfab, Poly Pizza |
+| เครื่องมือ MCP | พารามิเตอร์หลัก | หน้าที่ |
+| --- | --- | --- |
+| `execute_blender_code_for_cli` | `blend_file`, `code` | เปิดไฟล์ `.blend` ด้วย `blender --background` แล้วรันโค้ด Python (`bpy`) คืนค่าผ่านตัวแปร `result = {...}` |
+| `get_blendfile_summary_datablocks_for_cli` | `blend_file` | สรุปจำนวน datablocks ทุกประเภท, workspace และ render engine ของไฟล์ `.blend` |
+| `get_blendfile_summary_missing_files_for_cli` | `blend_file` | ตรวจหาไฟล์ภายนอกที่หลุดหรือหาไม่เจอ (เช่น path รูป `.dds`/`.png` ขาดแบบ `3433.dds` ในสกินเก่า) |
+| `get_blendfile_summary_of_linked_libraries_for_cli` | `blend_file` | แสดงโครงสร้าง library ที่ถูก link เข้ามาในไฟล์ |
+| `get_blendfile_summary_path_info_for_cli` | `blend_file` | ดู path สถานะการบันทึก อายุไฟล์ และไฟล์สำรอง |
+| `get_blendfile_summary_usage_guess_for_cli` | `blend_file` | ประเมินลักษณะการใช้งานหลักของไฟล์ `.blend` |
 
-## วงจรปั้นผ่าน MCP
+### 2. เครื่องมือโหมดเชื่อมต่อ Blender GUI สด (Live Interactive Session)
 
-1. เปิด `weapon_<id>/source/<model>.blend` แล้ว `get_scene_info`
-2. แก้ทีละอย่างด้วย `execute_blender_code`
-3. `look` อย่างน้อยด้านข้าง ด้านหน้า และมุม 3/4 เทียบกับ DNA ของ family ใน `style-families.md`
-4. ตรวจสัญญาของช่องอาวุธ:
+ต้องเปิดโปรแกรม Blender พร้อมเปิดใช้งาน MCP add-on เชื่อมต่อบน `localhost`:
+
+| เครื่องมือ MCP | พารามิเตอร์หลัก | หน้าที่ |
+| --- | --- | --- |
+| `get_objects_summary` | - | ดูลำดับชั้น Collection และรายชื่อวัตถุทั้งหมดในฉาก (ชื่อ, ชนิด, parent, data, visibility) |
+| `get_object_detail_summary` | `name` | ดูรายละเอียดเชิงลึกของวัตถุรายชิ้น (transform, parent/children, modifiers, constraints, materials) |
+| `execute_blender_code` | `code` | รันโค้ด Python `bpy` ในหน้าต่าง Blender สด (เก็บข้อมูลส่งกลับในตัวแปร dict ชื่อ `result`) |
+| `render_viewport_to_path` | `output_path` | เรนเดอร์ฉากปัจจุบันออกเป็นไฟล์ภาพตาม render settings ปัจจุบัน แล้วเปิดดูด้วย `read_file` |
+| `render_thumbnail_to_path` | `output_path` | เรนเดอร์ภาพตัวอย่างขนาดเล็กอย่างรวดเร็วลง `output_path` |
+| `get_screenshot_of_area_as_image` | `area_ui_type`, `size_limit_in_bytes` | จับภาพหน้าจอเฉพาะพื้นที่ เช่น `VIEW_3D`, `UV`, `ShaderNodeTree`, `OUTLINER` เป็น PNG |
+| `get_screenshot_of_window_as_image` | `size_limit_in_bytes` | จับภาพหน้าต่าง Blender ทั้งหมดเป็น PNG |
+| `get_screenshot_of_window_as_json` | - | อ่านโครงหน้าต่าง พื้นที่ย่อย วัตถุที่ active และวัตถุที่ถูกเลือกเป็น JSON |
+| `jump_to_view3d_object_by_name` / `..._object_data_by_name` | `name`, `allow_edits` | เลื่อนมุมกล้อง 3D Viewport โฟกัสไปยังวัตถุหรือ datablock ที่ระบุ |
+| `jump_to_tab_by_name` / `jump_to_tab_by_space_type` | `name` / `space_type` | สลับแท็บ Workspace ไปยังพื้นที่ทำงานที่ต้องการ |
+| `get_blendfile_summary_datablocks` / `_missing_files` / `_of_linked_libraries` / `_path_info` / `_usage_guess` | - | ตรวจสถานะไฟล์ `.blend` ที่เปิดค้างอยู่ใน Blender สด |
+
+### 3. เครื่องมือค้นคู่มือ Blender API แบบออฟไลน์ (ห้ามเดาชื่อพารามิเตอร์ `bpy`)
+
+| เครื่องมือ MCP | พารามิเตอร์หลัก | หน้าที่ |
+| --- | --- | --- |
+| `get_python_api_docs` | `identifier` | อ่านเอกสาร RST ของ `bpy` / `bmesh` / `mathutils` ตรงตามชื่อ เช่น `"bpy.ops.object.transform_apply"` หรือ `"bmesh.ops.*"` |
+| `search_api_docs` | `query`, `context`, `max_results` | ค้นหาแบบเต็มคำใน Blender Python API Reference |
+| `search_manual_docs` | `query`, `context`, `max_results` | ค้นหาแนวคิดและขั้นตอนจากคู่มือผู้ใช้ Blender |
+
+**ความปลอดภัย:** Socket ของ Blender MCP ใช้เฉพาะ `localhost` เท่านั้น ห้ามเปิดพอร์ตออกอินเทอร์เน็ตบนเครื่องเซิร์ฟเวอร์จริง และปิด add-on เมื่อจบงานปั้น
+
+## กฎเหล็กเมื่อเขียนโค้ดผ่าน `execute_blender_code` / `execute_blender_code_for_cli`
+
+1. **ส่งข้อมูลกลับผ่านตัวแปร `result` (ไม่ใช่ `print`)**: กำหนด `result = {"ok": True, "tris": ...}` เพื่อให้ MCP ส่ง JSON กลับมาอย่างแม่นยำ
+2. **ตั้ง Mode, Active Object และ Selection เองทุกครั้ง**: อย่าเดาสถานะค้างจากคำสั่งก่อนหน้า เช็ก `bpy.ops.object.mode_set(mode="OBJECT")` และตั้ง `bpy.context.view_layer.objects.active = obj` ก่อนรัน `bpy.ops`
+3. **ใช้ `bmesh` แล้วต้อง flush กลับเสมอ**: หลังแก้ไขรูปทรงให้เรียก `bm.to_mesh(me)`, `bm.free()`, `me.update()` และอัปเดต depsgraph (`bpy.context.evaluated_depsgraph_get()`) ก่อนอ่านค่าขอบเขตโมเดล
+4. **ล้าง Orphan Datablocks และถอดวัสดุ Procedural หลัง Bake ก่อนเซฟทุกครั้ง**: ถอดวัสดุโหนดซับซ้อนที่ใช้ตอน bake ออกจาก mesh หลังรวมเป็นวัสดุเดียว แล้วรัน `bpy.ops.outliner.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)` จะคุม RAM ของ Cycles ให้นิ่งอยู่ที่ราว `~80 MB` ตลอดการปั้นทั้ง 6–7 ชิ้น (และเปลี่ยนชื่อเมชเป็น `Gun_Root` ก่อนสร้าง Armature `model_name` เพื่อไม่ให้ชื่อติด `.001`)
+5. **ทางเลือกเรียก `blmcp` CLI Helper เมื่อรันใน Sub-Worker ที่ไม่ได้แนบ MCP Socket ตรง**: หาก worker ย่อยไม่มีรายการ MCP tool ติดมาในเซสชัน สามารถเรียกเอนจินเดียวกันของ `blender-mcp` ได้ผ่าน `C:\Users\Administrator\blender-mcp\uv.exe run --project C:\Users\Administrator\blender-mcp python -c "..."` โดยตั้ง `BLENDER_PATH=C:\Tools\blender-4.2.3-windows-x64\blender.exe` แล้วเรียก `blmcp.tools_helpers.blender_cli.run_blender_cli(blend_file, code)` (กำหนดตัวแปร `result = {...}` แทนการใช้ `return`)
+6. **ห้ามทำลายสัญญาโครงกระดูก (`references/bone-and-memory-safety.md`)**:
+   - ห้ามเปลี่ยนชื่อ Armature (`w_me_<id>_<slot>` / `w_pi_<id>_revolver`) หรือชื่อกระดูก (`Gun_Root`, `Gun_GripR`, `Gun_Main_Bone`, `Gun_GripL`, `Gun_Muzzle`, `WAPClip` ฯลฯ)
+   - ห้ามขยับ origin ของ `Gun_Root` ออกจาก `(0, 0, 0)` และห้ามทิ้ง unapplied transform ไว้บน Armature หรือ Mesh
+   - ห้ามแก้ไฟล์ใน resource ที่มี `.fxap`
+
+## วงจรปั้นและตรวจผ่าน MCP
+
+1. สำรวจฉากด้วย `get_objects_summary` / `get_object_detail_summary` (หรือ `get_blendfile_summary_datablocks_for_cli` + `get_blendfile_summary_missing_files_for_cli` ในโหมด CLI)
+2. แก้รูปทรงทีละส่วนแล้วเรนเดอร์ตรวจมุมด้านข้าง ด้านหน้า และมุม 3/4 ด้วย `render_viewport_to_path` (เปิดดูภาพจริงด้วย `read_file` ทุกรอบ เทียบกับเกณฑ์ใน `style-families.md`)
+3. รันตัวตรวจสัญญาช่องอาวุธ:
 
 ```python
 import runpy
-path = r"<skill-dir>\scripts\blender\validate_model.py"
-print(runpy.run_path(path)["validate_scene"]("knife"))
+check = runpy.run_path(r"C:\Users\Administrator\Desktop\mainserver\.claude\skills\infrontofx\weapon-forge\scripts\blender\validate_model.py")["validate_scene"]
+result = {"report": check("knife")}
 ```
 
-5. ไม่มี FAIL แล้วจึงบันทึก `.blend` จากนั้น bake และ export ตาม `modeling-pipeline.md`
-
-ห้ามเปลี่ยนชื่อ armature หรือ bone, ห้ามขยับ origin ของ `Gun_Root`, ห้ามทิ้ง transform ค้างที่ armature หรือ mesh และห้ามให้ MCP แก้ไฟล์ใน `weapon_core` หรือ resource ที่มี `.fxap`
-
-## ข้อความเริ่มงานใน Antigravity
-
-```text
-ใช้ skill weapon-forge ปั้น <ช่องอาวุธ> ของสกิน <id> ตามสไตล์ <family> ใน style-families.md
-รัน scripts/doctor.ps1 ก่อน และห้ามแตะ resource ที่มี .fxap
-เปิด weapon_<id>/source/<model>.blend แก้ทีละอย่าง ดูผลด้วย look ทุกรอบ
-ก่อนบันทึกต้องผ่าน validate_model.py ไม่มี FAIL หยุดรอผมดูรูปก่อน bake
-```
+4. กวาดล้าง orphan datablocks บันทึก `.blend` แล้วส่งออก `.ydr` + `.ytd` ด้วย `export_ydr.py` และตรวจไบนารีด้วย `scripts/inspect-ydr.ps1` จนได้ `RESULT fail=0` ทั้งคู่
 
 ## โมเดลจาก AI
 
-ทุกบริการต้องตรวจเงื่อนไขล่าสุดจากหน้าทางการของผู้ให้บริการก่อนใช้ เพราะข้อมูลด้านล่างมาจากบทความรีวิวและบางแหล่งขัดกันเอง
+ตรวจเงื่อนไขสิทธิ์เชิงพาณิชย์ล่าสุดจากหน้าทางการของผู้ให้บริการก่อนใช้งานเสมอ:
 
 | บริการ | เงื่อนไขเท่าที่พบ | จุดเด่น |
 | --- | --- | --- |
-| Tripo | แผนจ่ายเงินใช้เชิงพาณิชย์ได้ แผนฟรีแหล่งข้อมูลขัดกัน | retopology ดี |
+| Tripo | แผนจ่ายเงินใช้เชิงพาณิชย์ได้ | retopology ดี แยกชิ้นด้วย `split_ai_set.py` ได้สะอาด |
 | Meshy | แผนฟรีเพื่อส่วนตัวและการศึกษาเท่านั้น | ใช้ง่าย |
-| Rodin | แหล่งข้อมูลขัดกันเรื่องแผนฟรี | ออกแบบ quad ได้ เก่งงานตัวละคร |
-| Hunyuan3D | โอเพนซอร์ส แต่สัญญามีข้อจำกัดเรื่องพื้นที่และจำนวนผู้ใช้ | รันเองได้ |
+| Rodin | ตรวจเงื่อนไขแผนล่าสุดก่อนขาย | โครง quad ดี |
+| Hunyuan3D | โอเพนซอร์ส (มีเงื่อนไขพื้นที่/จำนวนผู้ใช้ในสัญญา) | รันบนเครื่องตัวเองได้ |
 
-ที่มา: [cinevva](https://app.cinevva.com/guides/ai-3d-model-generators), [3daistudio](https://www.3daistudio.com/blog/rodin-2-5-vs-tripo-vs-hunyuan-3d-comparison)
-
-ผลจาก AI ต้องผ่าน `split_ai_set.py` หรือ `import_ai_model.py` เสมอเพื่อจัดทิศ ลดโพลี และ bake และคำสั่งที่ส่งให้ AI ต้องไม่ลอกงานของผู้สร้างอื่น ตามกฎต้นฉบับใน `SKILL.md`
+ผลลัพธ์จาก AI ต้องผ่าน `split_ai_set.py` หรือ `import_ai_model.py` เพื่อจัดแกนตามมาตรฐาน `[1nfx]`, ลดโพลีให้อยู่ในงบ `8k–25k tris`, ลบเศษเกาะลอย (`--strip-islands`), ผูกกระดูกและอบเท็กซ์เจอร์ DXT5 พร้อมตรวจ `validate_model.py` + `inspect-ydr.ps1` ทุกชิ้นก่อนนำเข้าเซิร์ฟเวอร์

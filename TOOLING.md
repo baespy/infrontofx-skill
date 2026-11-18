@@ -34,7 +34,7 @@
 
 ### jxeqoz/fivem-mcp
 
-- เป็น MCP แบบ remote (`https://fivem-mcp.vercel.app/api/mcp`) ให้ความรู้ FiveM: ค้นหา native, review โค้ด, ตรวจ fxmanifest, วางแผน resource, skill เรื่อง Lua 5.4/NUI/ox_lib/oxmysql
+- เป็น MCP แบบ remote (`https://fivem-mcp.vercel.app/api/mcp`) ให้ความรู้ FiveM ทั่วไป: ค้นหา native, ตรวจ fxmanifest, วางแผน resource, Lua 5.4/NUI/oxmysql (สำหรับ shared runtime ของโปรเจกต์ให้ยึด `1nfx_lib` ใน `skills/common/1nfx-lib.md` แทน `ox_lib` ภายนอก)
 - ไม่ต่อเข้าเซิร์ฟเวอร์ ไม่รันคำสั่งบนเซิร์ฟ ไม่ต้องใช้ key
 - ความเสี่ยงที่ตรวจพบ: repo ใหม่ (2 commit, 0 star), ไม่มี LICENSE, โฮสต์โดยบุคคลที่สาม, ไม่มี auth, ทุกอย่างที่ส่งไปผ่านเครื่องเขา
 - คำแนะนำ: ใช้ได้เฉพาะถามข้อมูลทั่วไป (ค้นหา native, ถามแพตเทิร์น) **ห้ามส่งโค้ดจริง config webhook token รหัส DB หรือที่อยู่เซิร์ฟ** ไปที่ endpoint นี้ ถ้าจะใช้ review โค้ดของเซิร์ฟ ให้ clone แล้วรันเองในเครื่อง (`bun install && bun run dev`) หลังอ่านซอร์สแล้ว

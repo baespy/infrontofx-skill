@@ -35,19 +35,19 @@ Do not claim a performance improvement without before/after evidence from the sa
 
 ## Spatial And Entity Work
 
-- Use `lib.points` or `lib.zones` instead of scanning every configured location.
+- Use `lib.points`, `lib.zones`, or `lib.grid` instead of scanning every configured location (see `skills/common/1nfx-lib.md`).
 - Keep `point:nearby()` limited to the native calls required for the current frame.
 - Compare distances squared instead of `#(a - b)` in hot loops.
-- Render decorative, preview, attached, and reconstructible props locally. Network only entities whose shared physics or ownership matters.
-- For large local worlds, index entries into grid cells and scan nearby cells instead of the full dataset.
+- Render decorative, preview, attached, and reconstructible props locally (`lib.spawn`). Network only entities whose shared physics or ownership matters.
+- For large local worlds, index entries into grid cells (`lib.grid`) and scan nearby cells instead of the full dataset.
 - Use a larger retain distance than spawn distance to prevent boundary churn.
-- After loading a model or anim dict, release it (`SetModelAsNoLongerNeeded`, `RemoveAnimDict`) and delete entities when leaving the area or on resource stop.
+- After loading a model or anim dict, release it (`SetModelAsNoLongerNeeded`, `RemoveAnimDict`) and delete entities when leaving the area or on resource stop (`lib.spawn.clearAll()`).
 - Never add global `GetGamePool` sweeps as a generic optimization. Pool scans and unregistering entities can create cost, ownership bugs, and incompatibility; use them only for a measured, resource-owned problem.
 - Systems duplicated across resources (culling, graphics/FPS) have one owner. Grep for an existing system before adding a new sync system.
 
 ## Caches And Indexes
 
-- Prefer `cache.ped`, `cache.coords`, `cache.vehicle`, `cache.playerId`, and `lib.onCache` over repeated player natives.
+- Prefer `cache.ped`, `cache.coords`, `cache.vehicle`, `cache.seat`, `cache.weapon`, `cache.playerId`, `cache.serverId`, `cache.pauseActive`, and `lib.onCache` over repeated player natives.
 - Values that do not change inside a loop (config, labels, hashes) are read once outside the loop.
 - Build maps by stable id during initialization.
 - Cache reads, not authority. Invalidate on mutation, player drop, provider restart, and resource stop.
@@ -113,3 +113,8 @@ Do not claim a performance improvement without before/after evidence from the sa
 6. Change one cause, repeat the same capture, and report the before/after observation.
 
 Fixed universal millisecond budgets are misleading across hardware and scenarios. Treat consistent idle work, growing memory, burst spikes, and server hitch warnings as defects; use measurements to set a budget for the specific resource.
+
+## NUI GPU readback
+
+- In NUI WebGL/canvas capture, never call `readPixels` / `getImageData` every frame. Each call forces the GPU to finish all queued work before it returns. Check at an interval (e.g. every 500 ms) and reuse the result between checks.
+- `TriggerEvent` on the client enters the runtime of every resource that registered the event. Do not fire alias events (such as `ox_lib:*` next to `1nfx_lib:*`) unless a real listener exists.

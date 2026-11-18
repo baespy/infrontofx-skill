@@ -10,7 +10,7 @@ Resources load the framework through the manifest:
 
 ```lua
 shared_scripts {
-    "@ox_lib/init.lua",
+    "@1nfx_lib/init.lua",
     "@1nfx_core/imports.lua",
 }
 ```

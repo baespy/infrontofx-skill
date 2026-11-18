@@ -449,7 +449,7 @@ class SysAlloc:
     def alloc(self, n, align=16):
         self.align(align)
         off = self.cur
-        if off + n > len(self.buf):
+        while off + n > len(self.buf):
             new_buf = bytearray(len(self.buf) * 2)
             new_buf[: len(self.buf)] = self.buf
             self.buf = new_buf
@@ -754,11 +754,11 @@ def export_ydr_from_objects(rig, ob, slot, out_dir, make_hi=True, dds_out_dir=No
     if not chunks:
         raise RuntimeError(f"Mesh {ob.name} has 0 triangles")
 
-    # Estimate required system segment size (1 MB = 0x100000 or 2 MB = 0x200000)
+    # Initial system segment capacity (SysAlloc auto-doubles if final structs/VBs exceed estimate)
     total_vb_ib = sum(len(c["vbytes"]) + len(c["ibytes"]) for c in chunks)
-    use_2mb_sys = (total_vb_ib + 0x10000) > 0x100000
-    sys_size = 0x200000 if use_2mb_sys else 0x100000
-    sys_flags = 0xA0000014 if use_2mb_sys else 0xA0000013
+    sys_size = 0x100000
+    while sys_size < (total_vb_ib + 0x10000):
+        sys_size *= 2
 
     use_8mb_gfx = len(dxt5_bytes) > 0x200000
     gfx_size = 0x800000 if use_8mb_gfx else 0x200000
@@ -875,7 +875,12 @@ def export_ydr_from_objects(rig, ob, slot, out_dir, make_hi=True, dds_out_dir=No
     struct.pack_into("<QQ", mem.buf, 0xB0, 0, 0)
     struct.pack_into("<QQ", mem.buf, 0xC0, 0, mem.ptr(bound_off))
 
-    # 6. Graphics segment
+    # 6. Graphics segment & RSC7 PageFlags computed from final SysAlloc buffer size
+    sys_shift = int(round(math.log2(len(mem.buf)))) - 17
+    if sys_shift < 0 or sys_shift > 15 or (512 << (sys_shift + 8)) != len(mem.buf):
+        raise RuntimeError(f"Unsupported RSC7 system segment size: {len(mem.buf):#x}")
+    sys_flags = 0xA0000010 | sys_shift
+
     gfx_buf = bytearray(gfx_size)
     gfx_buf[: len(dxt5_bytes)] = dxt5_bytes
 
@@ -918,7 +923,10 @@ def export_ydr_from_objects(rig, ob, slot, out_dir, make_hi=True, dds_out_dir=No
     with open(ytd_path, "wb") as fh:
         fh.write(ytd_bytes)
     hi_ytd_path = os.path.join(out_dir, f"{model_name}_hi.ytd")
-    if os.path.exists(hi_ytd_path):
+    if make_hi and os.path.exists(hi_ytd_path):
+        with open(hi_ytd_path, "wb") as fh:
+            fh.write(ytd_bytes)
+    elif not make_hi and os.path.exists(hi_ytd_path):
         try:
             os.remove(hi_ytd_path)
         except OSError:

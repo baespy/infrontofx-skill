@@ -4,14 +4,49 @@ param(
 )
 
 if (-not $Root) {
-    $Root = Join-Path (Resolve-Path (Join-Path $PSScriptRoot '..\..\..\..')).Path '[1nfx]'
+    $cur = Split-Path $PSScriptRoot -Parent
+    while ($cur -and (Split-Path $cur -Leaf) -notin @('.claude', '.agents')) {
+        $cur = Split-Path $cur -Parent
+    }
+    $ws = if ($cur) { Split-Path $cur -Parent } else { (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..\..\..')).ProviderPath }
+    foreach ($cand in @(
+        (Join-Path $ws 'resources\[resources]'),
+        (Join-Path $ws 'resources'),
+        (Join-Path $ws '[1nfx]')
+    )) {
+        if (Test-Path -LiteralPath $cand) { $Root = $cand; break }
+    }
+    if (-not $Root) { $Root = Join-Path $ws '[1nfx]' }
+} else {
+    $Root = (Resolve-Path -LiteralPath $Root).ProviderPath
 }
 
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression
 
-$skinRes = Join-Path $Root '1nfx_weaponskin'
-$weaponRes = if (Test-Path -LiteralPath (Join-Path $Root '[weapon]')) { Join-Path $Root '[weapon]' } elseif (Test-Path -LiteralPath (Join-Path $Root 'weapon_core')) { $Root } else { Join-Path $Root '[weapon]' }
+function FirstExisting([string[]]$paths) {
+    foreach ($p in $paths) {
+        if ($p -and (Test-Path -LiteralPath $p)) { return $p }
+    }
+    return ''
+}
+
+$rootParent = Split-Path $Root -Parent
+$rootGrand = if ($rootParent) { Split-Path $rootParent -Parent } else { '' }
+
+$skinRes = FirstExisting @(
+    (Join-Path $Root '1nfx_weaponskin'),
+    (Join-Path $Root '[1nfx]\1nfx_weaponskin'),
+    (Join-Path $Root '[resources]\[1nfx]\1nfx_weaponskin'),
+    $(if ($rootParent) { Join-Path $rootParent '[1nfx]\1nfx_weaponskin' } else { '' })
+)
+$weaponRes = FirstExisting @(
+    $(if (Test-Path -LiteralPath (Join-Path $Root 'weapon_core')) { $Root } else { '' }),
+    (Join-Path $Root '[weapon]'),
+    (Join-Path $Root '[resources]\[weapon]'),
+    $(if ($rootParent) { Join-Path $rootParent '[weapon]' } else { '' })
+)
+if (-not $weaponRes) { $weaponRes = Join-Path $Root '[weapon]' }
 $dataDir = Join-Path $weaponRes 'weapon_core\data'
 $script:fail = 0
 $script:warn = 0
@@ -28,10 +63,30 @@ if (-not (Test-Path -LiteralPath $weaponRes)) {
     exit 2
 }
 
-$hasSkinRes = Test-Path -LiteralPath $skinRes
-$hasEsx = Test-Path -LiteralPath (Join-Path $Root 'es_extended\items.json')
-$hasInv = Test-Path -LiteralPath (Join-Path $Root '1nfx_inventory\config\config.item.lua')
-$hasAssetsImg = Test-Path -LiteralPath (Join-Path $Root '1nfx_assetsimg\items')
+$hasSkinRes = [bool]$skinRes
+$itemsFile = FirstExisting @(
+    (Join-Path $Root 'es_extended\items.json'),
+    (Join-Path $Root '1nfx_core\items.json'),
+    (Join-Path $Root '[core]\1nfx_core\items.json'),
+    $(if ($rootParent) { Join-Path $rootParent '[core]\1nfx_core\items.json' } else { '' }),
+    $(if ($rootGrand) { Join-Path $rootGrand '[core]\1nfx_core\items.json' } else { '' }),
+    $(if ($rootParent) { Join-Path $rootParent 'es_extended\items.json' } else { '' })
+)
+$hasEsx = [bool]$itemsFile
+$invFile = FirstExisting @(
+    (Join-Path $Root '1nfx_inventory\config\config.item.lua'),
+    (Join-Path $Root '[1nfx]\1nfx_inventory\config\config.item.lua'),
+    (Join-Path $Root '[resources]\[1nfx]\1nfx_inventory\config\config.item.lua'),
+    $(if ($rootParent) { Join-Path $rootParent '[1nfx]\1nfx_inventory\config\config.item.lua' } else { '' })
+)
+$hasInv = [bool]$invFile
+$assetsImgDirResolved = FirstExisting @(
+    (Join-Path $Root '1nfx_assetsimg\items'),
+    (Join-Path $Root '[1nfx]\1nfx_assetsimg\items'),
+    (Join-Path $Root '[resources]\[1nfx]\1nfx_assetsimg\items'),
+    $(if ($rootParent) { Join-Path $rootParent '[1nfx]\1nfx_assetsimg\items' } else { '' })
+)
+$hasAssetsImg = [bool]$assetsImgDirResolved
 $pkgDir = Get-ChildItem -LiteralPath $weaponRes -Directory | Where-Object { $_.Name -like 'weapon_*' } | Where-Object {
     if ($_.Name -ieq "weapon_$SkinType") { return $true }
     $p = Join-Path $_.FullName "patches"
@@ -84,9 +139,9 @@ if ($pkgDir -and -not $componentsText.Contains("_" + $SkinType.ToUpper())) {
     if (Test-Path -LiteralPath $patchComp) { $componentsText += "`n" + (ReadText $patchComp) }
     if (Test-Path -LiteralPath $patchArch) { $archetypesText += "`n" + (ReadText $patchArch) }
 }
-$itemsText = if ($hasEsx) { ReadText (Join-Path $Root 'es_extended\items.json') } elseif ($pkgDir -and (Test-Path -LiteralPath (Join-Path $pkgDir.FullName 'patches\es_extended.items.insert.json'))) { ReadText (Join-Path $pkgDir.FullName 'patches\es_extended.items.insert.json') } else { "" }
-$iconDir = if ($hasAssetsImg) { Join-Path $Root '1nfx_assetsimg\items' } elseif ($pkgDir -and (Test-Path -LiteralPath (Join-Path $pkgDir.FullName 'assets\items'))) { Join-Path $pkgDir.FullName 'assets\items' } elseif ($pkgDir) { Join-Path $pkgDir.FullName 'source' } else { "" }
-$inventoryText = if ($hasInv) { ReadText (Join-Path $Root '1nfx_inventory\config\config.item.lua') } elseif ($pkgDir -and (Test-Path -LiteralPath (Join-Path $pkgDir.FullName 'patches\inventory_use.insert.lua'))) { ReadText (Join-Path $pkgDir.FullName 'patches\inventory_use.insert.lua') } else { "" }
+$itemsText = if ($hasEsx) { ReadText $itemsFile } elseif ($pkgDir -and (Test-Path -LiteralPath (Join-Path $pkgDir.FullName 'patches\es_extended.items.insert.json'))) { ReadText (Join-Path $pkgDir.FullName 'patches\es_extended.items.insert.json') } else { "" }
+$iconDir = if ($hasAssetsImg) { $assetsImgDirResolved } elseif ($pkgDir -and (Test-Path -LiteralPath (Join-Path $pkgDir.FullName 'assets\items'))) { Join-Path $pkgDir.FullName 'assets\items' } elseif ($pkgDir) { Join-Path $pkgDir.FullName 'source' } else { "" }
+$inventoryText = if ($hasInv) { ReadText $invFile } elseif ($pkgDir -and (Test-Path -LiteralPath (Join-Path $pkgDir.FullName 'patches\inventory_use.insert.lua'))) { ReadText (Join-Path $pkgDir.FullName 'patches\inventory_use.insert.lua') } else { "" }
 
 foreach ($f in @('weaponcomponents.meta', 'weaponarchetypes.meta')) {
     try { [void][xml](ReadText (Join-Path $dataDir $f)); Pass "$f well-formed" } catch { Fail "$f XML: $($_.Exception.Message)" }
@@ -134,6 +189,14 @@ foreach ($p in $pairs) {
             } catch { Fail "$tag XML parse $(Split-Path $metaPath -Leaf): $($_.Exception.Message)" }
         }
     } else { Fail "$tag $comp missing from $(Split-Path $metaPath -Leaf) AttachPoints" }
+    if ($w -eq 'Revolver') {
+        $mk2Path = Join-Path $dataDir 'weapons\weapons_revolver_mk2.meta'
+        if (Test-Path -LiteralPath $mk2Path) {
+            $mk2Text = ReadText $mk2Path
+            if ($mk2Text.Contains("<Name>$comp</Name>")) { Pass "$tag attach point in weapons_revolver_mk2.meta" }
+            else { Warn "$tag $comp missing from weapons_revolver_mk2.meta AttachPoints" }
+        }
+    }
 
     if ($archetypesText.Contains("<modelName>$model</modelName>")) { Pass "$tag archetype $model" } else { Warn "$tag $model has no weaponarchetypes.meta entry (lodDist falls back)" }
 
@@ -160,13 +223,13 @@ foreach ($p in $pairs) {
     }
 
     if ($itemsText) {
-        if ($itemsText.Contains("`"$($p.Item)`"")) { Pass "$tag item $($p.Item) in items.json" } else { Fail "$tag item $($p.Item) missing from es_extended/items.json" }
+        if ($itemsText.Contains("`"$($p.Item)`"")) { Pass "$tag item $($p.Item) in items.json" } else { Fail "$tag item $($p.Item) missing from items.json" }
     }
     if ($inventoryText) {
         if ($inventoryText.Contains("`"$($p.Item)`"")) { Pass "$tag inventory use action" } else { Warn "$tag $($p.Item) not in 1nfx_inventory action.use, no use button in inventory" }
     }
     $iconOk = (Test-Path -LiteralPath (Join-Path $iconDir "$($p.Item).png")) -or (Test-Path -LiteralPath (Join-Path $iconDir ("icon_" + $w.ToLower() + ".png")))
-    $assetsImgDir = Join-Path $Root '1nfx_assetsimg\items'
+    $assetsImgDir = if ($assetsImgDirResolved) { $assetsImgDirResolved } else { Join-Path $Root '1nfx_assetsimg\items' }
     if (Test-Path -LiteralPath $assetsImgDir) {
         if (-not (Test-Path -LiteralPath (Join-Path $assetsImgDir "$($p.Item).png"))) {
             Warn "$tag $($p.Item).png missing from 1nfx_assetsimg/items"
@@ -195,7 +258,13 @@ foreach ($m in [regex]::Matches($lua, 'particleDictionary\s*=\s*"([^"]+)"\s*,\s*
     [void]$dictionaries[$d].Add($m.Groups[2].Value)
 }
 foreach ($d in $dictionaries.Keys) {
-    $yptPath = [IO.Directory]::GetFiles($Root, "$d.ypt", [IO.SearchOption]::AllDirectories) | Select-Object -First 1
+    $yptPath = $null
+    foreach ($searchDir in @($weaponRes, $skinRes, $Root)) {
+        if ($searchDir -and (Test-Path -LiteralPath $searchDir)) {
+            $yptPath = [IO.Directory]::GetFiles($searchDir, "$d.ypt", [IO.SearchOption]::AllDirectories) | Select-Object -First 1
+            if ($yptPath) { break }
+        }
+    }
     if (-not $yptPath) {
         if ($d -match '^(core|veh_|scr_|cut_|des_|proj_)') { Warn "dictionary $d is treated as base-game; confirm in game" } else { Fail "dictionary $d has no .ypt in resources" }
         continue

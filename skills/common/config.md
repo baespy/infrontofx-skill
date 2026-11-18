@@ -26,7 +26,7 @@ Config.Text = {
 
 Rules:
 
-- `Config = {}` once, in `config.lua` only. Other config files add keys: `Config.Shops = { ... }`.
+- Declare `Config = {}` once in `config/config.lua` and assign each sub-table directly (`Config.General = { ... }`, `Config.Text = { ... }`, `Config.Shops = { ... }`). Never write `Config.X = Config.X or {}`, `if not Config.X then Config.X = {} end`, or default-merging loops inside config files. List config files explicitly in `fxmanifest.lua` in exact load order.
 - `Config.General` groups by feature with snake_case keys. Short inline tables for small groups.
 - Every player-facing string lives in `Config.Text` so owners can translate without touching core.
 - Durations name their unit (`interval_ms`, `cooldown_sec`, `lifetime_hours`). Do not create loose global time constants.
@@ -62,6 +62,12 @@ Shared config is downloaded by every client. Never put these in `shared_scripts`
 - Add secret-bearing config files to `.gitignore` for any public repo.
 
 Prices may be shared for display, but the server always re-reads them from its own `Config` before charging.
+
+## Zero Dead Or Fake Configs
+
+- Never leave dead `Config` keys or files that `core/` never reads (such as unused timer/interval keys or unused table-name keys when SQL queries use static table names).
+- Remove orphaned dataset files whose entries are unused or disabled across the resource.
+- Do not split internal engine constants or preview/mock overrides into extra config files; preview modes should consume the real configuration directly.
 
 ## No Integration Layer In Config
 

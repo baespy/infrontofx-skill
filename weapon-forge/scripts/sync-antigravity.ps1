@@ -6,12 +6,16 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $source = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).ProviderPath
-$workspace = (Resolve-Path -LiteralPath (Join-Path $source '..\..\..')).ProviderPath
-$target = Join-Path $workspace '.agents\skills\weapon-forge'
-
-if ((Split-Path (Split-Path $source -Parent) -Parent) -notmatch '\\\.claude$') {
+$claudeDir = Split-Path $source -Parent
+while ($claudeDir -and (Split-Path $claudeDir -Leaf) -ne '.claude') {
+    $claudeDir = Split-Path $claudeDir -Parent
+}
+if (-not $claudeDir -or $source.Substring($claudeDir.Length + 1) -notmatch '^skills\\') {
     throw "run this from the .claude/skills copy; $source is not the source of truth"
 }
+$workspace = Split-Path $claudeDir -Parent
+$skillName = Split-Path $source -Leaf
+$target = Join-Path $workspace (Join-Path '.agents\skills' $skillName)
 
 function Listing([string]$root) {
     $map = @{}

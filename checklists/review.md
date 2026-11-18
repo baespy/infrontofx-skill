@@ -44,7 +44,7 @@ Review in this order: authority -> boundaries -> lifecycle -> performance -> sty
 
 ## Style
 
-- [ ] Header: only `local scriptname = GetCurrentResourceName()` and the module table; framework access through the global `Core` from `@1nfx_core/imports.lua`, no `exports["es_extended"]:getSharedObject()`.
+- [ ] Header & manifest: `@1nfx_lib/init.lua` first in `shared_scripts` (no legacy `@ox_lib/init.lua`, `@er_lib/init.lua`, or standalone `cfxlua-require`), followed by `@1nfx_core/imports.lua` for global `Core` (no `exports["es_extended"]:getSharedObject()`); file header contains only `local scriptname = GetCurrentResourceName()` and the module table.
 - [ ] Single module table per side, PascalCase without prefix, every function a method (`function Module:Name()`).
 - [ ] No top-level `local function`; closures inside a method are allowed.
 - [ ] No file-level constants (`local NAME = value`); literals written at the use site, shared tables are module fields.
@@ -54,8 +54,12 @@ Review in this order: authority -> boundaries -> lifecycle -> performance -> sty
 - [ ] Handlers, callbacks and threads only call methods.
 - [ ] Events `scriptname .. ":SV:x"` / `":CL:x"`; legacy `esx:*` names are not used in new code (`1nfx_core:*`).
 - [ ] No single-line `if`; 4 spaces; double quotes.
-- [ ] No forbidden ox_lib modules (`lib.notify`, `lib.progressBar`, `lib.progressCircle`, `lib.showTextUI`, `lib.hideTextUI`).
+- [ ] No forbidden UI bridge calls in gameplay scripts (`lib.notify`, `lib.progressBar`, `lib.progressCircle`, `lib.showTextUI`, `lib.hideTextUI`, `lib.registerContext`, `lib.inputDialog`, `lib.alertDialog`); call server UI exports directly.
 - [ ] Player strings in `Config.Text`.
 - [ ] `lua54 "yes"` in the manifest.
+- [ ] Shared pure logic used by both client and server lives once in `core/sh_<domain>.lua` under `shared_scripts` (`<Module>Shared` inherited via `__index`); zero copy-pasted `cl_<x>.lua` + `sv_<x>.lua` twins and zero single-side helpers placed in `sh_*.lua`.
+- [ ] `Config = {}` declared once in `config/config.lua` with direct sub-table assignments (`Config.General = { ... }`); no `Config.X = Config.X or {}`, no `if not Config.X then Config.X = {} end`, and no default-merging loops in config files.
+- [ ] Zero dead or fake configs: every `Config` key and file is read by `core/` (no unused keys, no orphaned dataset files, and no separate preview/internal constant dumps).
+- [ ] No redundant standalone micro-resources for single-caller helpers and no duplicate individual `ensure <resource>` in `server.cfg` when covered by an ensured `[category]` folder (unless strict pre-category boot order requires it).
 
 Automate the mechanical part: `node scripts/lint-resource.mjs <resource>`.

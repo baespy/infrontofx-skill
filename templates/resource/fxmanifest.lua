@@ -5,7 +5,7 @@ lua54 "yes"
 ui_page "html/index.html"
 
 shared_scripts {
-    "@ox_lib/init.lua",
+    "@1nfx_lib/init.lua",
     "@1nfx_core/imports.lua",
     "config/config.lua",
     "config/config.shop.lua",

@@ -1,14 +1,27 @@
 param(
-    [string]$Workspace = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..\..\..')).ProviderPath,
+    [string]$Workspace = '',
     [string]$ServerRoot = ''
 )
 
 $ErrorActionPreference = 'Continue'
+if (-not $Workspace) {
+    $cur = Split-Path $PSScriptRoot -Parent
+    while ($cur -and (Split-Path $cur -Leaf) -notin @('.claude', '.agents')) {
+        $cur = Split-Path $cur -Parent
+    }
+    $Workspace = if ($cur) { Split-Path $cur -Parent } else { (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..\..\..')).ProviderPath }
+}
 if (-not $ServerRoot) {
-    $ServerRoot = Join-Path $Workspace '[1nfx]'
-    if (-not (Test-Path -LiteralPath (Join-Path $ServerRoot '[weapon]'))) {
+    foreach ($cand in @(
+        (Join-Path $Workspace 'resources\[resources]'),
+        (Join-Path $Workspace 'resources'),
+        (Join-Path $Workspace '[1nfx]')
+    )) {
+        if (Test-Path -LiteralPath $cand) { $ServerRoot = $cand; break }
+    }
+    if (-not $ServerRoot) {
         $found = @(Get-ChildItem -LiteralPath $Workspace -Directory -Force -ErrorAction SilentlyContinue | Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName '[weapon]') } | Select-Object -First 1)
-        if ($found) { $ServerRoot = $found[0].FullName }
+        $ServerRoot = if ($found) { $found[0].FullName } else { Join-Path $Workspace '[1nfx]' }
     }
 }
 
@@ -40,18 +53,30 @@ if (Test-Path -LiteralPath $agy) { Row 'READY' 'Antigravity CLI' ((& $agy --vers
 $mirror = Join-Path $Workspace '.agents\skills\weapon-forge\SKILL.md'
 if (Test-Path -LiteralPath $mirror) { Row 'READY' 'Skill for Antigravity' '.agents/skills/weapon-forge' } else { Row 'MISSING' 'Skill for Antigravity' 'run scripts/sync-antigravity.ps1' }
 
-$uv = Exe 'uvx'
-if ($uv) { Row 'READY' 'uvx' $uv } else { Row 'MISSING' 'uvx' 'needed for mcp-for-blender; ask the user before installing' }
+$uv = Exe 'uv'
+if (-not $uv) { $uv = Exe 'uvx' }
+if (-not $uv -and (Test-Path -LiteralPath (Join-Path $env:USERPROFILE 'blender-mcp\uv.exe'))) { $uv = Join-Path $env:USERPROFILE 'blender-mcp\uv.exe' }
+if ($uv) { Row 'READY' 'uv / uvx' $uv } else { Row 'MISSING' 'uv / uvx' 'needed for blender-mcp; ask the user before installing' }
 
-$cfg = Join-Path $env:USERPROFILE '.gemini\config\mcp_config.json'
+$cfgCandidates = @(
+    (Join-Path $env:USERPROFILE '.gemini\antigravity\mcp_config.json'),
+    (Join-Path $env:USERPROFILE '.gemini\config\mcp_config.json')
+)
+$cfgFound = ''
 $hasBlender = $false
-if (Test-Path -LiteralPath $cfg) {
-    try {
-        $j = Get-Content -LiteralPath $cfg -Raw | ConvertFrom-Json
-        if ($j.mcpServers) { $hasBlender = @($j.mcpServers.PSObject.Properties.Name | Where-Object { $_ -match 'blender' }).Count -gt 0 }
-    } catch { Row 'WARN' 'mcp_config.json' 'cannot be parsed' }
+foreach ($cfg in $cfgCandidates) {
+    if (Test-Path -LiteralPath $cfg) {
+        try {
+            $j = Get-Content -LiteralPath $cfg -Raw | ConvertFrom-Json
+            if ($j.mcpServers -and @($j.mcpServers.PSObject.Properties.Name | Where-Object { $_ -match 'blender' }).Count -gt 0) {
+                $hasBlender = $true
+                $cfgFound = $cfg
+                break
+            }
+        } catch { Row 'WARN' 'mcp_config.json' "$cfg cannot be parsed" }
+    }
 }
-if ($hasBlender) { Row 'READY' 'Antigravity Blender MCP' $cfg } else { Row 'MISSING' 'Antigravity Blender MCP' 'see references/antigravity.md' }
+if ($hasBlender) { Row 'READY' 'Antigravity Blender MCP' $cfgFound } else { Row 'MISSING' 'Antigravity Blender MCP' 'see references/antigravity.md' }
 
 try {
     . (Join-Path $PSScriptRoot 'ptfx\ptfx-lib.ps1')
@@ -71,9 +96,26 @@ try {
 } catch { Row 'MISSING' 'Particle toolchain' ('C# sources failed to compile: ' + $_.Exception.Message) }
 $ErrorActionPreference = 'Continue'
 
-$weapon = Join-Path $ServerRoot '[weapon]'
-if (Test-Path -LiteralPath $weapon) { Row 'READY' '[weapon]' $weapon } else { Row 'MISSING' '[weapon]' $weapon }
-foreach ($n in '1nfx_weaponskin', 'es_extended', '1nfx_inventory', '1nfx_assetsimg') {
-    $p = Join-Path $ServerRoot $n
-    if (Test-Path -LiteralPath $p) { Row 'READY' $n $p } else { Row 'MISSING' $n 'integration steps 5-11 and check-skin.ps1 need it; pass -ServerRoot' }
+$weapon = ''
+foreach ($cand in @((Join-Path $ServerRoot '[weapon]'), (Join-Path $ServerRoot '[resources]\[weapon]'))) {
+    if (Test-Path -LiteralPath $cand) { $weapon = $cand; break }
 }
+if ($weapon) { Row 'READY' '[weapon]' $weapon } else { Row 'MISSING' '[weapon]' (Join-Path $ServerRoot '[weapon]') }
+
+foreach ($n in '1nfx_weaponskin', '1nfx_inventory', '1nfx_assetsimg') {
+    $foundPath = ''
+    foreach ($cand in @((Join-Path $ServerRoot $n), (Join-Path $ServerRoot "[1nfx]\$n"), (Join-Path $ServerRoot "[resources]\[1nfx]\$n"))) {
+        if (Test-Path -LiteralPath $cand) { $foundPath = $cand; break }
+    }
+    if ($foundPath) { Row 'READY' $n $foundPath } else { Row 'MISSING' $n 'integration steps 5-11 and check-skin.ps1 need it; pass -ServerRoot' }
+}
+$itemsFound = ''
+foreach ($cand in @(
+    (Join-Path $ServerRoot 'es_extended\items.json'),
+    (Join-Path $ServerRoot '1nfx_core\items.json'),
+    (Join-Path $Workspace 'resources\[core]\1nfx_core\items.json'),
+    (Join-Path $Workspace 'resources\[esx]\es_extended\items.json')
+)) {
+    if (Test-Path -LiteralPath $cand) { $itemsFound = $cand; break }
+}
+if ($itemsFound) { Row 'READY' 'items.json' $itemsFound } else { Row 'MISSING' 'items.json' '1nfx_core/items.json or es_extended/items.json not found' }

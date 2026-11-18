@@ -4,7 +4,7 @@ How a resource reaches the framework, notifications, text UI, progress, logs, an
 
 ## Reaching The Framework
 
-- Every resource lists `"@1nfx_core/imports.lua"` in `shared_scripts` (after `"@ox_lib/init.lua"`); do not add a `dependencies` block, start order is set in `server.cfg`.
+- Every resource lists `"@1nfx_lib/init.lua"` first in `shared_scripts`, followed by `"@1nfx_core/imports.lua"`; do not load `@ox_lib/init.lua` or `@er_lib/init.lua`, and do not add a `dependencies` block (start order is set in `server.cfg`).
 - The import provides a global `Core`. It is ESX-compatible: `Core.GetPlayerFromId`, `Core.GetExtendedPlayers`, `Core.RegisterUsableItem`, `Core.GetItemLabel`, `Core.IsPlayerLoaded` (client), `Core.GetPlayerData` (client), and the usual `xPlayer` methods (`xPlayer.getIdentifier()`, `xPlayer.addInventoryItem(name, count)`, ...). The method list is in `references/esx-api.md`.
 - Do not write `local ESX = exports["es_extended"]:getSharedObject()` and do not call `TriggerEvent("esx:getSharedObject", ...)`.
 - Framework events are named `1nfx_core:*` (`1nfx_core:playerLoaded`, `1nfx_core:setJob`, ...). Legacy `esx:*` names still fire locally for old resources, but new code listens to `1nfx_core:*`. Listen to framework events; never re-trigger them.
@@ -61,7 +61,7 @@ end
 ```
 
 - Client values from `Core.GetPlayerData()` are a local cache for display only. They never prove inventory, money, job, permission, elapsed time, ownership, or reward eligibility to the server.
-- Progress bars and text UI of the server are separate resources (`1nfx_processbar`, `1nfx_textui`): call their exports in full at the use site, for example `exports["1nfx_processbar"]:getIsDoingAction()`. Never use `lib.progressBar` or `lib.showTextUI` (see `skills/common/ox-lib.md`).
+- Progress bars and text UI of the server are separate resources (`1nfx_processbar`, `1nfx_textui`): call their exports in full at the use site, for example `exports["1nfx_processbar"]:getIsDoingAction()`. Never use `lib.progressBar` or `lib.showTextUI` in gameplay resources (see `skills/common/1nfx-lib.md`).
 
 ## Server Methods
 

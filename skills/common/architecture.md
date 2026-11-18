@@ -13,6 +13,7 @@ Standard layout and load order for an `infrontofx` FiveM resource.
 │   ├── config.<domain>.lua           Config.<Domain> datasets (optional)
 │   └── config.server.lua             server-only values (rewards, drop rates, webhooks) - optional
 ├── core/
+│   ├── sh_<domain>.lua               pure logic genuinely called by both client and server (optional, in shared_scripts)
 │   ├── cl_main.lua                   client module table + methods
 │   ├── cl_<domain>.lua               independent client subsystem on the same table (multi-system resources only)
 │   ├── sv_main.lua                   server module table + methods (including DB, timers, exports)
@@ -26,7 +27,7 @@ Standard layout and load order for an `infrontofx` FiveM resource.
 
 - `core/` holds logic, `config/` holds what server owners edit. Owners should never need to open `core/`.
 - There is no `config/function/` folder and no `FC` table. Integration code (notify, inventory, money, text UI, progress, logs) is written directly inside `core/` as methods of the module table (`Module:Notify(...)`, `Module:GetMoney(...)`). See `skills/common/core-api.md`.
-- Do not create `core/sh_config.lua` or `core/sh_wire.lua`. Read `Config` directly from `config/*.lua`.
+- Place pure, deterministic logic genuinely called by both client and server (zone geometry, time formatting, wire codecs, schema normalization) in `core/sh_<domain>.lua` under `shared_scripts` on `<Module>Shared = {}`, inherited via `setmetatable(Module, { __index = <Module>Shared })` on client and `setmetatable(ModuleServer, { __index = <Module>Shared })` on server. Never copy-paste identical files as `cl_<x>.lua` and `sv_<x>.lua`, never create `core/sh_config.lua` wrappers, and never place single-side helpers (called only on client or only on server) in `core/sh_*.lua`.
 - Keep all client logic in `core/cl_main.lua` and all server logic in `core/sv_main.lua` for single-system resources. Do not fragment a single feature into tiny files (`cl_nui.lua`, `cl_zone.lua`, `sv_db.lua`, `sv_exports.lua`, `sv_eventschedule.lua`).
 - Split `core/cl_<domain>.lua` and `core/sv_<domain>.lua` only when a resource genuinely bundles multiple independent subsystems (e.g., an all-in-one menu with gangs, mailbox, twitter, and online rewards). Keep shared lifecycle, DB methods, and exports in `cl_main.lua` / `sv_main.lua`.
 - The file that creates the module table loads first on its side (`cl_main.lua` / `sv_main.lua`).
@@ -41,7 +42,7 @@ lua54 "yes"
 ui_page "html/index.html"
 
 shared_scripts {
-    "@ox_lib/init.lua",
+    "@1nfx_lib/init.lua",
     "@1nfx_core/imports.lua",
     "config/config.lua",
     "config/config.shop.lua",
@@ -64,7 +65,7 @@ files {
 
 Load order rules:
 
-1. `@ox_lib/init.lua` first in shared, then `@1nfx_core/imports.lua` (provides the global `Core`).
+1. `@1nfx_lib/init.lua` first in `shared_scripts` (provides `lib`, `cache`, `require`, `SetInterval`, `ClearInterval`; replaces legacy `ox_lib`, `er_lib`, and `cfxlua-require`), then `@1nfx_core/imports.lua` (provides the global `Core`).
 2. `config/config.lua` before any `config/config.<domain>.lua`.
 3. Config files before `core/*` on each side.
 4. Server-only config (`config.server.lua`) in `server_scripts` so clients never download it.
@@ -125,4 +126,9 @@ end)
 
 - A resource whose module spans several files exposes one module global (`NameServer`), so `sv_main.lua` and any `sv_<domain>.lua` subsystem files share it without exports. A single-file module stays `local`.
 - Globals are per resource in FXServer; they do not leak to other resources. Other resources use exports or events only (`rules/contracts.md`).
-- The only globals a resource owns are `Config` and, for multi-file modules, that one module global.
+- The only globals a resource owns are `Config`, its side-specific module global (`Module` on client, `ModuleServer` on server) when spanning multiple files, and `<Module>Shared` when `core/sh_<domain>.lua` provides shared pure methods.
+
+## Resource Scope & Boot Order
+
+- Do not extract tiny lookup tables or single-caller helpers into separate standalone micro-resources when the owning module or core framework already handles them.
+- Do not `ensure <resource>` individually in `server.cfg` when `<resource>` is already inside an ensured `[category]` folder, unless strict boot order before that category requires it.

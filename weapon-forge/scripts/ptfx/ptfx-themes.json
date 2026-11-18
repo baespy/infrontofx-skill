@@ -699,5 +699,30 @@
       { "use": "bubbles", "color": "secondary", "rate": 24, "radius": 0.65, "start": 0.12, "end": 0.7 },
       { "use": "twinkle_glints", "color": "accent", "burst": 16, "radius": 0.85, "start": 0.15 }
     ] }
+  },
+  "brick": {
+    "about": "Modular ABS toy bricks and Technic gears. Crisp snap-energy ribbon with floating studs and glints on hold, normal-blended brick/stud scatter on hit, elastic gear baseplate seal and parabolic brick fountain on the kill.",
+    "families": "brick_modular, pop_arcade, toy",
+    "screen": "pixel", "kill_screen": "pixel", "sound": "toy", "kill_sound": "glitch",
+    "palette": { "core": "#f8fafc", "primary": "#e3242b", "secondary": "#ffd500", "deep": "#2f353d", "accent": "#00eeff" },
+    "hold": { "duration": 1.2, "layers": [
+      { "use": "ribbon_trail", "color": "accent", "colorEnd": "secondary" },
+      { "name": "studs", "use": "shape_float", "texture": "sheet_brick", "blend": "normal", "color": "primary", "color2": "secondary", "rate": 5.5, "radius": 0.18, "inner": 0.05, "dir": "out", "speed": [0.04, 0.11], "gravity": -0.22, "size": [0.055, 0.088], "emissive": 2.3, "attach": 0 },
+      { "use": "twinkle_glints", "color": "core", "color2": "accent", "rate": 6, "radius": 0.2 }
+    ] },
+    "hit": { "duration": 0.58, "layers": [
+      { "use": "impact_star", "color": "core", "color2": "secondary", "size": [0.46, 0.68] },
+      { "use": "shockwave", "color": "accent", "colorEnd": "secondary", "start": 0.02 },
+      { "name": "scatter_bricks", "use": "icon_burst", "texture": "sheet_brick", "blend": "normal", "color": "primary", "color2": "secondary", "burst": 14, "dir": [0, 0, 0.45], "spread": 1.25, "speed": [2.2, 4.2], "accelKeys": [[0, 0, 0, -7.5], [0.4, 0, 0, -11.5], [1, 0, 0, -13.2]], "size": [0.11, 0.18], "emissive": 2.35 },
+      { "use": "spark_burst", "color": "secondary", "color2": "accent", "colorEnd": "primary", "burst": 10 }
+    ] },
+    "kill": { "duration": 2.0, "layers": [
+      { "use": "light_flash", "color": "secondary", "size": 1.35 },
+      { "use": "pop_seal", "texture": "gear", "blend": "normal", "color": "secondary", "color2": "primary", "size": 2.1, "emissive": 2.3, "life": [1.75, 1.95] },
+      { "use": "ground_shock", "color": "accent", "start": 0.03 },
+      { "name": "brick_fountain", "use": "icon_burst", "texture": "sheet_brick", "blend": "normal", "color": "primary", "color2": "secondary", "burst": 24, "dir": [0, 0, 0.88], "spread": 0.95, "speed": [3.2, 5.8], "accelKeys": [[0, 0, 0, -7.2], [0.45, 0, 0, -11.2], [1, 0, 0, -12.8]], "size": [0.12, 0.2], "life": [0.95, 1.5], "emissive": 2.35, "start": 0.03 },
+      { "name": "stud_shower", "use": "shape_burst", "texture": "disc", "blend": "normal", "color": "accent", "color2": "secondary", "burst": 22, "speed": [2.6, 5.4], "gravity": 9.8, "size": [0.07, 0.12], "emissive": 2.4, "start": 0.05 },
+      { "use": "twinkle_glints", "color": "core", "color2": "accent", "burst": 16, "radius": 1.1, "start": 0.1 }
+    ] }
   }
 }

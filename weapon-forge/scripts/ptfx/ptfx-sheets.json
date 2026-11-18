@@ -102,5 +102,15 @@
     "about": "Sixteen pastel confection and dream icons: wrapped candies, hearts, stars, bubbles, butterflies and sleepy Z glyphs.",
     "grid": "4x4", "size": 512,
     "cells": ["candy", "heart", "star", "bubble", "flower", "butterfly", "paw", "crown", "diamond", "sparkle", { "shape": "glyph", "text": "Z" }, "crescent", { "shape": "candy", "rotation": 35 }, { "shape": "candy", "rotation": -35 }, "clover", "note"]
+  },
+  "sheet_brick": {
+    "about": "Sixteen modular toy bricks, round 1x1 studs, Technic gears, plates and interlocking blocks.",
+    "grid": "4x4", "size": 512,
+    "cells": [
+      { "shape": "square", "aspect": 0.5 }, "square", "disc", "gear",
+      { "shape": "pixel", "seed": 3 }, { "shape": "square", "aspect": 0.65, "rotation": 25 }, "ring", { "shape": "gear", "rotation": 22 },
+      { "shape": "pixel", "seed": 11 }, "hex", { "shape": "square", "rotation": 45 }, "disc",
+      { "shape": "square", "aspect": 0.5, "rotation": -20 }, "hexgrid", "sparkle", "cross"
+    ]
   }
 }

@@ -2,15 +2,17 @@
 
 ## เครื่องมือในเครื่องนี้
 
-รัน `scripts/doctor.ps1` ก่อนเริ่มงาน เพราะสถานะเปลี่ยนได้ ผลเมื่อ 2026-11-08:
+รัน `scripts/doctor.ps1` ก่อนเริ่มงาน เพราะสถานะเปลี่ยนได้ ผลตรวจล่าสุดเมื่อ 2026-11-15:
 
 | เครื่องมือ | สถานะ |
 | --- | --- |
-| Blender 4.2.3 | มี: `C:\Tools\blender-4.2.3-windows-x64\blender.exe` (ไม่อยู่ใน PATH) |
-| Sollumz, PyMateria | **ไม่มี** |
-| CodeWalker | **ไม่มี** |
-| Python, Node, ffmpeg, texconv, uv | ไม่มี ใช้ Blender กับ PowerShell แทน (`python.exe` ใน WindowsApps เป็นแค่ทางลัดไป Microsoft Store) |
-| GTA V | มี: `C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto V` ใช้ดึงโมเดลต้นฉบับ เช่น `w_pi_revolver` |
+| Blender 4.2.3 (CLI & Export) | มี: `C:\Tools\blender-4.2.3-windows-x64\blender.exe` (ใช้บันทึก `.blend` ฟอร์แมต `BLENDER-v402` ที่เปิดได้ทั้งใน 4.2.3 CLI และ 5.3 GUI — ห้ามเซฟทับเป็น `BLENDER17` ของ 5.0+ ลง `source/*.blend`!) |
+| Steam Blender 5.3 (Live GUI + MCP) | มี: `C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe` พร้อม `bl_ext.lab_blender_org.mcp` (`localhost:9876`, ดูวิธีรันใน `references/antigravity.md`) |
+| Antigravity CLI & `blender` MCP | **มีและพร้อมใช้งาน (`READY`):** `agy 1.5.9` + `C:\Users\Administrator\blender-mcp\uv.exe` เชื่อมต่อ 26 tools (ทั้งโหมด CLI headless `*_for_cli` และโหมด Live GUI ดูคู่มือครบใน `references/antigravity.md`) |
+| Sollumz, PyMateria | **ไม่มี** (ใช้ `scripts/blender/export_ydr.py` คอมไพล์ RSC7 `.ydr`/`.ytd` ได้โดยตรง) |
+| CodeWalker | **ไม่มี** (ใช้ `scripts/inspect-ydr.ps1` และ `scripts/ptfx/ptfx.ps1` ตรวจโครงสร้างไบนารีแทน) |
+| Python ระบบ, Node, ffmpeg, texconv | ไม่มีใน PATH ใช้ Blender Python (`bpy`) กับ PowerShell 5.1 แทน (`python.exe` ใน WindowsApps เป็นทางลัดไป Microsoft Store) |
+| GTA V | ขึ้นกับเครื่อง (ถ้าไม่มี ให้ดึงขนาดและตำแหน่งกระดูกมาตรฐานจาก `references/weapon-anatomy.md` และ `validate_model.py`) |
 
 Sollumz รุ่นล่าสุดคือ 2.9.0 (ส.ค. 2026) ต้องใช้ Blender 4.2.0 ขึ้นไปตาม manifest ของรุ่นนี้ และติดตั้งเป็น extension จาก `https://repo.sollumz.org/` ([เอกสารติดตั้ง](https://docs.sollumz.org/getting-started/installation)) ตัว add-on จะโหลด `szio` เองเมื่อเปิดใช้ ส่วน `pymateria` เป็นตัวเลือกเฉพาะ Windows ที่ต้องยอมรับ[สัญญาของ Cfx](https://static.cfx.re/PyMateria-License-Agreement.pdf) ใน preferences การติดตั้งเป็นการเปลี่ยนแปลงในเครื่องผู้ใช้ จึงต้องถามก่อน
 
@@ -59,6 +61,41 @@ $b = 'C:\Tools\blender-4.2.3-windows-x64\blender.exe'
 - วางบนก้าน: `badge_on_shaft()` วางบนใบมีด: `badge_on_face()`
 - ส่งเข้าโมเดลด้วย `forge.put(bmesh, key, matrix)` โดย `key` ∈ `primary secondary accent glow grip metal`
 
+## กฎการปั้น Hero Brick / Modular Stud และบทเรียนจากโมเดลจริง
+
+ผลวิเคราะห์เชิงลึกจากชุดภาพอ้างอิง 29 ชุด (`Downloads/weaponphoto`) และการผ่าโครงสร้าง `weapon_lego/source/*.blend` รุ่นเก่า พบบทเรียนสำคัญที่ใช้บังคับกับตระกูล `brick_modular` และงานปั้นโมดูลาร์ทุกชุด:
+
+1. **หลีกเลี่ยงกับดักโพลีจากปุ่มรอบทรงกระบอก (`37,276-tri` Radial Stud Trap):**
+   - *ปัญหาจริงที่พบ:* `w_me_lego_poolcue.blend` รุ่นเก่าจำลองก้านไม้คิวด้วยการเรียงปุ่มทรงกระบอก 26 segments รอบก้านกว่า 700 ปุ่มพร้อมฝาปิดก้นปุ่มที่จมอยู่ในเนื้อโมเดล ทำให้พุ่งถึง `37,276 tris` (เกินเพดาน `25,000 tris` ของช่องอาวุธ)
+   - *กฎมาตรฐาน Hero Brick:* ขยายสัดส่วนตารางบล็อกขึ้น ~25% เป็น **Hero Pitch `10–12 mm`** (เส้นผ่านศูนย์กลางปุ่ม `6.0 mm`, สูง `2.0–2.2 mm`) เพื่อให้เห็นชัดในระยะบุคคลที่สามของ GTA V สร้างปุ่มทรงกระบอกด้วย **10–12 segments แบบเปิดฐานล่าง (`open-bottom cap`)** ซึ่งใช้เพียง `20–36 tris/ปุ่ม` และวางเฉพาะสันเด่น 1–2 แถวสลับแผ่นเรียบ SNOT (รวมทั้งชิ้น `60–140` ปุ่ม อยู่ในงบ `4,500–14,000 tris` อย่างสบาย)
+2. **โซนมือจับเรียบ SNOT (`Gun_GripR` & `Gun_GripL` Hand-Safe Zones):**
+   - ห้ามวางปุ่ม stud หนาม หรือครีบคมในรัศมี `±0.055 m` รอบ `Gun_GripR` ของทุกช่อง และรอบ `Gun_GripL` (`Z ≈ +0.29 m`) ของ `poolcue` ให้ใช้แผ่นเรียบ SNOT (`Studs Not On Top`) หรือกริป Technic ลบมุมมน เพื่อไม่ให้นิ้วมือตัวละครจมทะลุปุ่มระหว่างแอนิเมชันถือและเหวี่ยง
+3. **ร่องรอยต่อบล็อก (`0.8 mm` Seam Groove) และ Cavity AO ใต้ `emissive.sps`:**
+   - เพราะเซิร์ฟเวอร์นิยมใช้ `emissive.sps` เพื่อให้สีสว่างสดทุกสภาพแสง แผ่นพลาสติกสีเดียวกันที่วางชิดกันโดยไม่มีร่องเงาจะละลายติดกันเป็นก้อนแบนทันทีในระยะ `3–8 m` และใน mipmap ระดับไกล ต้องเว้นร่องรอยต่อ (`seam groove` / `chamfer`) กว้าง `0.6–0.8 mm` ระหว่างก้อนบล็อก และ bake เงาซอก **Cavity AO มืดลง `25–35%`** ลงใน `_d.dds` เสมอ (ลวดลายเส้นหลักทุกเส้นต้องกว้าง `>= 4 mm`)
+4. **จุดเรืองแสงแบบฝังใน (`Recessed Translucent Cores`):**
+   - อย่าวาดแถบนีออนลอยทับผิวเฉยๆ ให้ฝังเม็ดไฟ (`1×1 round plate`, แกนพลังงานใส หรือช่องระบายแสง) ลึกลงไปในร่องเกราะหรือตัวบล็อก `1–2 mm` เพื่อให้ขอบบล็อกทึบช่วยตัดกรอบแสงให้คมชัดเวลาเปิด bloom
+5. **เช็กไฟล์ภาพขาด, ซิงก์ `Bound Box`, ระวัง `glob.glob` และล้าง Orphan Datablocks ก่อน Export:**
+   - ในสคริปต์ Python ห้ามใช้ `glob.glob` ตรง ๆ กับพาธที่มี `[resources]` หรือ `[weapon]` (เพราะ `glob` ตีความ `[...]` เป็นชุดตัวอักษรเหมือน PowerShell `-Path`) ให้ใช้ `os.listdir(d)` หรือ `glob.escape(d)` เสมอ
+   - รัน `get_blendfile_summary_missing_files_for_cli` (หรือตรวจ `bpy.data.images`) เพื่อกันพาธภาพขาดอย่าง `//...\3433.dds` ที่จะเรนเดอร์ออกเป็นสีม่วงสด
+   - หลังแก้รูปทรง mesh ทุกครั้ง ต้องคำนวณขนาดและตำแหน่งของ `<model>.col` (`Bound Composite` → `Bound Box`) ใหม่จากพิกัด vertex จริง (ห้ามปล่อย `Bound Box.001` หลุดลอยนอกโมเดล) และรัน `orphans_purge` ตามสัญญาใน `references/bone-and-memory-safety.md`
+
+### หกบทเรียนสำคัญจากการปั้นจริงผ่าน Live Blender MCP (`LegoMocForge` — `weapon_lego` v4.5 Authentic Brick-Built Classic LEGO MOC Edition)
+
+1. **สถาปัตยกรรม `LegoMocForge` True Interlocking Shell-Voxel (ต่อก้อนอิฐ LEGO จริงเฉพาะเปลือกนอก):**
+   - เมื่อผู้ใช้ต้องการอาวุธที่ดูเหมือน **ต่อจากก้อนเลโก้สี่เหลี่ยมจริงทั้งชิ้น (`Authentic Brick-Built MOC`)** ห้ามปั้นแท่งเรียบแล้วแปะปุ่มหลอก ให้ย่อยกริดจำนวนเต็ม 3 มิติ (`3D integer stud grid`) ออกเป็นก้อนอิฐประสานสลับรอยต่อแบบก่ออิฐ (`staggered running-bond`: `4×2`, `3×2`, `2×2`, `4×1`, `3×1`, `2×1`, `1×1`) **เฉพาะเปลือกนอก (`outer-shell-only`)** โดยปล่อยโพรงด้านในให้กลวงโล่งเพื่อคุมโพลีทั้งชิ้นให้อยู่ใน `< 28,000 tris`!
+   - ใช้ระยะชิด `gap = 0` คู่กับการปาดขอบ **`chamfer` `45°` ขนาด `0.55 mm`** รอบทุกก้อนอิฐ จะเกิดร่องรอยต่อตัว V กว้าง `1.1 mm` ที่คมกริบโดย **ไม่มีรูแสงรั่ว (`zero light leaks`)** และไม่ต้องใส่ก้อนดำซ้อนข้างในที่จะโผล่ทะลุมุมออกมา
+   - วางปุ่มสตั๊ดทรงกระบอก 3D แบบ **10 เหลี่ยมเปิดฐานล่าง (`20 tris/stud`)** อัตโนมัติบนทุกขั้นบันไดที่เปิดโล่ง โดยตั้ง **`stud_dir = -1`** สำหรับขวดน้ำเลโก้ที่จับตรงคอขวด (`Bottle` ใน `w_me_<id>_knife`) เพื่อให้ปุ่มบนไหล่ขวดและฝาขวดชี้ขึ้นไปทางฝาขวดอย่างถูกต้องตามธรรมชาติ!
+2. **พาเลตต์พลาสติกเงา Classic LEGO ABS แท้ไร้ไฟนีออนไซไฟ (`Pure Classic Glossy ABS`):**
+   - เมื่อโจทย์เป็นของเล่นตัวต่อคลาสสิก ห้ามใส่เส้นไฟนีออนไซไฟ (`emit` สีฟ้าเรืองแสง) ให้ใช้สีพลาสติก ABS เงาสดใสของตัวต่อแท้ล้วน ๆ: แดง `#dd1a21`, เหลือง `#fac80a`, น้ำเงิน `#0057a8`, ขาว `#f4f4f2`, เทาอ่อน `#a5aab0`, เทาเข้ม `#4c5157` และดำ `#1b1e23` พร้อมเลือกอาร์คีไทป์ให้ตรงช่องจริง (เช่น `Bottle` = ขวดเลโก้ต่อจากก้อนอิฐจริง, `Poolcue` = ไม้คิวต่อจากก้อนเลโก้ทั้งแท่ง)
+3. **วินัยห้ามหนามแหลมและห้ามบล็อกบวมมน (`Anti-Spike & Anti-Blob Discipline`):**
+   - ห้ามเติมหนามแหลม ฟันเลื่อย เขี้ยวแวมไพร์ หรือหัวหอกสามง่าม และห้ามใช้ `chaikin` หลายรอบกับก้อนอิฐสี่เหลี่ยม (ซึ่งทำให้บล็อกบวมเป็นไส้กรอก) ให้ใช้การปาดมุมคม (`0.55 mm` `45°` brick chamfer หรือ `chamfer_poly_2d`) เท่านั้น และระวังเส้นรูเจาะด้านในของ `shape2d` ไม่ให้ล้ำเส้นขอบนอก (`EVEN_ODD` fill inversion trap)
+4. **กับดัก `shape2d` Symmetric Extrude (`cu.extrude + cu.bevel_depth`):**
+   - ใน Blender Curve 2D ค่า `cu.extrude` บวก `cu.bevel_depth` จะดันความหนาออก **ทั้งสองฝั่ง `+Z` และ `-Z`** (`ความหนารวม = 2 × (extrude + bevel_depth)`) เมื่อใช้ทำโครงแกน ต้องคุมความหนาเผื่อทั้งสองฝั่งเสมอ
+5. **แก้ Z-Fighting รอบรูนิ้วสนับมือ (`Knuckle` Ring & Brick Stepping):**
+   - ไล่ระดับความหนาและรัศมีขอบรูนิ้วแต่ละชั้นไม่ให้มีระนาบซ้อนทับกัน (`zero coplanar Z-fighting`) และจัดก้านฝ่ามือเรียบ SNOT อยู่ฝั่ง `+Y` ส่วนแป้นปุ่มตัวต่อด้านหน้าชี้ไปทาง `-Y`
+6. **สัญญาสองช่อง `Knife`/`Bottle` และจุดกึ่งกลางด้ามจับ (`Dual-Slot & Grip Center Contract`):**
+   - คุมความสูงของ `w_me_<id>_knife` (เช่น ขวดเลโก้ `Z ∈ [-0.058, +0.205] m`) ให้ผ่าน `validate_model.py` (`fail=0 warn=0`) ได้ **ทั้งสองช่อง** (`--slot bottle` และ `--slot knife`) และรักษาจุดกึ่งกลางโซนจับ `Z ∈ [-0.015, +0.025] m` ให้อยู่ที่ `(0, 0)` พอดี
+
 ## นำเข้าโมเดลจากภายนอก (AI สร้าง 3D หรือซื้อมา)
 
 forge ด้วยโค้ดเหมาะกับฐานที่สเกลถูก ถ้าต้องการรูปทรงละเอียดระดับภาพโปรโมต ให้ใช้โมเดลจากภายนอก ถ้าไฟล์มีอาวุธหลายชิ้นต้องใช้ `split_ai_set.py` ตามหัวข้อถัดไป ถ้ามีชิ้นเดียวก็แนะนำตัวเดียวกันเพราะมี preview จุดมือก่อน bake ส่วน `import_ai_model.py` เหมาะกับการลองชิ้นเดียวแบบเร็ว ๆ ถ้าโมเดลวางเอียงให้ใส่ `--pca`
@@ -95,7 +132,7 @@ forge ด้วยโค้ดเหมาะกับฐานที่สเ�
 ทดสอบแล้วกับ FBX จริงจาก Tripo ชุด ONIKAGE (2 ล้าน tris, 7 ชิ้น) ครบทุกโหมด ใช้เวลาทั้งชุดราว 2 นาที และกับ GLB อาวุธชิ้นเดียวที่ตัดจากชุดนั้น ยังไม่เคยลองถือในเกม และยังไม่เคยลอง GLB ที่ออกจากบริการ AI โดยตรง
 
 ```powershell
-$t = '.claude\skills\weapon-forge\scripts\blender\split_ai_set.py'
+$t = '.claude\skills\infrontofx\weapon-forge\scripts\blender\split_ai_set.py'
 & $b -b --factory-startup --python-exit-code 1 -P $t -- --src set.fbx --out DIR --mode inspect --id myset
 & $b -b --factory-startup --python-exit-code 1 -P $t -- --src set.fbx --config set.json --out DIR --mode preview
 ```
@@ -211,6 +248,22 @@ Forge ออกแบบให้ตรงกับทางหลัก: ทุ
 - **`phBoundBox` `MaterialId` ที่ `+0x4C` (แก้แล้ว 2026-11-12):** ต้องเขียนเป็น `uint32` (`<fffI`, ค่า `55` หรือ `69`) และ `+0x5C` เป็น `0` ไม่ใช่ `float(mat_id)` (`0x428a0000`)
 - **จำนวน bone ที่ `+0x5E` (แก้แล้ว):** `build_skeleton_block` เขียน `<IIIHH` ที่ `+0x50` เพื่อให้ค่า bone count อยู่ตรง `+0x5E` (`01 00 <nb> 00` ที่ `+0x5C`) ตรงกับ `wm_elys_knife` และ `w_me_lego_knife`
 - **ป้องกัน bloom สะสม (แก้แล้ว):** `image_to_dxt5` เช็ก `img.get("bloomed")` และตั้ง `img["bloomed"] = True` จึงไม่เบลอซ้ำเมื่อรันซ้ำ
+- **`RSC7 PageFlags` (`sys_flags`) ล้นเมื่อ `VertexBuffer + IndexBuffer` เกิน `2 MB` (ตรวจพบใน `w_me_lego_bat` `50,346` split-corner verts และแก้แล้ว 2026-11-16):** เมื่อโมเดลมีมุมปาดคมจำนวนมากจน `SysAlloc` ขยาย `mem.buf` จาก `0x200000` (`2 MB`) เป็น `0x400000` (`4 MB`) รุ่นเดิมคำนวณ `sys_flags` ล่วงหน้าแค่ `0xA0000013` (`1 MB`) / `0xA0000014` (`2 MB`) ทำให้ขนาดคลายบีบอัด (`6 MB`) ไม่ตรงกับ `PageFlags` (`4 MB`) เสี่ยงสตรีมล้นหน่วยความจำ RAGE ปัจจุบัน `export_ydr.py` คำนวณ `sys_flags = 0xA0000010 | (int(round(math.log2(len(mem.buf)))) - 17)` จากขนาด `mem.buf` สุดท้ายก่อนแพ็กส่วนหัว RSC7 เสมอ (`1 MB` → `0xA0000013`, `2 MB` → `0xA0000014`, `4 MB` → `0xA0000015`, `8 MB` → `0xA0000016`)
+- **การรักษา `<model>_hi.ytd` คู่กับ `<model>_hi.ydr` (แก้แล้ว 2026-11-16):** หากใน `stream/` มี `<model>_hi.ytd` อยู่แล้วและเปิด `make_hi` ไว้ `export_ydr.py` จะเขียนอัปเดต `<model>_hi.ytd` ให้เป็นพจนานุกรม `1024×1024` DXT5 11 mips ตรงกับ `<model>.ytd` โดยอัตโนมัติ (ไม่ลบทิ้ง และจะลบเฉพาะเมื่อส่ง `--no-hi` เท่านั้น)
+- **ป้องกันชื่อ Armature ติดนามสกุล `.001` และ `Bound Box.001` ซ้ำซ้อน:** ในสคริปต์ปั้นต้องเปลี่ยนชื่อ render mesh เป็น `Gun_Root` (และ `Gun_Root_high`) **ก่อน** เรียก `bpy.data.objects.new(model_name, arm)` ทุกครั้ง มิฉะนั้น Blender จะเติม `.001` ต่อท้ายชื่อ Armature ทำให้ได้ไฟล์ขยะ `<model>.001.ydr` โผล่ใน `stream/` และเรียก `attach_sollumz_hierarchy` เพียงครั้งเดียวต่อฉากสะอาดเท่านั้น
+- **ทิศทางสนับมือ (`Knuckle`) 180° และพิกัดศูนย์กลางด้ามจับ:** เมื่อปั้น `knuckle` ด้วยโค้ดเอง ให้สร้างลงพิกัดโลก `(X, Y, Z)` โดยตรง (`X ∈ [+0.011, +0.033]`, ก้านฝ่ามือเรียบแบบ SNOT อยู่ฝั่ง `+Y`, รูสอดนิ้วทั้ง 4 และแป้นปุ่มกระแทกหน้าเรียบชี้ไปทาง **`-Y`**) ระวังฟังก์ชันแปลงแกน `to_yz` ที่สลับหน้า-หลัง `180°` หากคัดลอกมาโดยไม่ตรวจ และรักษาโซน `Gun_GripR` (`Z ∈ [-0.035, +0.032]`) กับ `Gun_GripL` (`Z ∈ [+0.352, +0.472]`) ให้ไร้ปุ่มและมีจุดศูนย์กลางอยู่ที่ `(0, 0)` พอดี
+- **คุมหน่วยความจำ Cycles ให้คงที่ระดับ `~80 MB` ตลอดการปั้นทั้งชุด:** หลัง bake ลงแผ่นภาพเดียวเสร็จ ให้ถอด procedural bake materials ออกจาก mesh ทันทีแล้วสั่ง `bpy.ops.outliner.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)`
+
+ตารางค่าอ้างอิงจริงจากชุด `weapon_lego` **v4.5 Authentic Brick-Built Classic LEGO MOC Edition** ทั้ง 6 ช่อง (`LegoMocForge` ใน `build_lego_showpiece.py`, ต่อจากก้อนอิฐเลโก้เปลือกนอกจริงทั้งชิ้น ไร้ไฟนีออนไซไฟ, ปั้นและตรวจผ่าน Live Blender 5.3 MCP + บันทึกฟอร์แมต `BLENDER-v402` 4.2.3, อบ Cycles `EMIT` → `1024×1024` DXT5 11 mips, ผ่าน `validate_model.py` และ `inspect-ydr.ps1` ด้วย `fail=0 warn=0` ทุกไฟล์):
+
+| ช่อง | โมเดล (อาร์คีไทป์ MOC) | Tris / Geoms / Bones | ช่วงขนาดหลัก | `.ydr` / `_hi.ydr` | `.ytd` / `_hi.ytd` (`1024×1024` DXT5 11 mips) |
+| --- | --- | --- | --- | --- | --- |
+| `Bottle` + `Knife` | `w_me_lego_knife` (Brick-Built LEGO Bottle) | `16,716` / `1` / `3` | `Z = -0.058 .. +0.205 m` (`stud_dir=-1`, ผ่านทั้ง `bottle` & `knife`) | `820 KB` (`839,249 B`) | `484 KB` (`495,926 B`) |
+| `Poolcue` | `w_me_lego_poolcue` (Full Brick-Built Cue Stick) | `18,198` / `1` / `4` (`+Gun_GripL`) | `Z = -0.142 .. +0.705 m` | `796 KB` (`815,360 B`) | `447 KB` (`457,469 B`) |
+| `Knuckle` | `w_me_lego_knuckle` (Brick-Built Knuckle Duster) | `9,696` / `1` / `3` | `Z = -0.067 .. +0.067 m` | `683 KB` (`699,517 B`) | `479 KB` (`490,356 B`) |
+| `Machete` | `w_me_lego_machete` (Brick-Built LEGO Broadsword) | `9,470` / `1` / `3` | `Z = -0.049 .. +0.439 m` | `679 KB` (`695,444 B`) | `460 KB` (`470,802 B`) |
+| `Revolver` | `w_pi_lego_revolver` (4-Stud-Wide Brick Revolver) | `24,186` / `2` / `10` (`+Gun_Muzzle`,`WAPClip`) | `X len = 0.362 m, Z = -0.126 .. +0.067 m` | `993 KB` (`1,017,072 B`) | `459 KB` (`469,721 B`) |
+| `Bat` | `w_me_lego_bat` (Brick-Built Baseball Bat) | `27,832` / `2` / `3` | `Z = -0.140 .. +0.575 m` | `1,114 KB` (`1,140,556 B`) | `474 KB` (`485,833 B`) |
 
 ### ตรวจไฟล์ที่ได้
 

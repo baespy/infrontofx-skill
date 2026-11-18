@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative, basename, extname, sep } from "node:path";
+import { join, relative, resolve, basename, extname, sep } from "node:path";
 
 const SKIP_DIRS = new Set(["node_modules", ".git", ".next", "dist", "vendor", "stream", "fonts", "tests", "launcher-build-worker"]);
-const LUA_THIRD_PARTY_EVENTS = /^(pNotify|esx|esx_|1nfx_core|mythic_progbar|ox_lib|ox_inventory|txAdmin|chat|baseevents|playerSpawned|onResource|onClientResource|gameEventTriggered|populationPedCreating|entityCreated|entityRemoved|explosionEvent|weaponDamageEvent)/;
+const LUA_THIRD_PARTY_EVENTS = /^(pNotify|esx|esx_|1nfx_core|1nfx_lib|mythic_progbar|ox_lib|ox_inventory|txAdmin|chat|baseevents|playerSpawned|onResource|onClientResource|gameEventTriggered|populationPedCreating|entityCreated|entityRemoved|explosionEvent|weaponDamageEvent)/;
 const FORBIDDEN_OXLIB = /\blib\.(notify|progressBar|progressCircle|progressActive|cancelProgress|showTextUI|hideTextUI|isTextUIOpen|registerContext|showContext|inputDialog|alertDialog)\b/;
 
 const findings = [];
@@ -237,10 +237,8 @@ function lintLua(file, rel) {
     const raw = src.split("\n");
     const { comments, code } = scanLua(src);
     const side = sideOf(rel);
-    if (/^sh_/i.test(basename(rel))) {
-        add(rel, 1, "error", "no-sh-file", "no sh_*.lua files; client code in cl_*.lua, server code in sv_*.lua, shared data in config/");
-    }
     const isManifest = basename(rel).toLowerCase() === "fxmanifest.lua";
+    const is1nfxLib = resolve(file).split(/[\\/]/).includes("1nfx_lib");
 
     for (const lineNo of comments) {
         add(rel, lineNo, "error", "no-comments", "comments are not allowed in produced Lua");
@@ -286,13 +284,26 @@ function lintLua(file, rel) {
         if (/^(Config(?:\.\w+)*) = \1 or (\{\}|\d+|"[^"]*"|true|false)\s*$/.test(line)) {
             add(rel, ln, "error", "no-config-guard", "create each Config table once in config/config.lua with plain assignment (Config = {}, Config.General = {}); later files must not repeat X = X or {}");
         }
+        const configIf = /^\s*if\s+not\s+(Config(?:\.\w+)*)\s+then\b/.exec(line);
+        if (configIf) {
+            const cfgTarget = configIf[1];
+            const isConfigFile = /^(?:.*[\\/])?config[\\/]/i.test(rel) || /^config\b/i.test(basename(rel));
+            const ahead = code.slice(index, index + 4).join("\n");
+            const assignsTarget = new RegExp(`(?<![.\\w])${cfgTarget.replace(/\./g, "\\.")}\\s*=(?!=)`).test(ahead);
+            if (cfgTarget === "Config" || !/^\s/.test(line) || isConfigFile || assignsTarget) {
+                add(rel, ln, "error", "no-config-guard", "create each Config table once in config/config.lua with plain assignment; do not guard with if not Config...");
+            }
+        }
+        if (/^[A-Za-z_]\w*Shared\s*=\s*\{/.test(line) && side !== "shared") {
+            add(rel, ln, "error", "no-shared-global", "shared module tables (*Shared = {}) belong in core/sh_*.lua under shared_scripts, never in twin cl_/sv_ files");
+        }
         if (/^[A-Za-z_]\w* = [A-Za-z_]\w* or \{\}\s*$/.test(line) && !/^Config/.test(line)) {
             add(rel, ln, "error", "no-global-guard", "no global state tables; keep state as fields of the module table (Module.ServerState / Module.PlayerState)");
         }
         if (/exports\s*\[\s*["']es_extended["']\s*\]|exports\.es_extended/.test(original)) {
             add(rel, ln, "error", "legacy-esx", "load @1nfx_core/imports.lua in the manifest and use the global Core instead of es_extended");
         }
-        if (FORBIDDEN_OXLIB.test(line)) {
+        if (!is1nfxLib && FORBIDDEN_OXLIB.test(line)) {
             add(rel, ln, "error", "forbidden-oxlib", "use the server UI exports (pNotify:SendNotification, 1nfx_processbar, 1nfx_textui) instead of ox_lib UI modules");
         }
         if (/\bRunStaticPlayerMethod\b/.test(line)) {
@@ -382,6 +393,11 @@ function lintManifest(rel, src) {
     if (/config[\\/]function[\\/]|config\/function/.test(src)) {
         add(rel, 1, "error", "no-config-function", "remove config/function from the manifest");
     }
+    for (const blockMatch of src.matchAll(/(?:client_scripts?|server_scripts?)\s*\(?\s*\{([\s\S]*?)\}/g)) {
+        if (/["'][^"']*\bsh_[^"']*\.lua["']/.test(blockMatch[1])) {
+            add(rel, 1, "error", "sh-in-wrong-block", "list core/sh_*.lua in shared_scripts, not client_scripts or server_scripts");
+        }
+    }
     if (/\buse_experimental_fxv2_oal\s*\(?/.test(src)) {
         add(rel, 1, "warn", "manifest-oal", "enable experimental OAL only after auditing native signatures and vector arguments");
     }
@@ -391,10 +407,13 @@ function lintManifest(rel, src) {
     if (/\bexports\s*\{/.test(src) || /server_exports\s*\{/.test(src)) {
         add(rel, 1, "warn", "manifest-exports", "declare exports with exports(\"name\", function) in code instead of the manifest");
     }
-    const oxIndex = src.indexOf("@ox_lib/init.lua");
+    for (const legacy of src.matchAll(/@(?:ox_lib|er_lib)\/init\.lua/g)) {
+        const legacyLine = src.slice(0, legacy.index).split("\n").length;
+        add(rel, legacyLine, "error", "legacy-lib", "use @1nfx_lib/init.lua instead of legacy ox_lib/er_lib");
+    }
     const shared = /shared_scripts?\s*\(?\s*\{([\s\S]*?)\}/.exec(src);
-    if (oxIndex !== -1 && shared && !/^\s*["']@ox_lib\/init\.lua["']/.test(shared[1])) {
-        add(rel, 1, "warn", "manifest-order", "@ox_lib/init.lua should be the first shared script");
+    if (shared && /["']@1nfx_lib\/init\.lua["']/.test(shared[1]) && !/^\s*["']@1nfx_lib\/init\.lua["']/.test(shared[1])) {
+        add(rel, 1, "warn", "manifest-order", "@1nfx_lib/init.lua should be the first shared script");
     }
 }
 
