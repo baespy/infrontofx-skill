@@ -65,7 +65,7 @@ Flat vector sticker logo for a toy brand called "GOO LAB": bubbly rounded letter
 | `native` (ค่าเริ่ม) | Sollumz + szio + PyMateria (ส่วนเสริมของ Cfx.re มีสัญญาอนุญาตกับ Take-Two/Rockstar ผู้ใช้ต้องยอมรับเอง ห้าม agent ติดตั้งแทน) | `.ydr` `.ytyp` ไบนารีพร้อม stream |
 | `cwxml` | Sollumz + szio | XML ที่ต้องนำเข้า CodeWalker เพื่อแปลงเป็นไบนารีก่อน stream (FiveM โหลด `.xml` ไม่ได้) |
 
-สถานะเครื่องนี้ (2026-11-19): Sollumz 2.9.1 + szio 1.4.0 ติดตั้งแล้วทั้ง Blender 4.2.3 และ Steam 5.3, ยังไม่มี PyMateria และยังไม่มี CodeWalker
+สถานะเครื่องนี้ (2026-11-19): Sollumz 2.9.1 + szio 1.4.0 + PyMateria 0.2.1 ติดตั้งแล้วทั้ง Blender 4.2.3 และ Steam 5.3 (ผู้ใช้ยอมรับสัญญา PyMateria เองแล้ว) ใช้ `--format native` ได้เลย ยังไม่มี CodeWalker
 
 ข้อควรรู้:
 

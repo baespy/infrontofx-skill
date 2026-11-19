@@ -96,4 +96,5 @@ end)
 | --- | --- | --- |
 | 2026-11-19 | `forge_prop.py` สร้างชุดตัวอย่าง 9 ชิ้นบน Blender 4.2.3 และ `validate_prop.py` ผ่าน `fail=0` ทุกชิ้น | ผ่าน (ใน Blender เท่านั้น) |
 | 2026-11-19 | `export_prop.py` export ทั้ง 9 ชิ้นเป็น CodeWalker XML ผ่าน Sollumz 2.9.1 (`RESULT ok=9`) ได้ ydr.xml, ytyp.xml และ DDS | ผ่าน (ยังไม่ได้แปลงเป็นไบนารี) |
-| - | export native (PyMateria) และโหลดในเกม | ยังไม่ได้ทดสอบ |
+| 2026-11-19 | export native ทั้ง 9 ชิ้น (PyMateria 0.2.1) ได้ `.ydr` และ `.ytyp` หัวไฟล์ RSC7 ครบ, ytyp ขนาด 535-563 ไบต์ใกล้เคียงของ `1nfx_prop` เดิม, นำ `1nfx_goo_atm.ydr` กลับเข้า Sollumz ได้ 9754 tris + collision 2 ชิ้น + shader 2 ตัว + DDS 256x256 | ผ่าน (นอกเกม) |
+| - | โหลดในเกม | ยังไม่ได้ทดสอบ |

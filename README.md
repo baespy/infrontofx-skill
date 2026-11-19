@@ -128,7 +128,7 @@ Export needs the Sollumz 2.9+ extension with its szio dependency. Run it without
 
 **References:** style DNA and look checklist (`prop-forge/references/style-toybrand.md`), archetypes and how to add one (`prop-forge/references/archetypes.md`), finishes, decals, collision, LOD and Sollumz export (`prop-forge/references/pipeline.md`), Antigravity and Blender MCP (`prop-forge/references/antigravity.md`), resource and spawn code (`prop-forge/references/integration.md`).
 
-**Status:** tested on Blender 4.2.3 with Sollumz 2.9.1. All 9 example props build, validate with `fail=0`, and export to CodeWalker XML. Native binary export (it needs Sollumz's optional PyMateria) and loading the props in game are not tested yet.
+**Status:** tested on Blender 4.2.3 with Sollumz 2.9.1. All 9 example props build, validate with `fail=0` and export as native binary `.ydr`/`.ytyp` (RSC7). A re-import in Sollumz shows the mesh, the shaders, the embedded texture and the collision. Loading the props in game is not tested yet.
 
 ---
 
