@@ -114,18 +114,21 @@ Needs Blender 4.2+, Windows PowerShell 5.1 and .NET (bundled with Windows). Run 
 $blender = 'C:\Tools\blender-4.2.3-windows-x64\blender.exe'
 & $blender -b --factory-startup -P prop-forge\scripts\blender\forge_prop.py -- --spec props.json --out build --lineup
 & $blender -b --factory-startup -P prop-forge\scripts\blender\validate_prop.py -- --blend build
+& $blender -b -P prop-forge\scripts\blender\export_prop.py -- --blend build --out stream --format cwxml
 ```
+
+Export needs the Sollumz 2.9+ extension with its szio dependency. Run it without `--factory-startup` so the extension loads. `--format native` writes binary `.ydr`/`.ytyp` directly but also needs Sollumz's optional PyMateria package, which has its own licence agreement. `--format cwxml` writes CodeWalker XML that CodeWalker converts to binary.
 
 1. Copy `prop-forge/templates/prop-spec.example.json` and set the brand, the palette and the list of props
 2. Build, then look at `lineup.png` and every `<id>_preview.png`; rebuild single props with `--only <id>`
 3. Add AI-generated sticker art as decals when geometry is not enough (uses the poster-forge image scripts)
 4. Run `validate_prop.py` until it reports `fail=0`
-5. Export with Sollumz (`.ydr`, `.ytd`, `.ytyp`) and stream the files from a prop resource
+5. Run `export_prop.py`, which drives Sollumz to write one `.ydr` (texture and collision embedded) and one `.ytyp` per prop, then stream them from a prop resource
 6. Spawn props with `lib.spawn.pointProp`, which creates them near the player and releases them when the player leaves
 
 **References:** style DNA and look checklist (`prop-forge/references/style-toybrand.md`), archetypes and how to add one (`prop-forge/references/archetypes.md`), finishes, decals, collision, LOD and Sollumz export (`prop-forge/references/pipeline.md`), Antigravity and Blender MCP (`prop-forge/references/antigravity.md`), resource and spawn code (`prop-forge/references/integration.md`).
 
-**Status:** the generator and validator are tested on Blender 4.2.3: all 9 example props build and validate with `fail=0`. Exporting through Sollumz and loading the props in game is not tested yet.
+**Status:** tested on Blender 4.2.3 with Sollumz 2.9.1. All 9 example props build, validate with `fail=0`, and export to CodeWalker XML. Native binary export (it needs Sollumz's optional PyMateria) and loading the props in game are not tested yet.
 
 ---
 

@@ -17,7 +17,7 @@ description: ปั้น prop FiveM สไตล์ของเล่นแบ�
 4. **แก้จนลงตัว:** แก้สเปก (สี ป้าย พารามิเตอร์) แล้วรันซ้ำด้วย `--only <id>` ถ้าต้องปั้นแก้ละเอียดแบบโต้ตอบ ใช้ Antigravity + Blender MCP ตาม `references/antigravity.md`
 5. **ลวดลายพิเศษ (ถ้ามี):** โลโก้กราฟฟิตี้หรือสติกเกอร์ที่ปั้นเป็นเรขาคณิตไม่ได้ ให้เจนเป็น PNG พื้นใสตาม "Decal จาก AI" ใน `references/pipeline.md` แล้วใส่ใน `decals` ของสเปก
 6. **ตรวจสัญญา:** รัน `scripts/blender/validate_prop.py` จนได้ `fail=0` และอ่าน `WARN` ทุกบรรทัด
-7. **Export:** ทำตาม `references/pipeline.md` หัวข้อ Export (Sollumz) ถ้าเครื่องยังไม่มี Sollumz ให้ถามผู้ใช้ก่อนติดตั้ง ห้ามติดตั้งเอง
+7. **Export:** รัน `scripts/blender/export_prop.py` (ไม่ใส่ `--factory-startup`) ตาม `references/pipeline.md` หัวข้อ Export (Sollumz) ได้ `.ydr` + `.ytyp` ต่อชิ้นพร้อม texture และกล่องชนฝังในไฟล์ PyMateria (สำหรับ `--format native`) มีสัญญาอนุญาตกับ Take-Two/Rockstar ห้ามติดตั้งแทนผู้ใช้
 8. **เชื่อมเข้าเซิร์ฟเวอร์:** ทำตาม `references/integration.md` (stream, `data_file "DLC_ITYP_REQUEST"`, โค้ด spawn ที่ปล่อยหน่วยความจำ) สำรองไฟล์ก่อนแก้ resource จริงทุกครั้ง
 9. **ซิงก์และรายงาน:** ถ้าแก้ไฟล์ใน skill ให้รัน `scripts/sync-antigravity.ps1` รายงานผู้ใช้แยกให้ชัดว่าอะไรตรวจแล้ว อะไรยังไม่ได้ลองในเกม
 
@@ -50,6 +50,7 @@ $skill   = 'C:\Users\Administrator\Desktop\mainserver\.claude\skills\infrontofx\
 | --- | --- |
 | `scripts/blender/forge_prop.py` | สร้าง prop จากสเปก: 8 archetype, ตัวช่วยปั้น (กล่อง bevel, ทรงกระบอก, ทรงกลม, ห่วง, รูป 2D ดึงหนา, ตัวหนังสือ mesh มีขอบ, สไลม์ไหลรอบขอบ, ม่านสไลม์, มงกุฎ, หัวมาสคอต, ตา X, ดาว), รวม mesh, ล้างเศษ, palette texture ของชุดหรือ bake, decal, กล่องชน, preview, lineup, `report.json` |
 | `scripts/blender/validate_prop.py` | ตรวจ `.blend` ทีละไฟล์หรือทั้งโฟลเดอร์: ชื่อ, transform, origin ที่พื้น, ขนาด, tris เทียบงบ, NaN, สามเหลี่ยมเสีย, UV, วัสดุ, texture ยกกำลังสอง, กล่องชน, orphan ใช้ได้ทั้ง headless และใน Blender สดผ่าน MCP |
+| `scripts/blender/export_prop.py` | ใช้ Sollumz แปลง `.blend` เป็น Drawable + embedded collision + ytyp แล้ว export ทั้งโฟลเดอร์ (`--format native` หรือ `cwxml`, `--collision PLASTIC`) แปลง texture เป็น DDS ให้เอง |
 | `scripts/sync-antigravity.ps1` | ซิงก์ skill ไป `.agents/skills/prop-forge` ให้ Antigravity ใช้ (`-Check` ตรวจอย่างเดียว, `-Force` เขียนทับ) |
 | `templates/prop-spec.example.json` | สเปกชุดตัวอย่าง GOO LAB ครบ 9 ชิ้น |
 | `assets/fonts/` | ฟอนต์ OFL (Titan One, Russo One) สำหรับตัวหนังสือบน prop |

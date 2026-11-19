@@ -46,13 +46,30 @@ Flat vector sticker logo for a toy brand called "GOO LAB": bubbly rounded letter
 
 ## Export (Sollumz)
 
-ยังไม่มีตัว export ตรงสำหรับ prop เหมือน `../weapon-forge/scripts/blender/export_ydr.py` (ตัวนั้นทำเฉพาะอาวุธที่มี skeleton) ทาง export ที่ใช้คือ Sollumz ใน Blender ถ้าเครื่องยังไม่มี ให้ถามผู้ใช้ก่อนติดตั้ง ขั้นตอนด้านล่างเขียนตาม Sollumz 2.x ให้ตรวจชื่อเมนูกับเวอร์ชันที่ติดตั้งจริงทุกครั้ง
+`scripts/blender/export_prop.py` ทำงาน Sollumz ทั้งหมดให้อัตโนมัติจาก `.blend` ของ `forge_prop.py`:
 
-1. เปิด `<id>.blend` เลือก mesh `<id>` แล้ว Convert เป็น Drawable (Sollumz Tools) ตั้งชื่อ Drawable = `<id>`
-2. แปลงวัสดุเป็น Sollumz shader: `<id>_diffuse` เป็น `default.sps` (หรือ `spec.sps` ถ้าอยากได้เงา), `<id>_emissive` เป็น `emissive.sps`, decal เป็น `decal.sps`; ตั้ง texture ของ DiffuseSampler เป็น `<set>_palette` (หรือ `<id>_atlas`) แล้วตั้งให้ไม่ embed ถ้าจะใช้ ytd ร่วมทั้งชุด
-3. เลือก `<id>_col_*` ทั้งหมด แปลงเป็น Bound Composite ที่มี Bound Box ลูก แล้ว parent เข้า Drawable (embedded collision) ตั้ง collision material เป็นพลาสติก
-4. สร้าง ytyp: เพิ่ม archetype จาก Drawable, `name` = `<id>`, `textureDictionary` = ชื่อ ytd ของชุด (เช่น `1nfx_goo_txd`) หรือ `<id>` ถ้า embed, `lodDist` ตาม `report.json`, asset type = drawable
-5. Export `.ydr` และ `.ytyp` (Sollumz บางเวอร์ชันได้ `.ydr.xml`/`.ytyp.xml` ให้นำเข้า CodeWalker เพื่อแปลงเป็นไบนารี) และสร้าง `.ytd` ของชุดที่มี texture palette (DXT1 พอเพราะไม่มี alpha, DXT5 ถ้ามี decal โปร่งใส)
-6. ตรวจด้วย CodeWalker ว่าเปิด `.ydr` ได้ เห็น texture และกล่องชน ก่อนส่งให้ผู้ใช้ทดสอบในเกม
+1. แปลง texture ของวัสดุเป็น `.dds` (DXT5 + mipmaps ด้วยตัวเข้ารหัสของ `../weapon-forge/scripts/blender/export_ydr.py`) เพราะ Sollumz ฝังได้เฉพาะ DDS
+2. แปลงวัสดุเป็น Sollumz shader ตาม `prop_forge_shader` (`default.sps`, `emissive.sps`, `decal.sps`) และฝัง texture ไว้ใน `.ydr`
+3. รวม `<id>_col_N` เป็น Bound Composite (GeometryBVH) วัสดุชนเป็น `PLASTIC` (เปลี่ยนด้วย `--collision`) แล้ว parent เข้า Drawable เป็น embedded collision
+4. แปลง mesh เป็น Drawable ชื่อ `<id>` สร้าง ytyp `<id>` ที่มี archetype `<id>` (`lodDist` จาก `report.json`, bbox คำนวณให้)
+5. Export ด้วย `sollumz.export_assets` (GEN8 สำหรับ FiveM) ทีละชิ้นใน process แยก
 
-ชื่อไฟล์ทั้งหมดต้องตรงกัน: `<id>.ydr`, archetype `<id>` ใน `<set>.ytyp` หรือ `<id>.ytyp`, texture dictionary ตามที่ตั้งใน ytyp ชื่อ model ห้ามซ้ำกับ prop อื่นทั้งเซิร์ฟเวอร์ (ค้นใน `resources` ก่อนตั้งชื่อ)
+```powershell
+& 'C:\Tools\blender-4.2.3-windows-x64\blender.exe' -b -P "$skill\scripts\blender\export_prop.py" -- --blend work\build --out work\stream --format cwxml
+```
+
+ต้องรัน **ไม่ใส่** `--factory-startup` ไม่อย่างนั้น Sollumz ไม่โหลด ผลลัพธ์ต่อชิ้น: `<id>.ydr` + `<id>.ytyp` (native) หรือ `<id>.ydr.xml` + `<id>.ytyp.xml` + โฟลเดอร์ `<id>\` ที่มี `.dds` (cwxml) บรรทัด `EXPORT {...}` บอกวัสดุ จำนวนกล่องชน และไฟล์ที่เขียน จบด้วย `RESULT ok=<n> fail=<n>`
+
+| `--format` | ต้องมี | ได้ |
+| --- | --- | --- |
+| `native` (ค่าเริ่ม) | Sollumz + szio + PyMateria (ส่วนเสริมของ Cfx.re มีสัญญาอนุญาตกับ Take-Two/Rockstar ผู้ใช้ต้องยอมรับเอง ห้าม agent ติดตั้งแทน) | `.ydr` `.ytyp` ไบนารีพร้อม stream |
+| `cwxml` | Sollumz + szio | XML ที่ต้องนำเข้า CodeWalker เพื่อแปลงเป็นไบนารีก่อน stream (FiveM โหลด `.xml` ไม่ได้) |
+
+สถานะเครื่องนี้ (2026-11-19): Sollumz 2.9.1 + szio 1.4.0 ติดตั้งแล้วทั้ง Blender 4.2.3 และ Steam 5.3, ยังไม่มี PyMateria และยังไม่มี CodeWalker
+
+ข้อควรรู้:
+
+- Blender 4.2.3 แครชตอนปิดโปรแกรมหลัง export (`EXCEPTION_ACCESS_VIOLATION` ใน `node_free_node`) ไฟล์เขียนเสร็จแล้วก่อนแครช สคริปต์จึงพิมพ์ผลแบบ flush แล้วออกด้วย `os._exit` และแยก process ต่อชิ้น ห้ามเอาสองอย่างนี้ออก
+- ytyp เป็นหนึ่งไฟล์ต่อหนึ่ง prop (`<id>.ytyp`) แบบเดียวกับ `1nfx_prop` ที่มีอยู่ ต้องเพิ่ม `data_file "DLC_ITYP_REQUEST"` ทีละไฟล์
+- texture ฝังใน `.ydr` ของแต่ละชิ้น (palette 256x256 DXT5 ราว 90 KB ต่อชิ้น) archetype จึงมี `textureDictionary` = `<id>` ถ้าอยากใช้ ytd ร่วมทั้งชุดต้องแก้ใน Sollumz เอง
+- ชื่อ model ห้ามซ้ำกับ prop อื่นทั้งเซิร์ฟเวอร์ ค้นใน `resources` ก่อนตั้งชื่อ

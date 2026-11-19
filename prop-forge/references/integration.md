@@ -4,9 +4,9 @@
 
 | ไฟล์ | มาจาก |
 | --- | --- |
-| `<id>.ydr` | Sollumz export (mesh + collision แบบ embedded) |
-| `<set>_txd.ytd` หรือ `<id>.ytd` | texture palette หรือ atlas (DXT1/DXT5) |
-| `<set>.ytyp` หรือ `<id>.ytyp` | archetype ของทุกชิ้นในชุด (`lodDist`, `textureDictionary`) |
+| `<id>.ydr` | `export_prop.py` (mesh + texture + collision แบบ embedded) |
+| (ฝังใน `.ydr`) | texture palette หรือ atlas DXT5 ที่ `export_prop.py` ฝังให้ |
+| `<id>.ytyp` | archetype ของชิ้นนั้น (`lodDist`, `textureDictionary` = `<id>`) หนึ่งไฟล์ต่อหนึ่ง prop |
 | `<id>.ycd` (ถ้ามี) | animation เช่น marker หมุน/ลอย ผูกผ่าน `clipDictionary` ใน ytyp |
 
 ## Resource
@@ -25,7 +25,8 @@ files {
     "stream/*.ytyp",
 }
 
-data_file "DLC_ITYP_REQUEST" "stream/1nfx_goo.ytyp"
+data_file "DLC_ITYP_REQUEST" "stream/1nfx_goo_garage.ytyp"
+data_file "DLC_ITYP_REQUEST" "stream/1nfx_goo_atm.ytyp"
 ```
 
 ทุกคำสั่ง PowerShell ที่อ้าง `[resources]` หรือ `[1nfx]` ต้องใช้ `-LiteralPath` และคัดลอกด้วย `robocopy` หรือ `[IO.File]::Copy` (ดู `../weapon-forge/references/antigravity.md`)
@@ -94,4 +95,5 @@ end)
 | วันที่ | เรื่อง | ผล |
 | --- | --- | --- |
 | 2026-11-19 | `forge_prop.py` สร้างชุดตัวอย่าง 9 ชิ้นบน Blender 4.2.3 และ `validate_prop.py` ผ่าน `fail=0` ทุกชิ้น | ผ่าน (ใน Blender เท่านั้น) |
-| - | export ผ่าน Sollumz และโหลดในเกม | ยังไม่ได้ทดสอบ |
+| 2026-11-19 | `export_prop.py` export ทั้ง 9 ชิ้นเป็น CodeWalker XML ผ่าน Sollumz 2.9.1 (`RESULT ok=9`) ได้ ydr.xml, ytyp.xml และ DDS | ผ่าน (ยังไม่ได้แปลงเป็นไบนารี) |
+| - | export native (PyMateria) และโหลดในเกม | ยังไม่ได้ทดสอบ |
