@@ -57,6 +57,7 @@ const REQUIRED = [
     "poster-forge/SKILL.md",
     "weapon-forge/SKILL.md",
     "prop-forge/SKILL.md",
+    "map-forge/SKILL.md",
 ];
 const FORBIDDEN = [
     "skills/common/fc-adapters.md",
@@ -64,7 +65,7 @@ const FORBIDDEN = [
     "templates/resource/config/function",
 ];
 const LINK_PREFIXES = ["skills/", "memory/", "references/", "rules/", "checklists/", "templates/", "scripts/", "agents/"];
-const SKIP_MARKDOWN_DIRS = new Set(["node_modules", ".git", "templates", "poster-forge", "weapon-forge", "prop-forge"]);
+const SKIP_MARKDOWN_DIRS = new Set(["node_modules", ".git", "templates", "poster-forge", "weapon-forge", "prop-forge", "map-forge"]);
 const failures = [];
 
 const read = (path) => readFileSync(join(ROOT, path), "utf8");
@@ -108,7 +109,7 @@ if (!front) {
     }
 }
 
-for (const forge of ["poster-forge", "weapon-forge", "prop-forge"]) {
+for (const forge of ["poster-forge", "weapon-forge", "prop-forge", "map-forge"]) {
     if (!existsSync(join(ROOT, forge, "SKILL.md"))) {
         continue;
     }

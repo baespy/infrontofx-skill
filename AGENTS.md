@@ -33,6 +33,7 @@
 - `poster-forge/` ทำโปสเตอร์ Support/Welfare (อ่าน `poster-forge/SKILL.md`)
 - `weapon-forge/` ทำสกิน/โมเดลอาวุธ ptfx เสียง (อ่าน `weapon-forge/SKILL.md`)
 - `prop-forge/` ปั้น prop สไตล์ของเล่นแบรนด์เซิร์ฟเวอร์ (อ่าน `prop-forge/SKILL.md`)
+- `map-forge/` ปั้นและ export แมพ FiveM 144-200 FPS (อ่าน `map-forge/SKILL.md`)
 
 ## วิธีทำงาน
 

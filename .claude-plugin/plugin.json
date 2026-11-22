@@ -1,10 +1,10 @@
 {
     "name": "infrontofx-skill",
-    "version": "3.1.0",
-    "description": "infrontofx FiveM toolkit: Lua + NUI/DUI standard (OOP, no comments, no FC), poster-forge, weapon-forge and prop-forge.",
+    "version": "3.2.0",
+    "description": "infrontofx FiveM toolkit: Lua + NUI/DUI standard (OOP, no comments, no FC), poster-forge, weapon-forge, prop-forge and map-forge.",
     "author": {
         "name": "baespy"
     },
     "license": "MIT",
-    "skills": ["./", "./poster-forge", "./weapon-forge", "./prop-forge"]
+    "skills": ["./", "./poster-forge", "./weapon-forge", "./prop-forge", "./map-forge"]
 }

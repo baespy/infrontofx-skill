@@ -60,7 +60,7 @@
 & '.claude\skills\infrontofx\weapon-forge\scripts\check-skin.ps1' -SkinType <SkinType>
 ```
 
-(หรือระบุ `-Root 'C:\Users\Administrator\Desktop\mainserver\resources\[resources]\[1nfx]'` ก็ได้ สคริปต์ค้นหาโฟลเดอร์คู่ขนาน `[weapon]` และ `[core]\1nfx_core\items.json` ให้อัตโนมัติ)
+(หรือระบุ `-Root '<project>\resources\[resources]\[1nfx]'` ก็ได้ สคริปต์ค้นหาโฟลเดอร์คู่ขนาน `[weapon]` และ `[core]\1nfx_core\items.json` ให้อัตโนมัติ)
 
 ตรวจ: skin config, component ใน meta, attach point (รวมถึง `weapons_revolver_mk2.meta`), archetype, `.ydr`, texture, item, ปุ่มใช้ในกระเป๋า, ไอคอน, ไฟล์ภาพและเสียง, ชื่อ particle ใน `.ypt`, ค่า scale/volume/duration จบด้วย `RESULT fail=N warn=N` และคืน exit code 1 เมื่อมี FAIL
 

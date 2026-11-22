@@ -109,6 +109,21 @@ def validate_scene(prop_id=None, budget=None):
         out("OK", "no collision (marker / decoration)")
     else:
         out("FAIL", "no collision boxes named {}_col_N; players will walk through the prop".format(root.name))
+    anim_meta = meta.get("anim")
+    if anim_meta:
+        rig = bpy.data.objects.get(anim_meta.get("rig_name", root.name + "_rig"))
+        has_rig = rig is not None and rig.type == "ARMATURE"
+        out("OK" if has_rig else "FAIL", "animation rig {} present".format(anim_meta.get("rig_name", root.name + "_rig")))
+        if has_rig:
+            nbones = len(rig.data.bones)
+            out("OK" if 2 <= nbones <= 64 else "FAIL", "rig bones: {} (2-64)".format(nbones))
+            has_arm_mod = any(m.type == "ARMATURE" and m.object == rig for m in root.modifiers)
+            out("OK" if has_arm_mod else "FAIL", "mesh has ARMATURE modifier bound to rig")
+            bone_names = {b.name for b in rig.data.bones}
+            bad_vg = [vg.name for vg in root.vertex_groups if vg.name not in bone_names]
+            out("OK" if not bad_vg else "FAIL", "vertex groups match rig bones" + ("" if not bad_vg else " (unknown: {})".format(", ".join(bad_vg))))
+            act = rig.animation_data.action if rig.animation_data else None
+            out("OK" if act is not None and len(act.fcurves) > 0 else "FAIL", "rig action keyframes: {}".format(len(act.fcurves) if act else 0))
     orphans = sum(1 for m in bpy.data.meshes if m.users == 0) + sum(1 for m in bpy.data.materials if m.users == 0)
     out("OK" if orphans == 0 else "WARN", "orphan meshes/materials: {}".format(orphans))
     return finish(lines)

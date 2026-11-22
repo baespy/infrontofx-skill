@@ -1,11 +1,11 @@
 ---
 name: infrontofx
-description: ชุดเดียวครบสำหรับงาน FiveM ของเซิร์ฟเวอร์ (1) มาตรฐานเขียน/รีไรต์ resource Lua 5.4 + 1nfx_lib, NUI/DUI แบบ OOP ไม่มี comment ไม่มี FC ไม่มีค่าคงที่ระดับไฟล์ (2) poster-forge ทำโปสเตอร์ Support/Welfare จากรูปตัวละครและไอเทม (3) weapon-forge ทำสกิน/โมเดลอาวุธ ptfx เอฟเฟกต์หน้าจอและเสียง (4) prop-forge ปั้น prop สไตล์ของเล่นแบรนด์เซิร์ฟเวอร์ (ป้าย ATM ตู้เซฟ กล่อง โต๊ะคราฟต์ marker). ใช้ทุกครั้งที่เขียนใหม่ optimize แยกสคริป ทำ UI สร้าง resource ใหม่ ทำโปสเตอร์ ทำสกินอาวุธ หรือปั้น prop. Triggers - "infrontofx", "1nfx", "เขียนใหม่", "รีไรต์", "optimize", "แยกสคริป", "NUI", "DUI", "โปสเตอร์", "support", "สวัสดิการ", "สกินอาวุธ", "weapon skin", "ptfx", "ypt", "ปั้น prop", "prop", "ytyp".
+description: ชุดเดียวครบสำหรับงาน FiveM ของเซิร์ฟเวอร์ (1) มาตรฐานเขียน/รีไรต์ resource Lua 5.4 + 1nfx_lib, NUI/DUI แบบ OOP ไม่มี comment ไม่มี FC ไม่มีค่าคงที่ระดับไฟล์ (2) poster-forge ทำโปสเตอร์ Support/Welfare จากรูปตัวละครและไอเทม (3) weapon-forge ทำสกิน/โมเดลอาวุธ ptfx เอฟเฟกต์หน้าจอและเสียง (4) prop-forge ปั้น prop สไตล์ของเล่นแบรนด์เซิร์ฟเวอร์ (ป้าย ATM ตู้เซฟ กล่อง โต๊ะคราฟต์ marker) (5) map-forge ปั้นและ export แมพ FiveM ระดับสตูดิโอ 144-200 FPS (Sky AFK, Lobby, Airdrop/Warzone, Garage, Outpost, MLO) พร้อม RAGE PBR, Vertex Color #FF00FF, Drawable.lights และ prop แท้ GTA V. ใช้ทุกครั้งที่เขียนใหม่ optimize แยกสคริป ทำ UI สร้าง resource ใหม่ ทำโปสเตอร์ ทำสกินอาวุธ ปั้น prop หรือปั้นแมพ. Triggers - "infrontofx", "1nfx", "เขียนใหม่", "รีไรต์", "optimize", "แยกสคริป", "NUI", "DUI", "โปสเตอร์", "support", "สวัสดิการ", "สกินอาวุธ", "weapon skin", "ptfx", "ypt", "ปั้น prop", "prop", "ytyp", "ปั้นแมพ", "map-forge", "ymap", "ybn", "mlo", "afk zone".
 ---
 
 # infrontofx
 
-ชุดเดียวครบสำหรับเซิร์ฟเวอร์ FiveM ตระกูล `1nfx_*` มี 4 ส่วน: มาตรฐานโค้ด (ไฟล์นี้และโฟลเดอร์ `skills/`), `poster-forge/`, `weapon-forge/` และ `prop-forge/`
+ชุดเดียวครบสำหรับเซิร์ฟเวอร์ FiveM ตระกูล `1nfx_*` มี 5 ส่วน: มาตรฐานโค้ด (ไฟล์นี้และโฟลเดอร์ `skills/`), `poster-forge/`, `weapon-forge/`, `prop-forge/` และ `map-forge/`
 เป้าหมายของมาตรฐานโค้ด: การทำงานในเกมของแต่ละ resource เหมือนเดิมทุกอย่าง โค้ดสั้นลง ลื่นขึ้น ไม่มีของซ้ำ
 
 ## ตัวเลือกเส้นทาง (อ่านเฉพาะที่ต้องใช้ เพื่อประหยัด token)
@@ -25,8 +25,9 @@ description: ชุดเดียวครบสำหรับงาน FiveM 
 | โปสเตอร์ Support / Welfare / แจกของ | `poster-forge/SKILL.md` |
 | สกินอาวุธ, โมเดล, ptfx (.ypt), เอฟเฟกต์หน้าจอ, เสียง | `weapon-forge/SKILL.md` |
 | ปั้น prop (ป้าย, ATM, ตู้เซฟ, กล่อง, หีบ, โต๊ะคราฟต์, marker), ytyp, stream prop | `prop-forge/SKILL.md` |
+| ปั้นแมพ FiveM (Sky AFK, Lobby, Airdrop/Warzone, Garage, Outpost, MLO), ymap, ybn, lighting | `map-forge/SKILL.md` |
 
-เมื่อเข้าเส้นทางของ `poster-forge`, `weapon-forge` หรือ `prop-forge` ให้เปิด `SKILL.md` ของโฟลเดอร์นั้นและทำตามนั้นทั้งหมด พาธใน skill เหล่านั้นอิงจากโฟลเดอร์ของมันเอง
+เมื่อเข้าเส้นทางของ `poster-forge`, `weapon-forge`, `prop-forge` หรือ `map-forge` ให้เปิด `SKILL.md` ของโฟลเดอร์นั้นและทำตามนั้นทั้งหมด พาธใน skill เหล่านั้นอิงจากโฟลเดอร์ของมันเอง
 
 ## หลักการ
 
@@ -185,6 +186,9 @@ Server:
 - ก่อนเปลี่ยนไฟล์ stream ที่โหลดอัตโนมัติ (`stream/`) ไม่ต้องใส่ใน `files`
 - ระบบที่ซ้ำกันหลาย resource (culling, กราฟิก/FPS) ให้มีเจ้าของที่เดียว ก่อนเพิ่มระบบ sync ใหม่ให้ grep หาระบบเดิมก่อน
 
+- สถานะที่ต้องหายเมื่อออกเกม (เช่น เลือกโรงเรียน/ทีมต่อรอบ) ไม่ต้องลง DB เก็บใน `ServerState` + `Player(src).state` ล้างใน `1nfx_core:playerLoaded` และตอน resource start ให้อ่านคืนจาก `Player(src).state` ของผู้เล่นที่ออนไลน์อยู่ จะได้ไม่หายตอนรีสตาร์ต resource
+- `theme/ui.js` ที่ใช้ร่วมทุก UI มีแค่ `BillieSound.click`/`hover` เสียงเฉพาะ resource (tick, reveal) ต้องเล่นเองใน class ของหน้านั้น เรียก method ที่ไม่มีจะ throw แล้ว animation ค้าง
+- `lib.callback.register(name, function(src, ...))` ได้ `src` เป็นพารามิเตอร์ ไม่ต้องมี `local src = source` (กฎนี้ใช้กับ `RegisterNetEvent` เท่านั้น)
 - `provide "x"` ใน manifest ไม่ได้ทำให้ `exports["x"]:fn()` ใช้ได้ เพราะ Lua export ผูกกับชื่อ resource จริงผ่าน event `__cfx_export_<resource>_<name>` ถ้าต้องรับ export แทน resource อื่น (เช่น `es_extended:getSharedObject`) ให้ `AddEventHandler("__cfx_export_es_extended_getSharedObject", function(setCB) setCB(fn) end)`
 
 ## UI

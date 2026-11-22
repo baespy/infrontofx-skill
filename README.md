@@ -1,6 +1,6 @@
 # infrontofx-skill
 
-An all-in-one agent skill pack for a FiveM roleplay server (`1nfx_*` resources). It covers writing Lua and NUI/DUI code, building weapon skins, building branded props, and making support posters. It works with Claude Code, Google Antigravity, Codex and other agents that read `SKILL.md` files.
+An all-in-one agent skill pack for a FiveM roleplay server (`1nfx_*` resources). It covers writing Lua and NUI/DUI code, building weapon skins, building branded props, building high-FPS maps, and making support posters. It works with Claude Code, Google Antigravity, Codex and other agents that read `SKILL.md` files.
 
 The root `SKILL.md` holds a routing table, so an agent opens only the files a task needs.
 
@@ -9,6 +9,7 @@ The root `SKILL.md` holds a routing table, so an agent opens only the files a ta
 | [Coding](#coding) | Write, rewrite, review and optimize Lua 5.4 resources and NUI/DUI pages to the house standard | `SKILL.md` |
 | [Weapon modeling](#weapon-modeling) | Weapon skin sets: Blender models, `.ydr`/`.ytd`, custom particles (`.ypt`), hit/kill screens and sounds | `weapon-forge/SKILL.md` |
 | [Prop modeling](#prop-modeling) | Branded toy-style props: signs, ATM, safe, crates, loot chest, crafting bench, floating marker | `prop-forge/SKILL.md` |
+| [Map building](#map-building) | High-FPS FiveM maps (Sky AFK, lobby, warzone, garage hub, outpost, MLO): shared PBR `.ytd`, vertex-colour day/night, embedded lights, `.ymap`/`.ybn` export and binary inspection | `map-forge/SKILL.md` |
 | [Posters](#posters) | Support / welfare / giveaway posters from character art, item icons and a logo | `poster-forge/SKILL.md` |
 
 ## Install
@@ -26,7 +27,7 @@ Or add it as a Claude Code plugin (not yet tested end to end):
 /plugin install infrontofx-skill@infrontofx
 ```
 
-For Google Antigravity, `weapon-forge/scripts/sync-antigravity.ps1` and `prop-forge/scripts/sync-antigravity.ps1` copy each forge into the workspace's `.agents/skills/<name>/`. Always edit the `.claude/skills` copy and sync afterwards. Do not edit the `.agents` copy.
+For Google Antigravity, `sync-antigravity.ps1` in `weapon-forge/scripts/`, `prop-forge/scripts/` and `map-forge/scripts/` copies each forge into the workspace's `.agents/skills/<name>/`. Always edit the `.claude/skills` copy and sync afterwards. Do not edit the `.agents` copy.
 
 ---
 
@@ -129,6 +130,38 @@ Export needs the Sollumz 2.9+ extension with its szio dependency. Run it without
 **References:** style DNA and look checklist (`prop-forge/references/style-toybrand.md`), archetypes and how to add one (`prop-forge/references/archetypes.md`), finishes, decals, collision, LOD and Sollumz export (`prop-forge/references/pipeline.md`), Antigravity and Blender MCP (`prop-forge/references/antigravity.md`), resource and spawn code (`prop-forge/references/integration.md`).
 
 **Status:** tested on Blender 4.2.3 with Sollumz 2.9.1. All 9 example props build, validate with `fail=0` and export as native binary `.ydr`/`.ytyp` (RSC7). A re-import in Sollumz shows the mesh, the shaders, the embedded texture and the collision. Loading the props in game is not tested yet.
+
+---
+
+## Map building
+
+`map-forge/` designs, builds, checks and exports FiveM maps that hold 144-200 FPS. It uses a clean hero shell, world-scale tiled PBR textures in one shared `.ytd`, RAGE day/night vertex colour, lights embedded in the drawable, and real GTA V props for dressing instead of hand-made trees and clutter. The budgets per map type (draw calls, triangles, VRAM, disk, entity mix, collision layout) come from studying production maps; see `map-forge/references/studio-benchmarks.md`.
+
+| Map type | Typical layout |
+| --- | --- |
+| Sky AFK / floating plaza | 1-12 custom `.ydr`, shared `.ytd` 1-5 MB, embedded + static `.ybn` |
+| Spawn / select lobby | 1-4 custom `.ydr`, shared `.ytd` under 2.5 MB |
+| Airdrop / warzone arena | 1-3 custom `.ydr` reused across zone `.ymap` files |
+| Garage / town hub | 4-16 custom `.ydr`, `hi@`/`ma@` collision split |
+| Rebel / industrial outpost | 2-5 custom `.ydr`, mostly vanilla dressing |
+| Building / hospital / MLO | 5-15 custom `.ydr`, MLO rooms and portals |
+
+**Workflow**
+
+```powershell
+$blender = 'C:\Tools\blender-4.2.3-windows-x64\blender.exe'
+& $blender -b -P map-forge\scripts\blender\export_map.py -- --spec work\my_map\source\map-spec.json --props work\my_map\build\props --textures work\my_map\build\textures --out work\my_map\my_map_pkg
+& $blender -b -P map-forge\scripts\blender\inspect_map.py -- --dir work\my_map\my_map_pkg\stream --spec work\my_map\source\map-spec.json
+```
+
+1. Copy `map-forge/templates/map-spec.example.json` and describe the map: shell pieces, textures, lights, vanilla props and collision
+2. Build the hero shell and props in Blender, then export with `export_map.py` (run without `--factory-startup` so Sollumz and PyMateria load)
+3. Run `inspect_map.py` on the `stream/` folder until it reports `MAP_INSPECT_PASS fail=0` (RSC7 headers, triangles, vertex formats, vertex colour, lights, `.ybn`, `.ymap` extents and VRAM)
+4. Stream the package with `map-forge/templates/fxmanifest.lua`
+
+**References:** pipeline (`map-forge/references/pipeline.md`), shaders, lighting and vertex colour (`map-forge/references/shaders-lighting-vcol.md`), GTA V prop catalog for dressing (`map-forge/references/gta-prop-catalog.md`), Antigravity and Blender MCP (`map-forge/references/antigravity.md`).
+
+**Status:** `inspect_map.py` passes on the exported packages. Blender renders confirm the look. FPS in game has to be measured with the server running.
 
 ---
 

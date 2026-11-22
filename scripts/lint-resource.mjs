@@ -352,7 +352,7 @@ function lintLua(file, rel) {
                 add(rel, ln, "warn", "wait-zero", "frame loop at idle; use lib.points/zones or adaptive waits");
             }
         }
-        if (side === "server" && /(RegisterNetEvent|lib\.callback\.register)\s*\(.*function\s*\(/.test(line)) {
+        if (side === "server" && /RegisterNetEvent\s*\(.*function\s*\(/.test(line)) {
             const body = code.slice(index + 1, index + 4).join("\n");
             if (!/local\s+\w+\s*=\s*source\b/.test(body)) {
                 add(rel, ln, "warn", "capture-source", "capture local src = source on the first line of the handler");

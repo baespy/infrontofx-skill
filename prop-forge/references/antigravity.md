@@ -6,9 +6,9 @@
 
 | รายการ | พาธ |
 | --- | --- |
-| ต้นฉบับ (แก้ที่นี่เท่านั้น) | `C:\Users\Administrator\Desktop\mainserver\.claude\skills\infrontofx\prop-forge\` |
-| สำเนาของ Antigravity | `C:\Users\Administrator\Desktop\mainserver\.agents\skills\prop-forge\` |
-| ซิงก์ | `& 'C:\Users\Administrator\Desktop\mainserver\.claude\skills\infrontofx\prop-forge\scripts\sync-antigravity.ps1'` |
+| ต้นฉบับ (แก้ที่นี่เท่านั้น) | `<project>\.claude\skills\infrontofx\prop-forge\` |
+| สำเนาของ Antigravity | `<project>\.agents\skills\prop-forge\` |
+| ซิงก์ | `& '<project>\.claude\skills\infrontofx\prop-forge\scripts\sync-antigravity.ps1'` |
 
 สคริปต์ซิงก์หยุดและเตือนถ้าไฟล์ฝั่ง `.agents` ถูกแก้ใหม่กว่าต้นฉบับ ให้ย้ายการแก้นั้นกลับมาที่ต้นฉบับก่อน แล้วค่อยซิงก์ (`-Force` เมื่อตั้งใจเขียนทับ)
 
@@ -34,7 +34,7 @@
 
 ```python
 import runpy
-check = runpy.run_path(r"C:\Users\Administrator\Desktop\mainserver\.claude\skills\infrontofx\prop-forge\scripts\blender\validate_prop.py")["validate_scene"]
+check = runpy.run_path(r"<project>\.claude\skills\infrontofx\prop-forge\scripts\blender\validate_prop.py")["validate_scene"]
 result = {"report": check("1nfx_goo_atm")}
 ```
 

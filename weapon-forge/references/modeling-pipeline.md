@@ -8,7 +8,7 @@
 | --- | --- |
 | Blender 4.2.3 (CLI & Export) | มี: `C:\Tools\blender-4.2.3-windows-x64\blender.exe` (ใช้บันทึก `.blend` ฟอร์แมต `BLENDER-v402` ที่เปิดได้ทั้งใน 4.2.3 CLI และ 5.3 GUI — ห้ามเซฟทับเป็น `BLENDER17` ของ 5.0+ ลง `source/*.blend`!) |
 | Steam Blender 5.3 (Live GUI + MCP) | มี: `C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe` พร้อม `bl_ext.lab_blender_org.mcp` (`localhost:9876`, ดูวิธีรันใน `references/antigravity.md`) |
-| Antigravity CLI & `blender` MCP | **มีและพร้อมใช้งาน (`READY`):** `agy 1.5.9` + `C:\Users\Administrator\blender-mcp\uv.exe` เชื่อมต่อ 26 tools (ทั้งโหมด CLI headless `*_for_cli` และโหมด Live GUI ดูคู่มือครบใน `references/antigravity.md`) |
+| Antigravity CLI & `blender` MCP | **มีและพร้อมใช้งาน (`READY`):** `agy 1.5.9` + `<home>\blender-mcp\uv.exe` เชื่อมต่อ 26 tools (ทั้งโหมด CLI headless `*_for_cli` และโหมด Live GUI ดูคู่มือครบใน `references/antigravity.md`) |
 | Sollumz, PyMateria | **ไม่มี** (ใช้ `scripts/blender/export_ydr.py` คอมไพล์ RSC7 `.ydr`/`.ytd` ได้โดยตรง) |
 | CodeWalker | **ไม่มี** (ใช้ `scripts/inspect-ydr.ps1` และ `scripts/ptfx/ptfx.ps1` ตรวจโครงสร้างไบนารีแทน) |
 | Python ระบบ, Node, ffmpeg, texconv | ไม่มีใน PATH ใช้ Blender Python (`bpy`) กับ PowerShell 5.1 แทน (`python.exe` ใน WindowsApps เป็นทางลัดไป Microsoft Store) |

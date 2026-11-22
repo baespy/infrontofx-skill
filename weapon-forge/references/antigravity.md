@@ -11,7 +11,7 @@
 | สำเนา Skill ของ Antigravity | `.agents\skills\weapon-forge\` (ซิงก์ด้วย `scripts\sync-antigravity.ps1`) |
 | Blender 4.2.3 (Headless CLI & Export) | `4.2.3` ที่ `C:\Tools\blender-4.2.3-windows-x64\blender.exe` (ฟอร์แมต `BLENDER-v402` เปิดได้ทั้ง 4.2.3 และ 5.3) |
 | Steam Blender 5.3 (Live GUI + MCP) | `5.3` ที่ `C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe` พร้อม extension ทางการ `bl_ext.lab_blender_org.mcp` บน `localhost:9876` |
-| `uv` สำหรับ Blender MCP | `C:\Users\Administrator\blender-mcp\uv.exe` |
+| `uv` สำหรับ Blender MCP | `<home>\blender-mcp\uv.exe` |
 | MCP Config ที่เชื่อมต่ออยู่ | `%USERPROFILE%\.gemini\antigravity\mcp_config.json` (server ชื่อ `"blender"`) |
 | สคีมาเครื่องมือ MCP ทั้ง 26 ตัว | `%USERPROFILE%\.gemini\antigravity\mcp\blender\*.json` และ `instructions.md` |
 
@@ -44,7 +44,7 @@
 ต้นฉบับในพื้นที่งานนี้อยู่ที่ `.claude\skills\infrontofx\weapon-forge` ห้ามแก้สำเนาใน `.agents\skills\weapon-forge` โดยตรง เมื่อแก้ไขเอกสารหรือสคริปต์เสร็จทุกครั้งต้องรัน:
 
 ```powershell
-& 'C:\Users\Administrator\Desktop\mainserver\.claude\skills\infrontofx\weapon-forge\scripts\sync-antigravity.ps1'
+& '<project>\.claude\skills\infrontofx\weapon-forge\scripts\sync-antigravity.ps1'
 ```
 
 สคริปต์จะเดินหาโฟลเดอร์ `.claude` อัตโนมัติ คัดลอกไฟล์ทั้งหมดไปยัง `.agents\skills\weapon-forge` และหยุดเตือนทันทีหากพบว่าไฟล์ฝั่ง `.agents` ถูกแก้ไขใหม่กว่าต้นฉบับ (ส่ง `-Check` เพื่อตรวจความตรงกันโดยไม่เขียนทับ หรือ `-Force` เมื่อตั้งใจเขียนทับ)
@@ -71,11 +71,11 @@
 {
   "mcpServers": {
     "blender": {
-      "command": "C:\\Users\\Administrator\\blender-mcp\\uv.exe",
+      "command": "<home>\\blender-mcp\\uv.exe",
       "args": [
         "run",
         "--project",
-        "C:\\Users\\Administrator\\blender-mcp",
+        "<home>\\blender-mcp",
         "blender-mcp"
       ]
     }
@@ -130,7 +130,7 @@
 2. **ตั้ง Mode, Active Object และ Selection เองทุกครั้ง**: อย่าเดาสถานะค้างจากคำสั่งก่อนหน้า เช็ก `bpy.ops.object.mode_set(mode="OBJECT")` และตั้ง `bpy.context.view_layer.objects.active = obj` ก่อนรัน `bpy.ops`
 3. **ใช้ `bmesh` แล้วต้อง flush กลับเสมอ**: หลังแก้ไขรูปทรงให้เรียก `bm.to_mesh(me)`, `bm.free()`, `me.update()` และอัปเดต depsgraph (`bpy.context.evaluated_depsgraph_get()`) ก่อนอ่านค่าขอบเขตโมเดล
 4. **ล้าง Orphan Datablocks และถอดวัสดุ Procedural หลัง Bake ก่อนเซฟทุกครั้ง**: ถอดวัสดุโหนดซับซ้อนที่ใช้ตอน bake ออกจาก mesh หลังรวมเป็นวัสดุเดียว แล้วรัน `bpy.ops.outliner.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)` จะคุม RAM ของ Cycles ให้นิ่งอยู่ที่ราว `~80 MB` ตลอดการปั้นทั้ง 6–7 ชิ้น (และเปลี่ยนชื่อเมชเป็น `Gun_Root` ก่อนสร้าง Armature `model_name` เพื่อไม่ให้ชื่อติด `.001`)
-5. **ทางเลือกเรียก `blmcp` CLI Helper เมื่อรันใน Sub-Worker ที่ไม่ได้แนบ MCP Socket ตรง**: หาก worker ย่อยไม่มีรายการ MCP tool ติดมาในเซสชัน สามารถเรียกเอนจินเดียวกันของ `blender-mcp` ได้ผ่าน `C:\Users\Administrator\blender-mcp\uv.exe run --project C:\Users\Administrator\blender-mcp python -c "..."` โดยตั้ง `BLENDER_PATH=C:\Tools\blender-4.2.3-windows-x64\blender.exe` แล้วเรียก `blmcp.tools_helpers.blender_cli.run_blender_cli(blend_file, code)` (กำหนดตัวแปร `result = {...}` แทนการใช้ `return`)
+5. **ทางเลือกเรียก `blmcp` CLI Helper เมื่อรันใน Sub-Worker ที่ไม่ได้แนบ MCP Socket ตรง**: หาก worker ย่อยไม่มีรายการ MCP tool ติดมาในเซสชัน สามารถเรียกเอนจินเดียวกันของ `blender-mcp` ได้ผ่าน `<home>\blender-mcp\uv.exe run --project <home>\blender-mcp python -c "..."` โดยตั้ง `BLENDER_PATH=C:\Tools\blender-4.2.3-windows-x64\blender.exe` แล้วเรียก `blmcp.tools_helpers.blender_cli.run_blender_cli(blend_file, code)` (กำหนดตัวแปร `result = {...}` แทนการใช้ `return`)
 6. **ห้ามทำลายสัญญาโครงกระดูก (`references/bone-and-memory-safety.md`)**:
    - ห้ามเปลี่ยนชื่อ Armature (`w_me_<id>_<slot>` / `w_pi_<id>_revolver`) หรือชื่อกระดูก (`Gun_Root`, `Gun_GripR`, `Gun_Main_Bone`, `Gun_GripL`, `Gun_Muzzle`, `WAPClip` ฯลฯ)
    - ห้ามขยับ origin ของ `Gun_Root` ออกจาก `(0, 0, 0)` และห้ามทิ้ง unapplied transform ไว้บน Armature หรือ Mesh
@@ -144,7 +144,7 @@
 
 ```python
 import runpy
-check = runpy.run_path(r"C:\Users\Administrator\Desktop\mainserver\.claude\skills\infrontofx\weapon-forge\scripts\blender\validate_model.py")["validate_scene"]
+check = runpy.run_path(r"<project>\.claude\skills\infrontofx\weapon-forge\scripts\blender\validate_model.py")["validate_scene"]
 result = {"report": check("knife")}
 ```
 

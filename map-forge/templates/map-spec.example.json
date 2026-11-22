@@ -1,0 +1,91 @@
+{
+  "map_name": "1nfx_sky_plaza",
+  "shared_ytd": "1nfx_sky_plaza_tex",
+  "ytyp_name": "1nfx_sky_plaza",
+  "archetype_type": "sky_afk",
+  "budgets": {
+    "max_total_tris": 35000,
+    "max_ytd_vram_mb": 6.0,
+    "max_disk_mb": 8.0,
+    "max_outdoor_vcol_g": 45
+  },
+  "anchor": {
+    "ymap_name": "1nfx_sky_plaza",
+    "ybn_name": "1nfx_sky_plaza_col",
+    "center": [0.0, 0.0, 520.0],
+    "warp_point": [0.0, -18.0, 520.0, 0.0],
+    "expected_floor_z": [520.0],
+    "zone_sphere_center": [0.0, 0.0, 520.0],
+    "zone_sphere_radius": 120.0
+  },
+  "texture_rules": {
+    "default_diffuse_max_res": 512,
+    "hero_diffuse_max_res": 1024,
+    "normal_max_res": 512,
+    "spec_max_res": 512,
+    "hero_prefixes": ["logo_", "sign_", "brand_"],
+    "swatch_max_res": 32,
+    "swatch_prefixes": ["swatch_", "trim_"]
+  },
+  "vanilla_ytyps": [
+    "v_trees",
+    "v_bush"
+  ],
+  "prop_overrides": {
+    "1nfx_plaza_shell": {
+      "lod_dist": 380.0,
+      "collision_material": "CONCRETE",
+      "lights": [
+        {
+          "type": "POINT",
+          "position": [0.0, 0.0, 6.5],
+          "color": [255, 224, 168],
+          "intensity": 3.0,
+          "falloff": 45.0,
+          "falloff_exponent": 128.0,
+          "corona_size": 0.5,
+          "corona_intensity": 0.4,
+          "time_flags": "NIGHT",
+          "cast_static_shadows": false
+        }
+      ]
+    }
+  },
+  "entities": [
+    {
+      "model": "1nfx_plaza_shell",
+      "pos": [0.0, 0.0, 0.0],
+      "yaw_deg": 0.0,
+      "static_col": true,
+      "vanilla": false
+    },
+    {
+      "model": "prop_tree_birch_04",
+      "pos": [-14.0, 12.0, -0.12],
+      "yaw_deg": 35.0,
+      "vanilla": true,
+      "kind": "tree"
+    },
+    {
+      "model": "prop_bush_neat_05",
+      "pos": [-12.2, 10.5, -0.08],
+      "yaw_deg": 110.0,
+      "vanilla": true,
+      "kind": "bush"
+    },
+    {
+      "model": "prop_streetlight_11c",
+      "pos": [-8.0, -10.0, 0.0],
+      "yaw_deg": 0.0,
+      "vanilla": true,
+      "kind": "light"
+    },
+    {
+      "model": "prop_bench_06",
+      "pos": [-6.5, 4.0, 0.0],
+      "yaw_deg": 90.0,
+      "vanilla": true,
+      "kind": "furniture"
+    }
+  ]
+}

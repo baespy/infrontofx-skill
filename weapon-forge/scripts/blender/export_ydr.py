@@ -163,7 +163,9 @@ def build_dxt5_mipchain(rgba_float_flipped):
             break
         nh = max(1, cur.shape[0] // 2)
         nw = max(1, cur.shape[1] // 2)
-        cur = cur.reshape(nh, 2, nw, 2, 4).mean(axis=(1, 3)).astype(np.uint8)
+        sh = 2 if cur.shape[0] > 1 else 1
+        sw = 2 if cur.shape[1] > 1 else 1
+        cur = cur.reshape(nh, sh, nw, sw, 4).mean(axis=(1, 3)).astype(np.uint8)
     return b"".join(mips), len(mips)
 
 

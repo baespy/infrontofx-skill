@@ -63,7 +63,7 @@ Particle คือส่วนที่ผู้ใช้ให้ความ�
 | `scripts/inspect-ydr.ps1 -Path x.ydr -Slot knife` | ตรวจโครงไฟล์ `.ydr` เทียบกฎจากโมเดลจริง |
 | `scripts/sync-antigravity.ps1` | ซิงก์ skill จาก `.claude/skills/infrontofx/weapon-forge` ไปยัง `.agents/skills/weapon-forge` รันทุกครั้งหลังแก้ skill |
 
-เครื่องมือ particle, ภาพ และเสียงใช้แค่ PowerShell 5.1 ที่มากับ Windows ส่วนงานโมเดลใช้ Blender (`doctor.ps1` บอกตำแหน่งที่เจอ ค่าเดิมคือ `C:\Tools\blender-4.2.3-windows-x64\blender.exe`) และเชื่อมต่อผ่าน Antigravity `blender` MCP server (`C:\Users\Administrator\blender-mcp\uv.exe`) ได้โดยตรง อย่าเขียนสคริปต์เสริมที่บังคับให้เครื่องผู้ใช้ต้องลง Python แยกหรือ Node
+เครื่องมือ particle, ภาพ และเสียงใช้แค่ PowerShell 5.1 ที่มากับ Windows ส่วนงานโมเดลใช้ Blender (`doctor.ps1` บอกตำแหน่งที่เจอ ค่าเดิมคือ `C:\Tools\blender-4.2.3-windows-x64\blender.exe`) และเชื่อมต่อผ่าน Antigravity `blender` MCP server (`<home>\blender-mcp\uv.exe`) ได้โดยตรง อย่าเขียนสคริปต์เสริมที่บังคับให้เครื่องผู้ใช้ต้องลง Python แยกหรือ Node
 
 โครงสร้างพาธใน `mainserver`: ทรัพยากรระบบอยู่ที่ `resources\[resources]\[1nfx]` (`1nfx_weaponskin`, `1nfx_inventory`, `1nfx_assetsimg`), ทรัพยากรอาวุธอยู่ที่ `resources\[resources]\[weapon]` (`weapon_core`, `weapon_<id>`), และทะเบียนไอเทมอยู่ที่ `resources\[core]\1nfx_core\items.json` (ใช้ `-LiteralPath` ทุกครั้งใน PowerShell!) สำหรับโฟลเดอร์ศึกษาภายนอก (ถ้ามีในเครื่อง) ใช้ดูแนวทางเท่านั้น ห้ามนำไฟล์ โมเดล หรือ texture ของผู้อื่นมาใส่ในงานของเราเด็ดขาด
 
