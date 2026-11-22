@@ -74,8 +74,6 @@ The linter checks for comments, balanced blocks, `FC` usage, file-level `local f
 
 `weapon-forge/` builds a complete weapon skin set from one JSON spec: models, textures, icons, original particles, full-screen hit/kill overlays, sounds and the integration files for `1nfx_weaponskin`.
 
-<img src="weapon-forge/templates/card_skin_onikage.png" alt="Weapon skin card" width="220"> <img src="weapon-forge/templates/card_skin_crimson_gold.png" alt="Weapon skin card" width="220">
-
 | Area | Highlights |
 | --- | --- |
 | Style | 21 style families with composition rules; describe a new style from a reference image on 5 axes |
@@ -93,10 +91,6 @@ Needs Blender 4.2+, Windows PowerShell 5.1 and .NET (bundled with Windows). Run 
 ## Prop modeling
 
 `prop-forge/` builds a set of server props that share one brand: one palette, a mascot, crowns, dripping slime and sticker-style wordmarks. One JSON spec drives the whole set. Each prop is generated in Blender from bevelled primitives and joined into one mesh, with its origin at floor centre and its front facing -Y. Each prop comes out with collision boxes and a triangle report, and every prop in the set shares one 256x256 palette texture.
-
-![Example prop set](prop-forge/references/targets/lineup.jpg)
-
-*The example set "GOO LAB" (an original brand), rendered by `forge_prop.py` in Blender. These are Blender renders, not in-game screenshots.*
 
 | Archetype | In-game use | Default size (m) | Triangle budget |
 | --- | --- | --- | --- |
@@ -168,8 +162,6 @@ $blender = 'C:\Tools\blender-4.2.3-windows-x64\blender.exe'
 ## Posters
 
 `poster-forge/` makes support, welfare and giveaway posters for gangs, families, ladies, newcomers and streamers. It takes character art, item icons and a logo. Two approved styles are supported: (A) a large dark character face with film grain and (B) a character pointing a gun at the camera.
-
-<img src="poster-forge/references/targets/approved-family-purple.jpg" alt="Approved poster example" width="260"> <img src="poster-forge/references/targets/approved-gang-red.jpg" alt="Approved poster example" width="260">
 
 | Area | Highlights |
 | --- | --- |
