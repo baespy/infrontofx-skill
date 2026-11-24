@@ -17,3 +17,12 @@ call the inventory exports from the shop	infrontofx,dev-flow
 what time is it
 hi
 <task-notification>ปั้นเนียนป้ายพอง</task-notification>
+เซิร์ฟแลคมาก ช่วยทำให้ลื่นหน่อย	perf-forge
+เฟรมดรอปตอนเปิดเมนู	perf-forge
+why does my server stutter and lose textures	perf-forge
+ช่วยคิดนอกกรอบเพิ่ม performance ให้หน่อย	perf-forge
+optimize 1nfx_garage แล้วเช็ค fps ด้วย	infrontofx,dev-flow,perf-forge
+ช่วยคิดนอกกรอบออกแบบระบบบอท 200 ตัวให้เบา	dev-flow,perf-forge
+act as a performance architect for resources/[1nfx]	infrontofx,dev-flow,perf-forge
+มี skill อะไรบ้างให้ใช้	help-inf-skills
+list skills in this pack	help-inf-skills

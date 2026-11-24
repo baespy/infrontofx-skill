@@ -9,7 +9,7 @@ FiveM `1nfx_*` house standard (Lua 5.4, `1nfx_lib`, `1nfx_core`, NUI/DUI) and pa
 
 ## Auto-route
 
-Pick skills yourself; the owner never names them. Use the listed skill, else read `<name>/SKILL.md` here. Load only matching rows.
+Pick skills yourself (the owner never names them); else read `<name>/SKILL.md` here. Load only matching rows.
 
 | Task signal | Load |
 | --- | --- |
@@ -22,6 +22,8 @@ Pick skills yourself; the owner never names them. Use the listed skill, else rea
 | Map, ymap, ybn, MLO, map lights (ปั้นแมพ) | `map-forge/SKILL.md`; curved hero pieces from `sculpt-forge` |
 | Weapon skin, `.ypt` ptfx, hit/kill screen or sound (สกินอาวุธ) | `weapon-forge/SKILL.md` |
 | Support or welfare poster (โปสเตอร์) | `poster-forge/SKILL.md` |
+| Lag, FPS, stutter (แลค); outside-the-box design (คิดนอกกรอบ) | `perf-forge/SKILL.md`; `perf-architect/SKILL.md` |
+| Which skills exist (มี skill อะไรบ้าง) | `help-inf-skills/SKILL.md` |
 | Owner asks for short replies (ตอบสั้น) | `terse/SKILL.md` (stays on) |
 
 ## Quick path
@@ -48,7 +50,7 @@ Pick skills yourself; the owner never names them. Use the listed skill, else rea
 
 ## Hard rules
 
-**Owner orders**: same player-visible behaviour, every change reported. Fix verified holes and slow spots unasked, report after (ask only for new facts or a design call). Record each new owner rule or lesson here (long text in `references/house-standard.md`, facts in `memory/`). Split merged scripts with duplicate systems; one owner per cross-resource system (culling, graphics), grep first. Max 1-2 sub-agents, none spawning agents, no large workflows.
+**Owner orders**: same player-visible behaviour, every change reported. Fix verified holes and slow spots unasked, report after (ask only for new facts or a design call). Record each new owner rule or lesson (long text in `references/house-standard.md`, facts in `memory/`). Split merged duplicate systems; one owner per cross-resource system (culling, graphics), grep first. Max 1-2 sub-agents, none spawning agents, no large workflows.
 
 **Manifest and layout**
 - `fxmanifest.lua`, `config/config.lua` (owner-tuned values), `core/cl_main.lua`, `core/sv_main.lua`; big resources split `core/` into `cl_<feature>.lua`/`sv_<feature>.lua`, one topic each.
@@ -70,9 +72,9 @@ Pick skills yourself; the owner never names them. Use the listed skill, else rea
 
 **Server and cleanup**: the server decides every value (items, money, prices, rewards, cooldowns, distance, routing bucket), validates payloads, throttles client events, blocks duplicates; clean all in `onResourceStop` and `playerDropped`.
 
-**Optimize** (measure first: `resmon`, network counters, same scenario before/after)
-- Client: `lib.zones`/`points`/`grid`, `lib.spawn`, no distance loops; `Wait(0)` only while needed (zone, open menu, disabled keys), else the longest equal wait; interval-gate heavy work; `cache` not repeated natives; invariants out of loops; squared distances; release models, anim dicts, entities on leave and stop. NUI: send on change only, from one loop, no thread per send.
-- Server: no DB query in loops (cache, periodic write-back); one central loop, per-topic counters, ticks in `pcall` printing their name, long idle sleep (`next(sessions)` nil) woken by a `promise`; one-packet `lib.callback`; `lib.guard`, `lru`, `heap`, `ringbuffer`; send only to players using the feature (true broadcasts `-1`), batched.
+**Optimize** (measure first, same scenario before/after; lag or FPS: `perf-forge`)
+- Client: `lib.zones`/`points`/`grid`, `lib.spawn`, no distance loops; `Wait(0)` only while needed, else the longest equal wait; interval-gate heavy work; `cache` not repeated natives; invariants out of loops; release models, anim dicts, entities on leave and stop. NUI: send on change only, from one loop.
+- Server: no DB query in loops (cache, write-back); one central loop, per-topic counters, ticks in `pcall`, idle sleep woken by a `promise`; one-packet `lib.callback`; `lib.guard`, `lru`, `heap`, `ringbuffer`; send only to players using the feature, batched.
 
 **UI**: 1nfx style per `skills/ui/design-system.md`. NUI `{ action, data }`, `uiReady` handshake, `cb` once per callback, `textContent`, `--px` scaling on 1920x1080.
 

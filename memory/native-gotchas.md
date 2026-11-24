@@ -74,3 +74,19 @@
 - Game build: any
 - Symptom: `lint-resource.mjs` crashes when given an absolute path that contains `[...]`.
 - Fix: run it from the category folder with the bare resource name, or with a relative path from `mainserver`.
+
+### Wheel X offset resets every frame
+
+- Date: 2026-11-24
+- Game build: any
+- Symptom: stanced wheels flicker back to stock track width when the stance loop runs slower than the frame rate.
+- Cause: GTA resets `SET_VEHICLE_WHEEL_X_OFFSET` every frame (the native declaration says so).
+- Fix: keep the per-frame apply, but only for cars that need it: the player's own car, and on-screen cars within about 30 m (1nfx_customshop).
+
+### HasStreamedTextureDictLoaded has no hash form
+
+- Date: 2026-11-24
+- Game build: any
+- Symptom: trying to pre-hash texture dictionary names for streaming polls gains nothing.
+- Cause: the native only takes a string, passed by pointer with no allocation per call. `HasModelLoaded` already takes a precomputed `joaat`.
+- Fix: cut the number of polls instead (1nfx_roadblack: skip applied entries, slower scan, fewer applies per frame).

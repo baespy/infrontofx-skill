@@ -7,7 +7,7 @@
         {
             "name": "infrontofx-skill",
             "source": "./",
-            "description": "infrontofx FiveM toolkit with automatic skill routing: Lua/NUI standard, dev-flow, terse, poster, weapon, prop, sculpt and map forges.",
+            "description": "infrontofx FiveM toolkit with automatic skill routing: Lua/NUI standard, dev-flow, terse, poster, weapon, prop, sculpt, map and perf forges.",
             "strict": true
         }
     ]

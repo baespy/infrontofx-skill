@@ -119,6 +119,10 @@ Serialization and events:
 
 Cross-resource calls:
 - On the server, `Core.GetPlayerFromId` and every xPlayer method are export calls, while `xPlayer.identifier` is a raw proxy field. A loop over `GetPlayers()` calling `IsStaff`, `Group` or `getName` costs about 3,200 calls at 1,600 players. Use `Core.GetExtendedPlayers("group", groups, true)` once per pass, or a cache cleared on `1nfx_core:playerLoaded`, `1nfx_core:playerDropped` and the `name` state bag.
+- Since 2026-11-24 the server events `1nfx_core:playerLoaded` and `1nfx_core:playerSpawnReady` pass `{ source, playerId, identifier, name, group, job }` as argument 2, built by `Core:PlayerRef`, with no methods. A listener that needs a method calls `Core.GetPlayerFromId(playerId)`. Before this, each join copied about 48 function refs into every listening resource, roughly 1,150 duplicate and delete calls back into 1nfx_core.
+- A file that sets `Core = exports["1nfx_core"]:GetCore()` itself bypasses the imports.lua proxy: its `Core.GetPlayerFromId` returns the real xPlayer through a function ref, so every call copies the whole object plus about 48 refs. Use the imports.lua proxy, or the bridge exports `PlayerField(src, key)` and `PlayerCall(src, method, ...)` (xcheat and esx_identity were fixed this way).
+- An event payload is unpacked once per receiving resource, and all handlers in that resource share the copy. Each extra handler costs only `debug.getinfo`, `string.format` and a coroutine.
+- Never call `getInventoryItem` once per catalogue entry through the proxy (weaponskin did about 576 exports per build). Call `getInventory(true)` once and look names up locally.
 - On the client, `Core.GetPlayerData()` copies the whole PlayerData. Use `Core.GetJob()`, `Core.GetAccount()` and similar for a single field.
 - Never call a heavy export to read one field of its result. Add a light export instead (xcheat `GetSecurityStats`).
 - Do not frame-cache a cross-resource getter in general when the provider changes state and then calls back into you in the same frame (inventory switches the weapon, then calls weaponskin).
@@ -145,3 +149,25 @@ Viewers and NUI:
 - An infinite CSS animation hidden by `opacity` or `visibility` keeps painting. Add an idle class after the fade ends. DUI pages pause when not drawn.
 - Countdown `setInterval` and `requestAnimationFrame` loops run only while the UI is open, skip sub-threshold DOM writes, and avoid `[...map.values()]` per frame. A `uiReady` handshake stops after it succeeds.
 - `1nfx_textuihologram:Show` is a per-frame keep-alive and the only way to read hold completion. Do not throttle it; build the prompt table once and reuse it, since exports copy their arguments.
+
+Client fan-out and world ownership (2026-11-24):
+- imports.lua (client) now subscribes lazily. Only a resource that reads or writes `Core.PlayerData` or `Core.PlayerLoaded`, or defines `OnPlayerData`, registers the setPlayerData, playerLoaded, playerSpawnReady and onPlayerLogout handlers (`CoreImport:Subscribe`, metatable `CoreImport.CoreMeta`). Before this, every money, weapon or vehicle change was unpacked in 69 resources; only 5 read it. Inside imports.lua code, use `rawget`/`rawset` on `Core` for those two keys.
+- `legacy_events = false`: no resource listens to any `esx:*` event, so the mirror only re-packed payloads for nobody.
+- A resource whose client side does not use `Core` loads imports.lua as `server_script`. A shared import alone makes the client build a Lua runtime (1nfx_bot, 1nfx_launcher, 1nfx_extended).
+- World population (budgets, dispatch, trains, boats, cops, distant lights) belongs to 1nfx_player. Graphics presets in 1nfx_core must not touch it. The old boost preset set the ped and vehicle budgets to 3, so players who chose "Boost FPS" got full NPC traffic.
+- 1nfx_replay capture (CEF video encode of the game view) is the heaviest client cost and does not show in resmon. The owner keeps it recording all the time because players fight everywhere (2026-11-24). Do not gate it to combat; only make the capture itself cheaper.
+
+## Lessons From Building perf-forge
+
+- Date: 2026-11-24
+- Game build: 3095 (source checked against citizenfx/fivem master)
+
+- Client Lua has no `os` library (`lualibs` adds it only under `IS_FXSERVER`). Client time budgets use `GetGameTimer()`; `os.clock()` is server only.
+- Server `resmon` is an ImGui window in the server GUI; the txAdmin web console cannot show it. Server captures use `profiler record <ticks>` and the hitch warnings (main and network over 150 ms, sync over 100 ms).
+- `cl_drawPerf` has no frame-time readout; 1% low needs a `GetGameTimer` sampler or PresentMon/CapFrameX.
+- Static NUI scans must skip `backdrop-filter: none` (theme files force it off) and infinite animations behind state classes; counting raw matches was 99% false positives for blur.
+- Escrowed stream files start with `FXAP`, not `RSC7`: their memory cannot be read offline; report them separately instead of counting 0.
+- On a gated codebase the biggest smoothness levers were streamed asset memory (vehicle ytd up to 138 MiB, fake `_hi` LODs) and idle CEF work, not Lua.
+- Measured NUI idle (2026-11-24, 55 `ui_page` frames in a Chromium harness): 54 ran no CSS animation at load and 25 of 25 UIs the harness could open returned to zero after close. The single real cost was a fade-out panel hidden with `opacity: 0` whose child shimmer kept running. Static counts of `infinite` are a weak signal; use `perf-forge/scripts/nui-idle.cjs`.
+- Runtime source facts behind `perf-forge/references/lua-unconventional.md` (checked 2026-11-24 in the local `fxserver/citizen/scripting/lua/scheduler.lua` and citizenfx/fivem master): `.state` access builds new tables every time and reads deserialize; `exports.res` and `[name]` allocate per call; each event handler costs `debug.getinfo` + `string.format` + a coroutine per dispatch; `SendNUIMessage` json-encodes per call; all sleeping threads of all resources sit in one list walked every tick; `AddStateBagChangeHandler` filters key and bag in C++, nil key matches everything; OAL (`use_experimental_fxv2_oal`) binds natives as C functions but changes argument handling (vectors not unrolled); `profiler resource <name> <frames>` runs lmprof with allocations; runtime is LuaGLM 5.4.9 with `table.wipe`, `table.create`, GC-free vectors.
+- OAL rollout lessons (2026-11-24): the audit's first version missed `vector.xyz` swizzles passed as one argument (they are vectors and only work today because the Lua wrapper unrolls them) and numeric compares of shape-test `hit` (`hit ~= 1` is always true once OAL returns booleans). A manifest insertion regex with `\s*` after `lua54 "yes"` crossed a newline and put the flag inside `shared_scripts`; always diff the manifest after editing it.

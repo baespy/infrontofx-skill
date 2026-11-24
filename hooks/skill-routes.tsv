@@ -2,6 +2,9 @@ sculpt-forge	smooth sculpt	ปั้นเนียน|เนียน|ทรง
 prop-forge	prop build and export	ปั้น prop|พร็อพ|ตู้เซฟ|ตู้ atm|โต๊ะคราฟ|หีบ	props?|ytyp|ydr|atm|marker
 map-forge	map	แมพ|แผนที่|ลานจอด|ไฟถนน	maps?|ymap|ybn|ytd|mlo|afk zone|lobby|warzone|plaza
 weapon-forge	weapon skin or ptfx	สกินอาวุธ|อาวุธ|ปืน|เอฟเฟกต์|พาร์ทิเคิล	weapons?|ptfx|ypt|particles?
+perf-forge	lag fps stutter	คิดนอกกรอบ|นอกกรอบ|สถาปัตยกรรม|แลค|แล็ก|ลื่น|กระตุก|เฟรมดรอป|เฟรมตก|ปิงสูง|โหลดนาน|เข้าเกมนาน|เท็กซ์เจอร์หาย|ภาพเบลอ|เพิ่มประสิทธิภาพ|ประสิทธิภาพ|เกมหน่วง|หน่วงมาก	lag|laggy|fps|stutter|stuttering|hitch|hitches|performance|perf|resmon|profiler|texture loss|architect|perf-architect
+perf-architect	architect command		perf-architect
+help-inf-skills	list skills	มี skill อะไรบ้าง|มีสกิลอะไร|skill ทั้งหมด|สกิลทั้งหมด|ใช้ skill ยังไง|ใช้สกิลยังไง	help-inf-skills|help skills|list skills|which skills
 poster-forge	poster	โปสเตอร์|สวัสดิการ|แจกของ	posters?|welfare
 dev-flow	debug	บั๊ก|บัค|เออเร่อ|ไม่ทำงาน|พัง|แครช	bugs?|errors?|crash|crashes|f8|traceback|nil value|logs?
 dev-flow	review or audit	รีวิว|ตรวจงาน|ตรวจโค้ด|ออดิต	review|audit

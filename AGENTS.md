@@ -14,6 +14,9 @@ Pick the row that matches the task and read that folder's `SKILL.md` before acti
 | Boxy archetype props, ytyp, stream, spawn code (ปั้น prop) | `prop-forge` |
 | Maps, ymap, ybn, ytd, lighting (ปั้นแมพ) | `map-forge`, plus `sculpt-forge` for curved hero pieces |
 | Weapon skins, `.ypt` ptfx, hit or kill screens (สกินอาวุธ) | `weapon-forge` |
+| Lag, FPS, stutter, texture loss, slow join, outside-the-box performance design (ลื่น, แลค, กระตุก, เพิ่มประสิทธิภาพ, คิดนอกกรอบ) | `perf-forge` (architect mode: `perf-forge/references/architect.md`), then the root `SKILL.md` for Lua/NUI edits |
+| `/perf-architect audit <path>` or `design <idea>` | `perf-architect` (entry to perf-forge architect mode) |
+| Which skills exist, how to call them (มี skill อะไรบ้าง, `/help-inf-skills`) | `help-inf-skills` |
 | Support or welfare posters (โปสเตอร์) | `poster-forge` |
 | Owner asks for short replies (ตอบสั้น) | `terse` |
 
@@ -51,6 +54,9 @@ Claude Code applies the same table automatically through the plugin hook `hooks/
 - `weapon-forge/` ทำสกิน/โมเดลอาวุธ ptfx เสียง (อ่าน `weapon-forge/SKILL.md`)
 - `prop-forge/` ปั้น prop สไตล์ของเล่นแบรนด์เซิร์ฟเวอร์ (อ่าน `prop-forge/SKILL.md`)
 - `sculpt-forge/` ปั้นเนียนด้วย SDF ทรงพอง fillet ตัวอักษรพอง หยดสไลม์ ชิ้นแมพโค้ง แล้วย่อเป็น low-poly ที่ยังเนียน (อ่าน `sculpt-forge/SKILL.md`)
+- `perf-forge/` ทำให้เกมลื่นจริง วัดก่อนหลัง สแกน asset ที่กิน VRAM และจุดหนักใน Lua/NUI (อ่าน `perf-forge/SKILL.md`)
+- `perf-architect/` คำสั่ง `/perf-architect` ออกแบบ performance แบบนอกกรอบ (อ่าน `perf-architect/SKILL.md`)
+- `help-inf-skills/` บอกว่ามี skill อะไรบ้างและเรียกยังไง จากไฟล์จริงผ่าน `scripts/list-skills.mjs` (อ่าน `help-inf-skills/SKILL.md`)
 - `map-forge/` ปั้นและ export แมพ FiveM 144-200 FPS (อ่าน `map-forge/SKILL.md`)
 - `dev-flow/` วินัยงานโค้ด คิด วางแผน ดีบัก ตรวจหลักฐาน รีวิว/ออดิต ส่งต่อ (อ่าน `dev-flow/SKILL.md`)
 - `terse/` โหมดตอบสั้นประหยัด token (อ่าน `terse/SKILL.md`)

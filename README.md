@@ -13,6 +13,9 @@ The root `SKILL.md` opens with an auto-routing table (task signal to the skills 
 | [Prop modeling](#prop-modeling) | Branded toy-style props: signs, ATM, safe, crates, loot chest, crafting bench, floating marker | `prop-forge/SKILL.md` |
 | [Smooth sculpting](#smooth-sculpting) | Seamless designer-toy forms from signed distance fields: puffy bodies, filleted joins, inflated letters, drips, organics, plus smooth curved map pieces, reduced to game budgets with transferred normals | `sculpt-forge/SKILL.md` |
 | [Map building](#map-building) | High-FPS FiveM maps (Sky AFK, lobby, warzone, garage hub, outpost, MLO): shared PBR `.ytd`, vertex-colour day/night, embedded lights, `.ymap`/`.ybn` export and binary inspection | `map-forge/SKILL.md` |
+| [Skill list](#skill-list) | `/help-inf-skills` lists every skill with what it does, how to call it and the Thai words that load it, read from the files on disk | `help-inf-skills/SKILL.md` |
+| [Performance architect](#performance) | `/perf-architect audit <path>` or `design <idea>`: seven questions, five-plus AAA-style alternatives, scored matrix, proof | `perf-architect/SKILL.md` |
+| [Performance](#performance) | Make the server feel smooth: streamed asset memory audit (RSC7 page flags, every ytd texture), weighted Lua and NUI hotspot ranking, CEF idle cost, shared lib services, adaptive quality, OneSync facts checked against cfx source | `perf-forge/SKILL.md` |
 | [Posters](#posters) | Support / welfare / giveaway posters from character art, item icons and a logo | `poster-forge/SKILL.md` |
 
 ## Install
@@ -23,7 +26,7 @@ Every skill is a plain folder with a `SKILL.md`, so any agent that reads Agent S
 | --- | --- | --- |
 | Claude Code (plugin, recommended) | `/plugin marketplace add baespy/infrontofx-skill`, then `/plugin install infrontofx-skill@infrontofx` | Automatic. The plugin's `UserPromptSubmit` hook (`hooks/hooks.json`) reads each prompt and tells the model which skills to load (about 20-40 tokens, nothing when no rule matches). It needs bash, which Claude Code on Windows already uses through Git Bash |
 | Claude Code (project copy) | `git clone https://github.com/baespy/infrontofx-skill.git .claude/skills/infrontofx` | Skill descriptions. For the hook too, add a `UserPromptSubmit` command hook to `.claude/settings.json` that runs `bash "$CLAUDE_PROJECT_DIR/.claude/skills/infrontofx/hooks/skill-router.sh"` |
-| Google Antigravity (all workspaces) | Clone the repo, then `powershell -ExecutionPolicy Bypass -File scripts/install-agents.ps1 -Tool antigravity`. It writes a native plugin to `~/.gemini/config/plugins/infrontofx-skill` with the 8 skills and a `PreInvocation` routing hook, then runs `agy plugin validate`. Run it again after `git pull`; `-Check` reports a stale copy, `-Uninstall` removes it. Do not use `agy plugin install` on this repo: it converts the Claude layout and ends up with 0 skills | Automatic. The plugin hook runs `hooks/skill-router.sh` through Git Bash (found at install time) |
+| Google Antigravity (all workspaces) | Clone the repo, then `powershell -ExecutionPolicy Bypass -File scripts/install-agents.ps1 -Tool antigravity`. It writes a native plugin to `~/.gemini/config/plugins/infrontofx-skill` with every skill and a `PreInvocation` routing hook, then runs `agy plugin validate`. Run it again after `git pull`; `-Check` reports a stale copy, `-Uninstall` removes it. Do not use `agy plugin install` on this repo: it converts the Claude layout and ends up with 0 skills | Automatic. The plugin hook runs `hooks/skill-router.sh` through Git Bash (found at install time) |
 | Google Antigravity (one workspace) | Run each forge's `<forge>/scripts/sync-antigravity.ps1` to copy it into the workspace's `.agents/skills/<name>/` (edit the `.claude/skills` copy, never the `.agents` copy) | `AGENTS.md`, `GEMINI.md` |
 | OpenAI Codex (GPT) | `powershell -ExecutionPolicy Bypass -File scripts/install-agents.ps1 -Tool codex`. It copies the pack to `~/.codex/skills/infrontofx` as one folder and moves older copies of these skills to `~/.codex/skills-backup/` so nothing is listed twice | `AGENTS.md` and the root `SKILL.md` table, which point to each sub-skill |
 | Gemini CLI | `gemini extensions install https://github.com/baespy/infrontofx-skill` | `GEMINI.md` (imports `AGENTS.md`) |
@@ -194,6 +197,32 @@ $blender = 'C:\Tools\blender-4.2.3-windows-x64\blender.exe'
 Then export with `prop-forge/scripts/blender/export_prop.py` (props) or `map-forge/scripts/blender/export_map.py` (map pieces). The targets come from measuring studio FiveM props: 200-320 triangles per square metre on hero props, round parts with at most 2-3 mm of sagitta, fully smooth normals, and no normal maps used to fake bevels.
 
 ---
+
+## Performance
+
+`perf-forge/` starts from what players feel (stutter, texture loss, FPS drops with UI open, rubber-banding, long joins) and fixes the biggest measured cause first. On a codebase where Lua is already gated, the big levers are usually streamed asset memory, CEF frames and per-resource copies of the same frame loop, so the skill ships tools for those.
+
+| Tool | What it does |
+| --- | --- |
+| `perf-forge/scripts/stream-audit.mjs` | Reads every streamed file's RSC7 header with the same page-flag formula FXServer uses for its oversized-asset warning, inflates each `.ytd` and lists every texture (size, format, mips). Reports memory per resource and asset, assets over 16 MiB, 4K and uncompressed textures, missing mips, non power of two sizes, the same file name in several resources and byte-identical copies |
+| `perf-forge/scripts/perf-scan.mjs` | Ranks resources by weighted hotspots: exports, hashes, JSON, network calls and pool scans inside `Wait(0)` loops; SQL, broadcasts and threads inside loops; per-player exports; NUI timers, infinite animations, blur, heavy images, audio, fonts and source maps. Startup code is down-weighted |
+
+```powershell
+node .claude/skills/infrontofx/perf-forge/scripts/stream-audit.mjs resources --top=25 --json=_dev/perf/stream.json
+node .claude/skills/infrontofx/perf-forge/scripts/perf-scan.mjs resources --top=25 --json=_dev/perf/scan.json
+```
+
+**Architect mode** (`perf-forge/references/architect.md`): before code, seven questions (should the work exist, who needs it, how often, how precise, once, where cheapest, spread), a kill list, at least five alternatives from an AAA technique catalog mapped to FiveM APIs (significance, budget allocator, script LOD, impostors, interest management, event-driven, tick aggregation, amortization, perceptual tricks, pooling, precompute, layer substitution, native fast path), a scored decision matrix and a proof step.
+
+**References:** capture steps and the report template (`perf-forge/references/measure.md`), every lever with evidence tags and risks (`perf-forge/references/playbook.md`), designs for an adaptive quality governor, control-block registry, frame-budget queue and point broker (`perf-forge/references/shared-services.md`).
+
+## Skill list
+
+`help-inf-skills/` answers "which skills can I use" from the files themselves: `scripts/list-skills.mjs` reads `.claude-plugin/plugin.json`, each `SKILL.md`, project skills next to the pack and `hooks/skill-routes.tsv`, so new or renamed skills show up without editing a list (`--json` for machines).
+
+```powershell
+node scripts/list-skills.mjs
+```
 
 ## Work discipline
 

@@ -37,7 +37,7 @@ Do not claim a performance improvement without before/after evidence from the sa
 
 - Use `lib.points`, `lib.zones`, or `lib.grid` instead of scanning every configured location (see `skills/common/1nfx-lib.md`).
 - Keep `point:nearby()` limited to the native calls required for the current frame.
-- Compare distances squared instead of `#(a - b)` in hot loops.
+- `#(a - b)` on native vectors is one VM op in CfxLua; compare squared distances only where coordinates are already split into x, y, z (see `memory/performance-research.md`).
 - Render decorative, preview, attached, and reconstructible props locally (`lib.spawn`). Network only entities whose shared physics or ownership matters.
 - For large local worlds, index entries into grid cells (`lib.grid`) and scan nearby cells instead of the full dataset.
 - Use a larger retain distance than spawn distance to prevent boundary churn.

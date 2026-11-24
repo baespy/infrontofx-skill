@@ -83,11 +83,12 @@ def _lathe_z(builder, profile_rz, segs, role, world_m, name="lathe", sx=1.0, sy=
 
 
 def _smooth_tube(builder, path_pts, segs, role, world_m, name="tube", cap_ends=True, oval=(1.0, 1.0), organic=True):
-    """Build a twist-free smooth swept quad tube along [(Vector, radius), ...]."""
+    """Build a twist-free smooth swept quad tube along [(Vector, radius), ...] using a rotation-minimizing frame."""
     n_s = max(6, int(segs))
     bm = bmesh.new()
     rings = []
     prev_n = None
+    prev_t = None
     pts = [Vector(p) for p, _ in path_pts]
     rads = [float(r) for _, r in path_pts]
     for idx, (pt, rad) in enumerate(zip(pts, rads)):
@@ -96,18 +97,27 @@ def _smooth_tube(builder, path_pts, segs, role, world_m, name="tube", cap_ends=T
         elif idx == len(pts) - 1:
             tang = (pts[-1] - pts[-2]).normalized()
         else:
-            tang = (pts[idx + 1] - pts[idx - 1]).normalized()
+            t_in = (pts[idx] - pts[idx - 1]).normalized()
+            t_out = (pts[idx + 1] - pts[idx]).normalized()
+            tang = t_in + t_out
+            if tang.length < 1e-5:
+                tang = t_out
+            else:
+                tang.normalize()
         if prev_n is None:
             ref = Vector((0.0, 0.0, 1.0)) if abs(tang.z) < 0.90 else Vector((1.0, 0.0, 0.0))
             n1 = tang.cross(ref).normalized()
         else:
-            n1 = (prev_n - tang * prev_n.dot(tang))
+            q_rot = prev_t.rotation_difference(tang)
+            n1 = q_rot @ prev_n
+            n1 = n1 - tang * n1.dot(tang)
             if n1.length < 1e-5:
                 ref = Vector((0.0, 0.0, 1.0)) if abs(tang.z) < 0.90 else Vector((1.0, 0.0, 0.0))
                 n1 = tang.cross(ref)
             n1.normalize()
         n2 = tang.cross(n1).normalized()
         prev_n = n1
+        prev_t = tang
         ring = []
         for i in range(n_s):
             a = math.tau * i / float(n_s)

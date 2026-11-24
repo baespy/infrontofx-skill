@@ -1751,6 +1751,34 @@ def eval_anim_track(track, u):
         deg = float(track.get("deg", 16.0))
         ry = math.radians(deg * math.sin(u * math.tau))
 
+    elif kind == "safe_wheel":
+        deg = float(track.get("spin_deg", 360.0))
+        if u < 0.06:
+            ang = 0.0
+        elif u < 0.22:
+            ang = deg * _smoothstep(0.06, 0.22, u)
+        elif u < 0.84:
+            ang = deg
+        elif u < 0.96:
+            ang = deg * (1.0 - _smoothstep(0.84, 0.96, u))
+        else:
+            ang = 0.0
+        ry = math.radians(ang)
+
+    elif kind == "safe_door":
+        deg = float(track.get("open_deg", -102.0))
+        if u < 0.22:
+            ang = 0.0
+        elif u < 0.42:
+            ang = deg * _smoothstep(0.22, 0.42, u)
+        elif u < 0.68:
+            ang = deg
+        elif u < 0.84:
+            ang = deg * (1.0 - _smoothstep(0.68, 0.84, u))
+        else:
+            ang = 0.0
+        rz = math.radians(ang)
+
     return loc, Euler((rx, ry, rz), "XYZ").to_quaternion()
 
 

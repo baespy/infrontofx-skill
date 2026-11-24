@@ -64,6 +64,21 @@ const REQUIRED = [
     "sculpt-forge/scripts/blender/sculpt_forge.py",
     "sculpt-forge/scripts/blender/validate_sculpt.py",
     "sculpt-forge/scripts/blender/sculpt_sweep.py",
+    "perf-forge/SKILL.md",
+    "perf-forge/references/measure.md",
+    "perf-forge/references/playbook.md",
+    "perf-forge/references/shared-services.md",
+    "perf-forge/scripts/stream-audit.mjs",
+    "perf-forge/scripts/perf-scan.mjs",
+    "perf-forge/scripts/nui-idle.cjs",
+    "perf-forge/scripts/oal-audit.mjs",
+    "perf-forge/references/architect.md",
+    "perf-architect/SKILL.md",
+    "help-inf-skills/SKILL.md",
+    "scripts/list-skills.mjs",
+    "perf-forge/references/lua-unconventional.md",
+    "perf-forge/templates/luabench/fxmanifest.lua",
+    "perf-forge/templates/luabench/core/sh_bench.lua",
     "dev-flow/SKILL.md",
     "terse/SKILL.md",
     "hooks/hooks.json",
@@ -84,7 +99,7 @@ const FORBIDDEN = [
     "templates/resource/config/function",
 ];
 const LINK_PREFIXES = ["skills/", "memory/", "references/", "rules/", "checklists/", "templates/", "scripts/", "agents/"];
-const SUB_SKILLS = ["poster-forge", "weapon-forge", "prop-forge", "map-forge", "sculpt-forge", "dev-flow", "terse"];
+const SUB_SKILLS = ["poster-forge", "weapon-forge", "prop-forge", "map-forge", "sculpt-forge", "perf-forge", "perf-architect", "help-inf-skills", "dev-flow", "terse"];
 const SKIP_MARKDOWN_DIRS = new Set(["node_modules", ".git", "templates", ...SUB_SKILLS]);
 const failures = [];
 
