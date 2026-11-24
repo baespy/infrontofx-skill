@@ -53,4 +53,13 @@
 2. เก็บความจำด้วยไฟล์ที่มีอยู่
 3. fivem-mcp: ใช้แบบถามข้อมูลทั่วไปหรือโฮสต์เอง
 4. claude-mem: รอจนจำเป็นจริง
-5. ของอื่นในกราฟ (superpowers, spec-kit, caveman, shadcn/ui) ไม่จำเป็นกับ workflow นี้ เพราะ `SKILL.md` ครอบคลุมขั้นตอนแล้ว และ caveman/claude-mem มีตัวติดตั้งที่ดึง proxy/telemetry
+5. ไม่ติดตั้ง plugin ภายนอกที่ทับวินัยของชุดนี้ (superpowers, spec-kit, ponytail, andrej-karpathy-skills) และไม่ลงตัวติดตั้ง caveman/claude-mem ที่ดึง proxy/telemetry ไอเดียที่เข้ากับงาน FiveM ถูกเขียนใหม่เป็นภาษาไทยไว้ในชุดนี้แล้ว ดูหัวข้อถัดไป
+
+## ไอเดียจาก skill ภายนอกที่รับเข้ามาแล้ว
+
+| แหล่งไอเดีย | อยู่ที่ | รับอะไรมา | ไม่รับอะไร |
+| --- | --- | --- | --- |
+| andrej-karpathy-skills, obra/superpowers, mattpocock/skills, ponytail | `dev-flow/SKILL.md` | คิดก่อนทำ, โค้ดน้อยที่สุดที่ทำงานได้, แก้เฉพาะจุด, ดีบักหา root cause, ห้ามบอกว่าเสร็จถ้าไม่มีหลักฐาน, รีวิว/ออดิตที่หาโค้ดให้ลบ, สรุปส่งต่อ | unit-test TDD, git worktree, คอมเมนต์ `shortcut:` ในโค้ด (ชุดนี้ห้าม comment จึงย้ายไปจดใน `PROGRESS.md`) |
+| caveman | `terse/SKILL.md` | ตอบคำตอบก่อน ตัดพิธี ของจริง (โค้ด path error) ต้องตรงทุกตัวอักษร | proxy, router, telemetry, ตัวติดตั้ง |
+| mcp-for-blender | `map-forge/references/polyhaven-cc0.md` | ดึง texture/HDRI CC0 จาก Poly Haven ด้วย Python ของ Blender | ไม่ลง MCP ตัวที่สอง เพราะใช้ Blender MCP ตัวหลักอยู่แล้ว และ socket ของมันไม่มี auth |
+| rea | ไม่ใช้ | - | เครื่องมือแกะ binary ไม่จำเป็นกับซอร์ส Lua ของเราเอง และห้ามใช้แกะ resource ที่ escrow (`.fxap`) |

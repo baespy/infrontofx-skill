@@ -94,6 +94,6 @@
 
 | คีย์ | ความหมาย |
 | --- | --- |
-| loom | {blur, bright, saturate, alpha} แสงฟุ้งทั้งภาพ (สำเนาเบลอสว่างซ้อนแบบ screen) ใช้ lpha .2 ถ้าเกิน .25 หน้าไหม้ |
-| rontShade | [บน,ล่าง] สัดส่วนจากขอบล่าง ทับค่า layout (square-support เดิม [.6,.34] ทำให้ตัวละครคล้ำ) alse = ปิด |
+| `bloom` | {blur, bright, saturate, alpha} แสงฟุ้งทั้งภาพ (สำเนาเบลอสว่างซ้อนแบบ screen) ใช้ `alpha` .2 ถ้าเกิน .25 หน้าไหม้ |
+| `frontShade` | [บน,ล่าง] สัดส่วนจากขอบล่าง ทับค่า layout (square-support เดิม [.6,.34] ทำให้ตัวละครคล้ำ) `false` = ปิด |
 

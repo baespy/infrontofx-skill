@@ -58,6 +58,14 @@ const REQUIRED = [
     "weapon-forge/SKILL.md",
     "prop-forge/SKILL.md",
     "map-forge/SKILL.md",
+    "map-forge/references/polyhaven-cc0.md",
+    "map-forge/scripts/blender/fetch_polyhaven.py",
+    "sculpt-forge/SKILL.md",
+    "sculpt-forge/scripts/blender/sculpt_forge.py",
+    "sculpt-forge/scripts/blender/validate_sculpt.py",
+    "sculpt-forge/scripts/blender/sculpt_sweep.py",
+    "dev-flow/SKILL.md",
+    "terse/SKILL.md",
 ];
 const FORBIDDEN = [
     "skills/common/fc-adapters.md",
@@ -65,7 +73,8 @@ const FORBIDDEN = [
     "templates/resource/config/function",
 ];
 const LINK_PREFIXES = ["skills/", "memory/", "references/", "rules/", "checklists/", "templates/", "scripts/", "agents/"];
-const SKIP_MARKDOWN_DIRS = new Set(["node_modules", ".git", "templates", "poster-forge", "weapon-forge", "prop-forge", "map-forge"]);
+const SUB_SKILLS = ["poster-forge", "weapon-forge", "prop-forge", "map-forge", "sculpt-forge", "dev-flow", "terse"];
+const SKIP_MARKDOWN_DIRS = new Set(["node_modules", ".git", "templates", ...SUB_SKILLS]);
 const failures = [];
 
 const read = (path) => readFileSync(join(ROOT, path), "utf8");
@@ -109,7 +118,7 @@ if (!front) {
     }
 }
 
-for (const forge of ["poster-forge", "weapon-forge", "prop-forge", "map-forge"]) {
+for (const forge of SUB_SKILLS) {
     if (!existsSync(join(ROOT, forge, "SKILL.md"))) {
         continue;
     }
@@ -120,6 +129,26 @@ for (const forge of ["poster-forge", "weapon-forge", "prop-forge", "map-forge"])
     }
     if (!skill.includes(`${forge}/SKILL.md`)) {
         failures.push(`SKILL.md must route to ${forge}/SKILL.md`);
+    }
+}
+
+for (const path of ["SKILL.md", ...SUB_SKILLS.map((sub) => `${sub}/SKILL.md`)]) {
+    if (!existsSync(join(ROOT, path))) {
+        continue;
+    }
+    const header = /^---\n([\s\S]*?)\n---\n/.exec(read(path).replace(/\r\n/g, "\n"));
+    if (!header) {
+        failures.push(`${path} missing YAML frontmatter`);
+        continue;
+    }
+    for (const line of header[1].split("\n")) {
+        const field = /^([a-z_-]+):\s?(.*)$/.exec(line);
+        if (!field || /^["'>|]/.test(field[2])) {
+            continue;
+        }
+        if (/\s#/.test(field[2]) || /:\s/.test(field[2])) {
+            failures.push(`${path} frontmatter ${field[1]} has an unquoted " #" or ": " that YAML cuts or rejects`);
+        }
     }
 }
 
@@ -173,6 +202,31 @@ for (const file of markdownFiles(ROOT)) {
     }
     if (/\bFC\.\w+/.test(text.replace(/```[\s\S]*?```/g, "")) && rel !== "skills/common/core-api.md" && rel !== "SKILL.md") {
         failures.push(`${rel} documents FC.* calls; the FC table is removed`);
+    }
+}
+
+const SUB_LINK_PREFIXES = ["references/", "scripts/", "templates/", "assets/", "engine/"];
+for (const sub of SUB_SKILLS) {
+    const subRoot = join(ROOT, sub);
+    if (!existsSync(subRoot)) {
+        continue;
+    }
+    for (const file of markdownFiles(subRoot)) {
+        const rel = relative(ROOT, file).split("\\").join("/");
+        const text = readFileSync(file, "utf8").replace(/```[\s\S]*?```/g, "");
+        for (const match of text.matchAll(/`([^`\s]+)`/g)) {
+            const value = match[1].replace(/\\/g, "/");
+            if (!SUB_LINK_PREFIXES.some((prefix) => value.startsWith(prefix))) {
+                continue;
+            }
+            const clean = value.replace(/[),.;:]+$/, "");
+            if (clean.includes("<") || clean.includes("*") || clean.includes("{") || clean.endsWith("/")) {
+                continue;
+            }
+            if (!existsSync(join(subRoot, clean)) && !existsSync(join(ROOT, clean))) {
+                failures.push(`${rel} references missing path: ${clean}`);
+            }
+        }
     }
 }
 

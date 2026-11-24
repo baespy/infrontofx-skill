@@ -5,8 +5,8 @@
         {
             "name": "infrontofx-skill",
             "source": "./",
-            "description": "infrontofx FiveM toolkit: Lua + NUI/DUI standard, poster-forge, weapon-forge, prop-forge, map-forge.",
-            "skills": ["./", "./poster-forge", "./weapon-forge", "./prop-forge", "./map-forge"],
+            "description": "infrontofx FiveM toolkit: Lua + NUI/DUI standard, dev-flow, terse, poster-forge, weapon-forge, prop-forge, map-forge, sculpt-forge.",
+            "skills": ["./", "./poster-forge", "./weapon-forge", "./prop-forge", "./map-forge", "./sculpt-forge", "./dev-flow", "./terse"],
             "strict": false
         }
     ]

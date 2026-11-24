@@ -88,27 +88,30 @@
 - สร้างจากพื้น z = 0 ขึ้นไป หันหน้า -Y สคริปต์จะจัดกึ่งกลาง X/Y และวางจุดต่ำสุดที่ z = 0 ให้เองตอนจบ
 - รันด้วย `--only <id> --no-render` ดู tris ใน `report.json` ก่อน แล้วค่อยเรนเดอร์ ตัวหนังสือกิน tris มากที่สุด ถ้าเกินงบให้ลด `text_resolution`, ตัดตัวหนังสือด้านหลัง หรือย่อ `max_w`
 
-## ปั้นคอลเลกชัน Kawaii V11 ด้วย `KawaiiBuilder` (`scripts/blender/kawaii_studio.py`)
+## ปั้นคอลเลกชัน Kawaii V15 Anti-Playdough Crisp Low-Poly ด้วย `KawaiiBuilder` (`scripts/blender/kawaii_studio.py`)
 
-สำหรับงานปั้น bespoke สไตล์ Pop-Mart / Animal-Crossing ที่ต้องการซิลูเอตเฉพาะชิ้นตรงตาม Concept Art 1:1 ให้ import `KawaiiBuilder` จาก `scripts/blender/kawaii_studio.py` (รันด้วย Blender `--factory-startup` ไม่ต้องลง add-on หรือ PIL):
+สำหรับงานปั้น bespoke สไตล์ Pop-Mart / Billie School โทนน้ำตาลอุ่นเอกภาพที่ต้องการความคมระดับ `1024px`, ลุค Satin-Matte Designer Vinyl (ไร้ลุคดินน้ำมัน) และโพลีกอนเบาสำหรับ FiveM (`2,300-4,800` tris/ชิ้น, zero auto-decimation) ให้ import `kawaii_studio as ks` (รันด้วย Blender `--factory-startup` ไม่ต้องลง add-on หรือ PIL):
 
-| เมธอด (`KawaiiBuilder`) | ใช้ทำ |
+| เมธอด (`KawaiiBuilder`, `low_poly=True` default) | ใช้ทำ |
 | --- | --- |
-| `plush_box(size, loc, role, r_bevel, subsurf, puff, collide)` | ตัวตู้/กล่องทรงหมอนขอบมนพองนุ่มแบบของเล่นไวนิล |
-| `plush_pill(size, loc, role, segs, collide)` | แคปซูล/ปุ่มกด/มือจับ/ขา/คานโค้งมน |
-| `plush_cyl(r, h, loc, role, bevel, segs, r_top, axis, collide)` | แท่นกลม ล้อ เหรียญ ถังซัก ท่อตรง |
-| `plush_sphere(r, loc, role, scale, u, v)` | โหลแก้ว ไข่กาชาปอง ฟองสบู่ ลูกปัด |
-| `lathe(profile=[(r,z),...], loc, role, segs, smooth_profile)` | แท่นหมุน 360°, โดมโค้ง, ขวด, กระดิ่ง, เสาเอวคอด |
+| `plush_box(size, loc, role, r_bevel, bevel_segs, puff, collide, stripe_freq)` | ตัวตู้/กล่องขอบมน (`subsurf=0, bevel_segs=2` ~124 tris; ลาย `stripe_*` ต่อเนื่อง `(x+y+z)` ไร้ซิกแซ็ก!) |
+| `edge_piped_box(size, loc, body_role, trim_role, accent_role, ...)` | ตู้เก็บขอบประณีต: คิ้วบัว 45° ล่าง-บน + รางกันชนมุมแนวตั้ง 4 มุม + หมุดทอง 8 มุม (~404 tris) |
+| `smooth_bezel_ring(r_outer, r_inner, depth, ..., segs=24)` | วงแหวนกรอบโค้ง 24 ด้านเนียนกริบสองชั้น (เอสเปรสโซนอก + ทองขั้นใน) |
+| `plush_pill(size, loc, role, segs, collide)` | แคปซูล/ปุ่มกด/มือจับ/ขา/คานโค้งมน (`segs=8` ~48 tris) |
+| `plush_cyl(r, h, loc, role, bevel, segs, r_top, axis, collide, stripe_freq)` | แท่นกลม ล้อ เหรียญ ถังซัก เสา (รองรับ `segs >= 5` เมื่อระบุชัด, ค่าเริ่ม hero `20-seg`; ลาย `stripe_*` พันเกลียว 360° ไร้ตะเข็บ) |
+| `plush_sphere(r, loc, role, scale, u, v)` | โหลแก้ว ไข่กาชาปอง ฟองสบู่ ลูกปัด (`u=14, v=9`) |
+| `lathe(profile=[(r,z),...], loc, role, segs, smooth_profile)` | แท่นหมุน 360°, โดมโค้ง, ขวด, กระดิ่ง, เสาเอวคอด (ค่าเริ่ม hero `20-seg`) |
 | `plush_torus(major_r, minor_r, loc, role, axis, arc_deg)` | ห่วงพอร์ตโฮล, ข้องอท่อ 90°/180°, ตะขอลาก, ราวจับโค้ง |
-| `plush_tube(points, radius, role, segs, closed, smooth_steps)` | ท่อโค้ง 3 มิติ, ริบบิ้น, สายไฟ, หูตะกร้า |
-| `plush_extrude(pts_2d, depth, loc, role, bevel)` / `plush_frame(...)` | ป้ายโค้งมน, เกราะขอบ `.bbu-frame` โกโก้ |
-| `plush_cloud(pts_r)` / `plush_cloud_pillow(w, d, h)` / `plush_cloud_ring(r, z)` | หมอนเมฆฟู, ฐานเมฆ, วงแหวนเมฆ 360° |
-| `plush_star(loc, size)` / `plush_heart(loc, size)` / `plush_lightning(loc, size)` | ดาว 5 แฉกอ้วนพอง, หัวใจพอง, สายฟ้าการ์ตูน |
-| `cafe_awning(w, d, h, loc, stripe_role, alt_role, trim_role, scallops)` | กันสาดคาเฟ่โค้งสลับแถบสีพร้อมชายหยักกลมและโครงโกโก้ |
-| `billie_bear_plush(loc, radius, school, face_mode, with_body, with_cloud)` | มาสคอต 3D 4 บ้าน (`brown`/`pink`/`skyblue`/`grey`) หน้าโดมโค้งภาพทางการหรือปั้น 3D ล้วน |
-| `decal_card(img_path, w, h, loc, frame_role, emissive, transparent, double_sided)` | วางโลโก้/ป้าย/หน้าจอ/เกจวัด พร้อมกรอบ `.bbu-frame` อัตโนมัติ (แพ็ก `<= 4` วัสดุอัตโนมัติ) |
-| `text_sign(text, w, h, loc, ...)` | เจนป้าย `billie-ui` ฟอนต์ TitanOne ขอบสติกเกอร์ลงแคชและวางทันที |
-| `plush_car`, `plush_coin`, `plush_banknote`, `plush_basket` | ของจิ๋วสำเร็จรูป (รถของเล่น, เหรียญทอง, ปึกเงิน, ตะกร้าชอปปิ้ง) |
-| `define_bone` / `use_bone` / `set_anim` / `collider_from` / `finalize_and_save` | ริกกระดูก rest-exact (`u=0`), กล่องชน, Cycles Soft Plush Baker 512px, บันทึก `.blend` + เรนเดอร์สตูดิโอ `_preview.png` |
+| `plush_tube(points, radius, role, segs, closed, smooth_steps)` | ท่อโค้ง 3 มิติ, ริบบิ้น, สายไฟ, หูตะกร้า (`segs=8`) |
+| `plush_extrude(pts_2d, depth, loc, role, bevel)` / `plush_frame(...)` | ป้ายโค้งมน, เกราะขอบ `.bbu-frame` |
+| `plush_cloud(pts_r)` / `plush_cloud_pillow(w, d, h)` / `plush_cloud_ring(r, z)` | หมอนเมฆฟู (`6` puffs `u=10,v=6`), วงแหวนเมฆ 360° (`8` puffs `u=8,v=6`) |
+| `plush_star(loc, size)` / `plush_heart(loc, size)` / `plush_lightning(loc, size)` | ดาว 5 แฉก (~60 tris), หัวใจ (~56 tris), สายฟ้าการ์ตูน |
+| `cafe_awning(w, d, h, loc, stripe_role, alt_role, trim_role, bead_role, scallops)` | กันสาดคาเฟ่โค้งเรียบติดขอบเอสเปรสโซ + ลูกปัดทองปลายลอน |
+| `billie_bear_plush(loc, radius, school, face_mode, with_body, with_cloud, with_orange, detail)` | **V15 Re-Sculpted 3D Billie Bear** (`low`: `966t` หัว / `1,502t` ตัวเต็ม; `high`: `1,146t` หัว / `1,782t` ตัวเต็ม — ผมหน้าม้า 3D แนบขอบเอสเปรสโซ+กิ๊บดาวคู่, โดมหน้า `7x6` `billie_face_crisp_v5.png`, หูหมีเว้า, หน้าผาก `• T •`, ส้ม 6 กลีบ+ใบแหลม, โบว์จีบ, แขนโบกมืออุ้งเท้าชมพู, สลิปเปอร์หมีพื้นแบน `z=-1.96*r`) |
+| `v4_art_panel(key, w, h, ...)` / `v4_art_medallion(key, r, ...)` / `decal_disc(...)` / `decal_region(...)` / `billie_logo_badge(...)` | วางอาร์ตจากชีตกลาง `1024px` (`ART_UV_V4` 4 ชีต `billie_v4_art_{a,b,c,d}.png` + `billie_art_logo`, `billie_atm_screen`, `billie_gauge_dial`) ในกรอบสองชั้น Espresso+Gold (`segs_corner=6`) หรือกรอบวงกลม 24-seg (`<= 4` วัสดุเสมอ!) |
+| `decal_card(img_path, w, h, ...)` / `text_sign(text, w, h, ...)` | วางป้าย `1024x512` โทนน้ำตาลอุ่น ผสม pop-art halftone ฟอนต์ TitanOne ขอบสติกเกอร์ |
+| `plush_car`, `plush_coin`, `plush_banknote`, `plush_basket` | **V15 `plush_car()` (`944t`)** รถสปอร์ตจิ๋วกระจกเว้า+เสา A/B/C+กระจัง 3 ซี่ทอง+ซุ้มล้อ+ล้อ 18-seg+กันชนทอง+กระจกมองข้าง, เหรียญทอง, ปึกเงิน, ตะกร้า |
+| `bolt_cap_x`, `craft_toolbox`, `craft_tape_dispenser`, `craft_hammer`, `craft_screwdriver` | **V15 Sharpened Workshop Helpers:** หมุดนอต X, กล่องเครื่องมือฝาลาด+การ์ดมุม (`184t`), แท่นเทปมีแก้มจับ+ใบตัด (`180t`), ค้อนหงอนด้ามร่อง (`180t`), ไขควงด้าม 6 แฉก (`148t`) |
+| `define_bone` / `use_bone` / `set_anim` / `collider_from` / `finalize_and_save` | ริกกระดูก rest-exact (`u=0`), กล่องชน, Master Palette UVs + `crease_deg=32.0` + Satin-Matte Vinyl (`Roughness=0.46`) + BVHTree Crisp Vertex AO (`Color 1` `[192..255]`), บันทึก `.blend` + พรีวิวสตูดิโอ |
 
-> **เคล็ดลับงบ tris (Zero-Decimation Rule):** เลือก segment (`segs`, `u`, `v`, `subsurf`) ให้พอดีตั้งแต่ต้นเพื่อให้จบต่ำกว่างบจริง (`<= budget`) โดยไม่ให้ระบบ auto-decimate ทำงาน จะได้ผิวโค้งไร้รอยบุบ 100% ทุกชิ้น และใช้ `render_lineup(blend_paths, out_png, rows=2)` เรนเดอร์ภาพรวมคอลเลกชันก่อน export จริง
+> **งบ Low-Poly มาตรฐานสำหรับเซ็ต V15 (Zero-Decimation Rule):** Marker `<= 2,600 (0 col)`, Shop `<= 3,400 (2 col, ultra-slim <=0.38m)`, Loot `<= 3,600 (1 col)`, ATM/Redbox/Powerbox `<= 3,800`, Waterpipe/Washmoney `<= 3,900`, Pound `<= 4,000 (0 col)`, Parking `<= 4,200 (0 col)`, Airdrop `<= 4,400 (2 col)`, Garage `<= 4,500 (0 col)`, Gachapon `<= 4,600 (3 col)`, Crafting Workbench `<= 4,800 (3 col, wide ~2.0m)` — คง `auto_decimate=False` และ export ด้วย `--format native --max-res 1024 --shared-ytd <name>_tex`!

@@ -59,3 +59,17 @@
 - Symptom: Changing `toggle_key` in `config.lua` (e.g. from `"K"` to `"J"`) does not respond to the new key in-game.
 - Cause: FiveM caches keybindings per command name in the player's local `fivem.cfg` on first registration and ignores subsequent default key changes for that same command name.
 - Fix: Append the lowercase key to the registered keymapping command name (`local keyCmd = baseCmd .. "_" .. string.lower(key)`) while keeping `baseCmd` registered for manual console/chat use.
+
+### Named natives return Lua booleans
+
+- Date: 2026-11-23
+- Game build: any
+- Symptom: `IsVehicleTyreBurst(...) == 1` was always false, so the HUD burst-tyre indicator never lit.
+- Cause: generated CfxLua natives return `true`/`false`. The 1/0 rule above only applies to raw `Citizen.InvokeNative`.
+- Fix: compare `== true`, or accept both (`v == true or v == 1`).
+
+### Linter crashes on paths with brackets
+
+- Date: 2026-11-23
+- Symptom: `lint-resource.mjs` crashes when given an absolute path that contains `[...]`.
+- Fix: run it from the category folder with the bare resource name, or with a relative path from `mainserver`.

@@ -1,0 +1,91 @@
+{
+ "set": "1nfx_puff",
+ "about": "Example sculpt-forge set: three smooth toy props (puffy kiosk with a scalloped frosting crown and drips, scalloped plaque sign with inflated letters and a piped rim, lathe trophy with fused handles). Units are metres, Z up, front faces -Y, floor at z=0.",
+ "voxel": 0.005,
+ "defaults": {"size_class": "hero", "ao_distance": 0.18},
+ "palette": {
+  "cell_px": 32,
+  "roles": {
+   "frost": {"color": "#FFF2E4", "finish": "satin"},
+   "berry": {"color": "#F29AB4", "finish": "satin"},
+   "mint": {"color": "#93D7C3", "finish": "satin"},
+   "butter": {"color": "#FFD46E", "finish": "satin"},
+   "cocoa": {"color": "#6B463A", "finish": "matte"},
+   "sky": {"color": "#A2CBF0", "finish": "satin"},
+   "gold": {"color": "#EDB94F", "finish": "gloss"},
+   "glow": {"color": "#FFE6A3", "finish": "emissive"}
+  }
+ },
+ "props": [
+  {
+   "id": "1nfx_puff_kiosk",
+   "archetype": "kiosk",
+   "budget": 12000,
+   "lod_dist": 150,
+   "default_role": "frost",
+   "colliders": [
+    {"center": [0.0, 0.0, 0.57], "size": [1.36, 0.88, 1.14]},
+    {"center": [0.0, 0.0, 1.93], "size": [1.52, 1.02, 0.30]}
+   ],
+   "nodes": [
+    {"type": "group", "name": "counter", "fillet": 0.03, "nodes": [
+     {"type": "round_box", "size": [1.36, 0.88, 0.12], "radius": 0.05, "loc": [0.0, 0.0, 0.06], "role": "berry"},
+     {"type": "pillow_box", "size": [1.22, 0.74, 0.96], "radius": 0.085, "puff": [0.02, 0.012, 0.0], "loc": [0.0, 0.0, 0.59], "role": "frost", "fillet": 0.03},
+     {"type": "round_box", "size": [0.84, 0.10, 0.50], "radius": 0.04, "loc": [0.0, -0.40, 0.60], "op": "subtract", "role": "mint", "fillet": 0.02},
+     {"type": "extrude2d", "outline": {"shape": "star", "r_out": 0.17, "r_in": 0.088, "points": 5, "smooth": 3}, "depth": 0.06, "edge": 0.022, "puff": 0.012, "plane": "XZ", "loc": [0.0, -0.36, 0.60], "role": "butter", "fillet": 0.012},
+     {"type": "round_box", "size": [1.38, 0.90, 0.08], "radius": 0.035, "loc": [0.0, 0.0, 1.10], "role": "mint", "fillet": 0.025}
+    ]},
+    {"type": "round_cyl", "radius": 0.045, "height": 0.66, "edge": 0.012, "loc": [0.56, -0.32, 1.47], "mirror_x": true, "role": "mint", "fillet": 0.03},
+    {"type": "round_cyl", "radius": 0.045, "height": 0.66, "edge": 0.012, "loc": [0.56, 0.32, 1.47], "mirror_x": true, "role": "mint", "fillet": 0.03},
+    {"type": "group", "name": "roof", "fillet": 0.03, "nodes": [
+     {"type": "pillow_box", "size": [1.46, 0.96, 0.20], "radius": 0.07, "puff": [0.012, 0.012, 0.0], "loc": [0.0, 0.0, 1.90], "role": "berry"},
+     {"type": "pillow_box", "size": [1.50, 1.00, 0.06], "radius": 0.03, "puff": [0.0, 0.0, 0.025], "loc": [0.0, 0.0, 2.02], "role": "frost", "fillet": 0.02},
+     {"type": "scallops", "path": {"shape": "rounded_rect", "w": 1.49, "h": 0.99, "r": 0.15, "plane": "XY", "at": [0.0, 0.0, 2.0]}, "drop": 0.08, "thickness": 0.044, "per_m": 8, "role": "frost", "fillet": 0.02},
+     {"type": "drips", "path": {"shape": "rounded_rect", "w": 1.49, "h": 0.99, "r": 0.15, "plane": "XY", "at": [0.0, 0.0, 1.94]}, "count": 14, "length": [0.06, 0.15], "radius": [0.022, 0.03], "seed": 11, "sink": 0.0, "role": "frost", "fillet": 0.015}
+    ]},
+    {"type": "sphere", "radius": 0.07, "loc": [0.0, 0.0, 2.10], "role": "butter", "fillet": 0.035},
+    {"type": "extrude2d", "outline": {"shape": "star", "r_out": 0.17, "r_in": 0.088, "points": 5, "smooth": 3}, "depth": 0.075, "edge": 0.03, "puff": 0.012, "plane": "XZ", "loc": [0.0, 0.0, 2.255], "role": "butter", "fillet": 0.035}
+   ]
+  },
+  {
+   "id": "1nfx_puff_sign",
+   "archetype": "sign_post",
+   "budget": 9000,
+   "lod_dist": 150,
+   "default_role": "berry",
+   "colliders": [
+    {"center": [0.0, 0.0, 1.32], "size": [1.44, 0.16, 0.78]},
+    {"center": [0.0, 0.0, 0.47], "size": [1.04, 0.24, 0.94]}
+   ],
+   "nodes": [
+    {"type": "extrude2d", "outline": {"shape": "scalloped_rect", "w": 1.36, "h": 0.70, "r": 0.15, "lobes_per_m": 8, "amp": 0.03}, "depth": 0.12, "edge": 0.045, "puff": 0.012, "puff_width": 0.12, "plane": "XZ", "loc": [0.0, 0.0, 1.32], "role": "berry"},
+    {"type": "tube", "path": {"shape": "rounded_rect", "w": 1.20, "h": 0.54, "r": 0.11, "plane": "XZ", "at": [0.0, -0.064, 1.32]}, "radius": 0.032, "role": "frost", "fillet": 0.016},
+    {"type": "text", "body": "PUFF", "height": 0.30, "max_width": 0.98, "depth": 0.02, "puff": 0.02, "plane": "XZ", "loc": [0.0, -0.053, 1.32], "role": "cocoa", "fillet": 0.008},
+    {"type": "text", "body": "PUFF", "height": 0.30, "max_width": 0.98, "depth": 0.05, "puff": 0.010, "plane": "XZ", "loc": [0.0, -0.077, 1.32], "role": "butter", "fillet": 0.006},
+    {"type": "sphere", "radius": 0.05, "loc": [0.66, 0.0, 1.68], "mirror_x": true, "role": "butter", "fillet": 0.02},
+    {"type": "capsule", "a": [0.48, 0.0, 0.05], "b": [0.48, 0.0, 1.10], "radius": 0.045, "mirror_x": true, "role": "mint", "fillet": 0.03},
+    {"type": "round_cyl", "radius": 0.12, "height": 0.04, "edge": 0.015, "loc": [0.48, 0.0, 0.02], "mirror_x": true, "role": "mint", "fillet": 0.02}
+   ]
+  },
+  {
+   "id": "1nfx_puff_trophy",
+   "archetype": "trophy",
+   "size_class": "medium",
+   "budget": 7000,
+   "lod_dist": 100,
+   "voxel": 0.004,
+   "default_role": "gold",
+   "colliders": [
+    {"center": [0.0, 0.0, 0.45], "size": [0.48, 0.48, 0.90]}
+   ],
+   "nodes": [
+    {"type": "round_box", "size": [0.46, 0.46, 0.14], "radius": 0.045, "loc": [0.0, 0.0, 0.07], "role": "cocoa"},
+    {"type": "extrude2d", "outline": {"shape": "heart", "size": 0.09}, "depth": 0.03, "edge": 0.01, "puff": 0.004, "plane": "XZ", "loc": [0.0, -0.232, 0.07], "role": "berry", "fillet": 0.006},
+    {"type": "lathe", "profile": [[0.0, 0.13], [0.150, 0.13], [0.160, 0.15], [0.150, 0.17], [0.100, 0.19], [0.060, 0.22], [0.042, 0.27], [0.040, 0.33], [0.070, 0.36], [0.075, 0.38], [0.048, 0.41], [0.060, 0.45], [0.130, 0.50], [0.200, 0.56], [0.245, 0.64], [0.265, 0.74], [0.272, 0.83], [0.262, 0.86], [0.248, 0.85], [0.240, 0.76], [0.222, 0.66], [0.180, 0.58], [0.110, 0.53], [0.0, 0.51]], "smooth": 2, "role": "gold", "fillet": 0.015},
+    {"type": "torus", "major": 0.258, "minor": 0.018, "loc": [0.0, 0.0, 0.85], "role": "gold", "fillet": 0.008},
+    {"type": "tube", "path": [[0.272, 0.0, 0.765], [0.37, 0.0, 0.785], [0.425, 0.0, 0.70], [0.385, 0.0, 0.605], [0.215, 0.0, 0.58]], "closed": false, "radius": 0.024, "mirror_x": true, "role": "gold", "fillet": 0.022},
+    {"type": "extrude2d", "outline": {"shape": "star", "r_out": 0.075, "r_in": 0.038, "points": 5, "smooth": 3}, "depth": 0.07, "edge": 0.014, "puff": 0.006, "plane": "XZ", "loc": [0.0, -0.242, 0.70], "rot": [11.3, 0.0, 0.0], "role": "berry", "fillet": 0.012}
+   ]
+  }
+ ]
+}

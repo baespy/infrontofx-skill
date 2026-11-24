@@ -56,11 +56,13 @@ $skill   = '<project>\.claude\skills\infrontofx\map-forge'
 
 | งาน | อ่าน |
 | --- | --- |
-| งบ tris, VRAM, disk, โครงสร้าง 6 ประเภทแมพ, Single-Shell vs Modular vs MLO, จุดที่ทำให้แมพดูแพง vs ดูถูก | `references/studio-benchmarks.md` |
+| งบ tris, VRAM, disk, โครงสร้าง 6 ประเภทแมพ, Single-Shell vs Modular vs MLO, Pattern E ลานเกาะโค้งออร์แกนิกสำหรับวางชุด prop แบรนด์, จุดที่ทำให้แมพดูแพง vs ดูถูก | `references/studio-benchmarks.md` |
 | สูตร RAGE Shaders (15 shader หลัก + ค่าพารามิเตอร์จริง), RAGE Vertex Color (`#FF00FF`), DirectX `-Y` Normal, ไฟฝัง `Drawable.lights` และ 12-tri light emitter | `references/shaders-lighting-vcol.md` |
 | คลัง prop แท้ GTA V ที่ผ่านการใช้งานจริง (ต้นไม้ พุ่มดอกไม้ ไฟถนน ม้านั่ง รั้ว หิน เฟอร์นิเจอร์), ระยะฝังพื้น Z, `_manifest.ymf` และข้อควรระวัง `h4_*` Cayo DLC | `references/gta-prop-catalog.md` |
 | ไปป์ไลน์ Export/Collision/YMAP/YTYP/YBN/YMF/MLO, Quaternion กลับด้านของ GTA V, Shared YTD DXT1/DXT5, การติดตั้ง FiveM และ QA | `references/pipeline.md` |
 | การใช้ Antigravity + Blender MCP (4.2.3 vs 5.3 `BLENDER17`), กฎ `-LiteralPath`, เช็กลิสต์ตรวจภาพ 6 มุม | `references/antigravity.md` |
+| texture PBR และ HDRI ฟรี CC0 จาก Poly Haven: เลือก, แปลง Normal เป็น DirectX `-Y`, roughness เป็น spec, ย่อ pow2, เข้ารหัส DDS, รวมลง Shared `.ytd` | `references/polyhaven-cc0.md` |
+| ชิ้นฮีโร่ที่ต้องโค้งเนียน (ขอบลานโค้งมน, บันไดโค้งจมูกมน, ราวกวาดโค้ง, ซุ้มโค้ง, กระถาง, เกาะออร์แกนิก) | skill `sculpt-forge` ของ infrontofx (ไฟล์ `sculpt-forge/SKILL.md` ในโฟลเดอร์แม่) แล้วกลับมา export ด้วย `scripts/blender/export_map.py` |
 
 ## เครื่องมือ
 
@@ -69,6 +71,7 @@ $skill   = '<project>\.claude\skills\infrontofx\map-forge'
 | `scripts/blender/export_map.py` | ส่งออกแมพ FiveM GEN8 อัตโนมัติจาก `map-spec.json` + `.blend` + `.png`: เข้ารหัส Shared `.ytd` (PCA DXT1/DXT5 + กลับช่อง G ของ Normal เป็น DirectX `-Y`), แปลง PBR เป็น Sollumz shader (`normal_spec.sps`/`default.sps`/`emissive.sps`/`emissivenight.sps`/`glass_env.sps`/`cutout.sps`/`water_fountain.sps`), ฝัง `Drawable.lights`, ฝัง collision + สร้าง Static World `.ybn`, สร้าง `.ytyp`, `.ymap` (ผสม custom + vanilla GTA V props), `_manifest.ymf` และ `fxmanifest.lua` |
 | `scripts/blender/inspect_map.py` | เครื่องมือตรวจและวิเคราะห์ binary แมพ FiveM ด้วย PyMateria: เช็ก RSC7, นับ tris/geoms/FVF/`TANGENT0`/`DIFFUSE` (เตือนทันทีถ้าแมพกลางแจ้งมี `G > 40` หรือ tris ทะลุงบ), เช็ก VRAM/mips/format ของ `.ytd`, ตรวจระดับพื้น Z และ `CollisionFlags` ของ `.ybn`, ตรวจ `content_flags`/quaternion/streaming extents ของ `.ymap`, ตรวจ `_manifest.ymf` และสรุปผล `MAP_INSPECT_PASS fail=0` |
 | `scripts/blender/dds_codec.py` | ตัวเข้ารหัส DDS แบบ vectorized PCA DXT1 (BC1, 4 bpp) / DXT5 (BC3, 8 bpp) พร้อม linear mipmaps, RGB bleed กันขอบดำ และ unsharp mip |
+| `scripts/blender/fetch_polyhaven.py` | ค้นหาและดึง texture CC0 จาก Poly Haven ด้วย Python ของ Blender (`--dry-run` ดูอย่างเดียว) แปลงเป็นรูปแบบที่ shader GTA V ต้องการ และจด manifest แหล่งที่มา |
 | `scripts/sync-antigravity.ps1` | ซิงก์ skill จาก `.claude/skills/infrontofx/map-forge` ไป `.agents/skills/map-forge` (`-Check`, `-Force`) |
 | `templates/map-spec.example.json` | เทมเพลตสเปกผังแมพ (Sky Plaza + Vanilla Props + Embedded Lights) |
 | `templates/fxmanifest.lua` | เทมเพลต `fxmanifest.lua` มาตรฐาน `this_is_a_map "yes"` + `DLC_ITYP_REQUEST` |

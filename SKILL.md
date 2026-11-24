@@ -1,11 +1,11 @@
 ---
 name: infrontofx
-description: ชุดเดียวครบสำหรับงาน FiveM ของเซิร์ฟเวอร์ (1) มาตรฐานเขียน/รีไรต์ resource Lua 5.4 + 1nfx_lib, NUI/DUI แบบ OOP ไม่มี comment ไม่มี FC ไม่มีค่าคงที่ระดับไฟล์ (2) poster-forge ทำโปสเตอร์ Support/Welfare จากรูปตัวละครและไอเทม (3) weapon-forge ทำสกิน/โมเดลอาวุธ ptfx เอฟเฟกต์หน้าจอและเสียง (4) prop-forge ปั้น prop สไตล์ของเล่นแบรนด์เซิร์ฟเวอร์ (ป้าย ATM ตู้เซฟ กล่อง โต๊ะคราฟต์ marker) (5) map-forge ปั้นและ export แมพ FiveM ระดับสตูดิโอ 144-200 FPS (Sky AFK, Lobby, Airdrop/Warzone, Garage, Outpost, MLO) พร้อม RAGE PBR, Vertex Color #FF00FF, Drawable.lights และ prop แท้ GTA V. ใช้ทุกครั้งที่เขียนใหม่ optimize แยกสคริป ทำ UI สร้าง resource ใหม่ ทำโปสเตอร์ ทำสกินอาวุธ ปั้น prop หรือปั้นแมพ. Triggers - "infrontofx", "1nfx", "เขียนใหม่", "รีไรต์", "optimize", "แยกสคริป", "NUI", "DUI", "โปสเตอร์", "support", "สวัสดิการ", "สกินอาวุธ", "weapon skin", "ptfx", "ypt", "ปั้น prop", "prop", "ytyp", "ปั้นแมพ", "map-forge", "ymap", "ybn", "mlo", "afk zone".
+description: ชุดเดียวครบสำหรับงาน FiveM ของเซิร์ฟเวอร์ (1) มาตรฐานเขียน/รีไรต์ resource Lua 5.4 + 1nfx_lib, NUI/DUI แบบ OOP ไม่มี comment ไม่มี FC ไม่มีค่าคงที่ระดับไฟล์ (2) poster-forge ทำโปสเตอร์ Support/Welfare จากรูปตัวละครและไอเทม (3) weapon-forge ทำสกิน/โมเดลอาวุธ ptfx เอฟเฟกต์หน้าจอและเสียง (4) prop-forge ปั้น prop สไตล์ของเล่นแบรนด์เซิร์ฟเวอร์ (ป้าย ATM ตู้เซฟ กล่อง โต๊ะคราฟต์ marker) (5) map-forge ปั้นและ export แมพ FiveM ระดับสตูดิโอ 144-200 FPS (Sky AFK, Lobby, Airdrop/Warzone, Garage, Outpost, MLO) พร้อม RAGE PBR, Vertex Color แยกกลางวัน/กลางคืน, Drawable.lights, prop แท้ GTA V และ texture CC0 จาก Poly Haven (6) sculpt-forge ปั้นเนียนด้วย SDF ทั้งทรงพอง ผสานชิ้นแบบมี fillet ตัวอักษร/ป้ายพอง หยดสไลม์ ของออร์แกนิก ราว บันได ซุ้มโค้งของแมพ แล้วย่อเป็น low-poly ที่ยังเนียน (7) dev-flow วินัยงานโค้ด คิดก่อนทำ วางแผน ดีบักเป็นระบบ ตรวจหลักฐานก่อนบอกเสร็จ รีวิว/ออดิต และสรุปส่งต่อ (8) terse โหมดตอบสั้นประหยัด token. ใช้ทุกครั้งที่เขียนใหม่ optimize แยกสคริป ทำ UI สร้าง resource ใหม่ ดีบัก รีวิว ทำโปสเตอร์ ทำสกินอาวุธ ปั้น prop ปั้นให้เนียน หรือปั้นแมพ. Triggers - "infrontofx", "1nfx", "เขียนใหม่", "รีไรต์", "optimize", "แยกสคริป", "NUI", "DUI", "ดีบัก", "บั๊ก", "รีวิว", "audit", "handoff", "ตอบสั้น", "โปสเตอร์", "support", "สวัสดิการ", "สกินอาวุธ", "weapon skin", "ptfx", "ypt", "ปั้น prop", "prop", "ปั้นเนียน", "sculpt", "ytyp", "ปั้นแมพ", "map-forge", "ymap", "ybn", "mlo", "afk zone".
 ---
 
 # infrontofx
 
-ชุดเดียวครบสำหรับเซิร์ฟเวอร์ FiveM ตระกูล `1nfx_*` มี 5 ส่วน: มาตรฐานโค้ด (ไฟล์นี้และโฟลเดอร์ `skills/`), `poster-forge/`, `weapon-forge/`, `prop-forge/` และ `map-forge/`
+ชุดเดียวครบสำหรับเซิร์ฟเวอร์ FiveM ตระกูล `1nfx_*` มี 8 ส่วน: มาตรฐานโค้ด (ไฟล์นี้และโฟลเดอร์ `skills/`), `dev-flow/`, `terse/`, `poster-forge/`, `weapon-forge/`, `prop-forge/`, `sculpt-forge/` และ `map-forge/`
 เป้าหมายของมาตรฐานโค้ด: การทำงานในเกมของแต่ละ resource เหมือนเดิมทุกอย่าง โค้ดสั้นลง ลื่นขึ้น ไม่มีของซ้ำ
 
 ## ตัวเลือกเส้นทาง (อ่านเฉพาะที่ต้องใช้ เพื่อประหยัด token)
@@ -22,12 +22,15 @@ description: ชุดเดียวครบสำหรับงาน FiveM 
 | ความปลอดภัย, ดีบัก, สไตล์ | `skills/common/security.md`, `debugging.md`, `style.md`, `memory/security-exploits.md`, `memory/patterns.md` |
 | UI (NUI/DUI) | `NUI_DUI.md` แล้วตามด้วย `skills/ui/design-system.md` (สไตล์ 1nfx), `nui-bridge.md`, `dui.md`, `vanilla-ui.md`, `react-vite.md`, `vue-svelte.md` |
 | เครื่องมือเสริม MCP ความจำ ประหยัด token | `TOOLING.md` |
+| คิดก่อนทำ, วางแผนทีละ resource, ดีบักเป็นระบบ, ตรวจหลักฐานก่อนบอกว่าเสร็จ, รีวิว/ออดิตแบบ lazy senior, สรุปส่งต่อข้ามเซสชัน | `dev-flow/SKILL.md` |
+| ตอบสั้นประหยัด token (เปิดค้างทั้งเซสชัน) | `terse/SKILL.md` |
 | โปสเตอร์ Support / Welfare / แจกของ | `poster-forge/SKILL.md` |
 | สกินอาวุธ, โมเดล, ptfx (.ypt), เอฟเฟกต์หน้าจอ, เสียง | `weapon-forge/SKILL.md` |
 | ปั้น prop (ป้าย, ATM, ตู้เซฟ, กล่อง, หีบ, โต๊ะคราฟต์, marker), ytyp, stream prop | `prop-forge/SKILL.md` |
-| ปั้นแมพ FiveM (Sky AFK, Lobby, Airdrop/Warzone, Garage, Outpost, MLO), ymap, ybn, lighting | `map-forge/SKILL.md` |
+| ปั้นให้เนียน: ทรงพอง ผสานชิ้นแบบมี fillet ตัวอักษร/ป้ายพอง หยดสไลม์ ต้นไม้ เมฆ ฟิกเกอร์ ราว บันได ซุ้มโค้ง แล้วย่อเป็น low-poly ที่ยังเนียน | `sculpt-forge/SKILL.md` |
+| ปั้นแมพ FiveM (Sky AFK, Lobby, Airdrop/Warzone, Garage, Outpost, MLO), ymap, ybn, lighting, texture CC0 | `map-forge/SKILL.md` |
 
-เมื่อเข้าเส้นทางของ `poster-forge`, `weapon-forge`, `prop-forge` หรือ `map-forge` ให้เปิด `SKILL.md` ของโฟลเดอร์นั้นและทำตามนั้นทั้งหมด พาธใน skill เหล่านั้นอิงจากโฟลเดอร์ของมันเอง
+เมื่อเข้าเส้นทางของ `dev-flow`, `terse`, `poster-forge`, `weapon-forge`, `prop-forge`, `sculpt-forge` หรือ `map-forge` ให้เปิด `SKILL.md` ของโฟลเดอร์นั้นและทำตามนั้นทั้งหมด พาธใน skill เหล่านั้นอิงจากโฟลเดอร์ของมันเอง งานปั้นที่ต้องการผิวเนียนให้ปั้นด้วย `sculpt-forge` แล้ว export ผ่าน `prop-forge` หรือ `map-forge` ตามชนิดงาน
 
 ## หลักการ
 
@@ -40,6 +43,8 @@ description: ชุดเดียวครบสำหรับงาน FiveM 
 7. ห้ามมีค่าคงที่ระดับไฟล์ เขียนค่าจริงตรงจุดที่ใช้
 8. optimize ทุก resource โดยคงการทำงานเดิม
 9. secret ต้องอยู่ฝั่ง server เท่านั้น ไม่ส่งให้ client
+10. ช่องโหว่และจุดช้าที่ตรวจยืนยันจากโค้ดแล้ว แก้ได้เลยไม่ต้องถาม แล้วรายงานหลังแก้พร้อมพฤติกรรมที่เปลี่ยน ยกเว้นเรื่องที่ต้องมีข้อมูลใหม่หรือต้องตัดสินใจเชิงดีไซน์ (เจ้าของสั่ง 2026-11-23)
+11. ใช้ sub agent พร้อมกันไม่เกิน 1-2 ตัว ห้ามให้ agent แตก agent ย่อยเอง และห้าม workflow ขนาดใหญ่ เพราะใช้ usage limit หมดกลางงาน (เจ้าของสั่ง 2026-11-23)
 
 ## ขั้นตอนต่อหนึ่ง resource
 

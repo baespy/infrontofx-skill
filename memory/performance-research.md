@@ -103,3 +103,42 @@ Sources: [release](https://github.com/overextended/oxmysql/releases/tag/v2.14.3)
 Use the same artifact/build, resource versions, hardware, catalog size, owned-item count, player count, duration, and workload before/after. Report tail spikes and action completion latency, not just average CPU. Keep diagnostic logging identical or measure it separately. Client-only source analysis produces hypotheses and an implementation plan, not measured gains.
 
 Sources: [Cfx profiler](https://docs.fivem.net/docs/scripting-manual/debugging/using-profiler/), [Cfx console commands](https://docs.fivem.net/docs/client-manual/console-commands/).
+
+## Lessons From The 2026-11-23 [1nfx] + [core] Pass
+
+These came from static code review, not measurements. Re-measure before claiming a gain.
+
+Serialization and events:
+- FiveM Lua `json` is pure-Lua dkjson (`fxserver/citizen/scripting/lua/json.lua`). Never `json.encode` a whole large world table on a timer (plant snapshots, admin player polls). Cache each row's JSON keyed by its mutable fields and join with `table.concat`.
+- A table holding functions (xPlayer) passed through `TriggerEvent` creates one function reference per method. With no listener nothing frees them. Send ids, never xPlayer or objects with methods.
+- Every event handler call in `scheduler.lua` costs a msgpack unpack, `debug.getinfo`, `string.format` and a new coroutine. `1nfx_core:setPlayerData` reaches about 68 resources, so client event fan-out is expensive.
+- `TriggerClientEvent(name, -1, payload)` is one native call and is counted by the 1nfx_core perfNet hook. `lib.triggerClientEvent(name, targets, ...)` packs once for a list, but it calls `TriggerClientEventInternal` and is invisible to perfNet.
+
+Cross-resource calls:
+- On the server, `Core.GetPlayerFromId` and every xPlayer method are export calls, while `xPlayer.identifier` is a raw proxy field. A loop over `GetPlayers()` calling `IsStaff`, `Group` or `getName` costs about 3,200 calls at 1,600 players. Use `Core.GetExtendedPlayers("group", groups, true)` once per pass, or a cache cleared on `1nfx_core:playerLoaded`, `1nfx_core:playerDropped` and the `name` state bag.
+- On the client, `Core.GetPlayerData()` copies the whole PlayerData. Use `Core.GetJob()`, `Core.GetAccount()` and similar for a single field.
+- Never call a heavy export to read one field of its result. Add a light export instead (xcheat `GetSecurityStats`).
+- Do not frame-cache a cross-resource getter in general when the provider changes state and then calls back into you in the same frame (inventory switches the weapon, then calls weaponskin).
+
+Database:
+- Flush dirty rows with one multi-row `INSERT ... ON DUPLICATE KEY UPDATE` per chunk of 100-200 rows. Wrap it in `pcall` and re-mark the batch dirty on failure. An await inside `onResourceStop` never resumes, so one query per row loses everything after the first.
+- Resolve phone numbers or identifiers from the in-memory cache first, then one `IN (...)` query for the rest.
+
+Loops and threads:
+- Never `Wait()` inside `pairs()` over a table that other events add to ("invalid key to 'next'"). Copy the keys first.
+- Per-event wait loops (one thread per state-bag event) become one shared poller that exits when empty.
+- A toggle loop that sleeps needs a generation counter, otherwise off/on quickly leaves duplicate threads.
+- Put cheap pure-Lua filters (weapon type, model blacklist) before entity natives in `gameEventTriggered` and pool sweeps.
+- A thread per particle can get a synchronous fast path when the asset is already loaded and a budget token is free.
+- `assert(cond, ("..."):format(x))` builds the message on every call. In hot paths use `if not cond then error(...) end`.
+- `#(a - b)` on native vectors is a single VM op in CfxLua. Squared distance only pays off where coordinates are already split into x/y/z.
+- `lib.class` `self.private.*` access walks the stack with `debug.getinfo`. Keep it out of per-frame code.
+- Scanners that decide enter/exit (`lib.points`, `lib.zones`) must use `PlayerPedId()`. `cache.ped` can be 100 ms stale after a model change, which reads (0,0,0) and fires a false exit and enter.
+- For client prop scans (ATM search), skip `GetClosestObjectOfType` while the player stands still, after a few retries.
+
+Viewers and NUI:
+- Record viewers in the open callback and clear them on server-known close paths and on drop. Keep a past-audience set for notifications and an active set for list updates; this is safe when the UI refetches on mount.
+- Strip server-only fields from per-client snapshots that every client requests after a broadcast (airdrop: about 6 KB down to 250 B).
+- An infinite CSS animation hidden by `opacity` or `visibility` keeps painting. Add an idle class after the fade ends. DUI pages pause when not drawn.
+- Countdown `setInterval` and `requestAnimationFrame` loops run only while the UI is open, skip sub-threshold DOM writes, and avoid `[...map.values()]` per frame. A `uiReady` handshake stops after it succeeds.
+- `1nfx_textuihologram:Show` is a per-frame keep-alive and the only way to read hold completion. Do not throttle it; build the prompt table once and reuse it, since exports copy their arguments.

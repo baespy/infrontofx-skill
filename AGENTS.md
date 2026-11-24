@@ -33,7 +33,10 @@
 - `poster-forge/` ทำโปสเตอร์ Support/Welfare (อ่าน `poster-forge/SKILL.md`)
 - `weapon-forge/` ทำสกิน/โมเดลอาวุธ ptfx เสียง (อ่าน `weapon-forge/SKILL.md`)
 - `prop-forge/` ปั้น prop สไตล์ของเล่นแบรนด์เซิร์ฟเวอร์ (อ่าน `prop-forge/SKILL.md`)
+- `sculpt-forge/` ปั้นเนียนด้วย SDF ทรงพอง fillet ตัวอักษรพอง หยดสไลม์ ชิ้นแมพโค้ง แล้วย่อเป็น low-poly ที่ยังเนียน (อ่าน `sculpt-forge/SKILL.md`)
 - `map-forge/` ปั้นและ export แมพ FiveM 144-200 FPS (อ่าน `map-forge/SKILL.md`)
+- `dev-flow/` วินัยงานโค้ด คิด วางแผน ดีบัก ตรวจหลักฐาน รีวิว/ออดิต ส่งต่อ (อ่าน `dev-flow/SKILL.md`)
+- `terse/` โหมดตอบสั้นประหยัด token (อ่าน `terse/SKILL.md`)
 
 ## วิธีทำงาน
 

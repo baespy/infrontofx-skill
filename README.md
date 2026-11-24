@@ -7,8 +7,11 @@ The root `SKILL.md` holds a routing table, so an agent opens only the files a ta
 | Category | What it does | Start here |
 | --- | --- | --- |
 | [Coding](#coding) | Write, rewrite, review and optimize Lua 5.4 resources and NUI/DUI pages to the house standard | `SKILL.md` |
+| [Work discipline](#work-discipline) | Think first, plan per resource, debug to the root cause, verify with evidence before saying done, lazy-senior review and audit, session handoff | `dev-flow/SKILL.md` |
+| [Terse replies](#terse-replies) | Short, token-saving Thai replies that keep every technical fact exact | `terse/SKILL.md` |
 | [Weapon modeling](#weapon-modeling) | Weapon skin sets: Blender models, `.ydr`/`.ytd`, custom particles (`.ypt`), hit/kill screens and sounds | `weapon-forge/SKILL.md` |
 | [Prop modeling](#prop-modeling) | Branded toy-style props: signs, ATM, safe, crates, loot chest, crafting bench, floating marker | `prop-forge/SKILL.md` |
+| [Smooth sculpting](#smooth-sculpting) | Seamless designer-toy forms from signed distance fields: puffy bodies, filleted joins, inflated letters, drips, organics, plus smooth curved map pieces, reduced to game budgets with transferred normals | `sculpt-forge/SKILL.md` |
 | [Map building](#map-building) | High-FPS FiveM maps (Sky AFK, lobby, warzone, garage hub, outpost, MLO): shared PBR `.ytd`, vertex-colour day/night, embedded lights, `.ymap`/`.ybn` export and binary inspection | `map-forge/SKILL.md` |
 | [Posters](#posters) | Support / welfare / giveaway posters from character art, item icons and a logo | `poster-forge/SKILL.md` |
 
@@ -153,9 +156,46 @@ $blender = 'C:\Tools\blender-4.2.3-windows-x64\blender.exe'
 3. Run `inspect_map.py` on the `stream/` folder until it reports `MAP_INSPECT_PASS fail=0` (RSC7 headers, triangles, vertex formats, vertex colour, lights, `.ybn`, `.ymap` extents and VRAM)
 4. Stream the package with `map-forge/templates/fxmanifest.lua`
 
-**References:** pipeline (`map-forge/references/pipeline.md`), shaders, lighting and vertex colour (`map-forge/references/shaders-lighting-vcol.md`), GTA V prop catalog for dressing (`map-forge/references/gta-prop-catalog.md`), Antigravity and Blender MCP (`map-forge/references/antigravity.md`).
+**References:** pipeline (`map-forge/references/pipeline.md`), shaders, lighting and vertex colour (`map-forge/references/shaders-lighting-vcol.md`), GTA V prop catalog for dressing (`map-forge/references/gta-prop-catalog.md`), Antigravity and Blender MCP (`map-forge/references/antigravity.md`), free CC0 PBR textures from Poly Haven fetched and converted by `map-forge/scripts/blender/fetch_polyhaven.py` (`map-forge/references/polyhaven-cc0.md`). Smooth curved hero pieces (rims, arc stairs, rails, arches) come from `sculpt-forge/`.
 
 **Status:** `inspect_map.py` passes on the exported packages. Blender renders confirm the look. FPS in game has to be measured with the server running.
+
+---
+
+## Smooth sculpting
+
+`sculpt-forge/` makes props look moulded instead of assembled from boxes. Shapes are written as signed distance fields (rounded boxes, pillow boxes, capsules, tori, lathes, extruded outlines with puff, tubes, beads, drips, scallops and TTF text), blended with a fillet radius per junction, meshed with OpenVDB (bundled with Blender), then reduced to a triangle budget. The smooth shading comes from custom normals transferred from the dense mesh, which Sollumz writes into the `.ydr` unchanged.
+
+| Area | Highlights |
+| --- | --- |
+| Engine | `sculpt-forge/scripts/blender/sculpt_forge.py`: `SculptBuilder` with SDF nodes, groups and per-junction fillets, role palette or baked atlas, `Color 1` AO, colliders and prop metadata; output passes prop-forge `validate_prop.py` and exports with `export_prop.py` |
+| Spec runner | `sculpt-forge/scripts/blender/forge_sculpt.py` builds a set from a JSON spec (`sculpt-forge/templates/sculpt-spec.example.json`) |
+| Recipes | Ready-made builders by family in `sculpt-forge/scripts/blender/recipes/`: signs and lettering, cabinets and machines, containers, organics, round objects, and a map kit |
+| Map pieces | `sculpt-forge/scripts/blender/sculpt_sweep.py`: rounded slabs, arc stairs with rounded nosing, rails, arches and trim lines for maps, exported through map-forge |
+| Quality gate | `sculpt-forge/scripts/blender/validate_sculpt.py` (contract plus smoothness: dihedral spread, split edges, folds, lumpiness, normal error against the dense mesh) and `sculpt-forge/scripts/blender/render_sculpt.py` (clay, zebra, colour and turntable renders) |
+
+**Workflow**
+
+```powershell
+$blender = 'C:\Tools\blender-4.2.3-windows-x64\blender.exe'
+& $blender -b --factory-startup -P sculpt-forge\scripts\blender\forge_sculpt.py -- --spec sculpt-forge\templates\sculpt-spec.example.json --out work\puff
+& $blender -b --factory-startup -P sculpt-forge\scripts\blender\validate_sculpt.py -- --blend work\puff
+& $blender -b --factory-startup -P sculpt-forge\scripts\blender\render_sculpt.py -- --blend work\puff --out work\puff\renders
+```
+
+Then export with `prop-forge/scripts/blender/export_prop.py` (props) or `map-forge/scripts/blender/export_map.py` (map pieces). The targets come from measuring studio FiveM props: 200-320 triangles per square metre on hero props, round parts with at most 2-3 mm of sagitta, fully smooth normals, and no normal maps used to fake bevels.
+
+---
+
+## Work discipline
+
+`dev-flow/` is how the agent works, not how the code looks (that stays in the root `SKILL.md`). It covers thinking before coding (at most three questions, otherwise state assumptions), the least code that works, surgical changes that keep every export, event, NUI payload and DB contract, systematic debugging from the first error, verification with fresh evidence (lint, contract diff against the backup, before/after measurements, an in-game test list), a lazy-senior review and folder audit, and a handoff note at the end of a session.
+
+---
+
+## Terse replies
+
+`terse/` is an opt-in reply style for Thai sessions. It answers first, drops greetings, restating and closing summaries, and keeps code, commands, paths, names, numbers, units and error text exact. It has two levels (สั้น, สั้นโหด) and switches back to full sentences for security warnings, irreversible actions, step-by-step instructions and decisions the owner must make. Files, code and commits keep their normal standard.
 
 ---
 
@@ -172,6 +212,16 @@ $blender = 'C:\Tools\blender-4.2.3-windows-x64\blender.exe'
 The fonts are OFL (see `poster-forge/engine/fonts/NOTICE.md`). Reference images of other people are not included in the repo.
 
 ---
+
+## Ideas adapted from other projects
+
+These projects inspired parts of this pack. Their ideas were rewritten in Thai for FiveM work; no text was copied, and nothing from them needs to be installed.
+
+| Project | Used in | What was adapted |
+| --- | --- | --- |
+| [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills), [superpowers](https://github.com/obra/superpowers), [mattpocock/skills](https://github.com/mattpocock/skills), [ponytail](https://github.com/DietrichGebert/ponytail) | `dev-flow/` | Think first, simplest working code, surgical edits, root-cause debugging, evidence before done, review that hunts code to delete, handoff notes |
+| [caveman](https://github.com/JuliusBrussee/caveman) | `terse/` | Answer-first terse replies with exact technical payloads (no proxy or telemetry) |
+| [mcp-for-blender](https://github.com/ahujasid/mcp-for-blender) | `map-forge/references/polyhaven-cc0.md` | Fetching CC0 textures from Poly Haven with Blender's own Python |
 
 ## Notes
 

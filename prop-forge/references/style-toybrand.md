@@ -88,7 +88,7 @@
 
 ## ถอดสไตล์ใหม่จากรูปหรือคลิป
 
-เมื่อผู้ใช้ส่งภาพหรือคลิปใหม่ ให้ดึงเฟรมเป็นช่วง ๆ (ถ้าไม่มี ffmpeg ใน PATH เครื่องนี้มี `<home>\AppData\Local\Medal\recorder-2646.3506.1\ffmpeg7.exe`) แล้วเขียนตาราง 5 แกนแบบด้านบนให้ครบ ระบุสีเป็น hex 5 สีลงใน `palette` ของสเปก แยกให้ชัดว่าอะไรคือ "สไตล์" (เอาได้) และอะไรคือ "เอกลักษณ์ของเจ้าของ" (ชื่อ โลโก้ มาสคอต ลายกราฟฟิตี้เฉพาะ ห้ามเอา) จากนั้นออกแบบมาสคอตและชื่อใหม่ของเราเอง
+เมื่อผู้ใช้ส่งภาพหรือคลิปใหม่ ให้ดึงเฟรมเป็นช่วง ๆ (ถ้าไม่มี ffmpeg ใน PATH เครื่องนี้มี `<home>\AppData\Local\Medal\recorder-2647.3706.1\ffmpeg7.exe` หรือค้นหา `ffmpeg*.exe` ใต้ `%LOCALAPPDATA%\Medal`) แล้วเขียนตาราง 5 แกนแบบด้านบนให้ครบ ระบุสีเป็น hex 5 สีลงใน `palette` ของสเปก แยกให้ชัดว่าอะไรคือ "สไตล์" (เอาได้) และอะไรคือ "เอกลักษณ์ของเจ้าของ" (ชื่อ โลโก้ มาสคอต ลายกราฟฟิตี้เฉพาะ ห้ามเอา) จากนั้นออกแบบมาสคอตและชื่อใหม่ของเราเอง
 
 ## รูปแบบสีสำเร็จรูป
 
@@ -127,5 +127,70 @@
    - ระบบ `_build_and_join_cards()` แพ็ก decal/card หลายใบลงชีต 512x512 อัตโนมัติเมื่อเกิน slot ที่เหลือ การันตี `1 <= materials <= 4` และทุก texture เป็นกำลังสอง `<= 512` ผ่าน `validate_prop.py` `fail=0 warn=0` และ `--shared-ytd` เสมอ
 5. **Soft Satin-Vinyl Cycles Baker (`default_spec.sps` `spec_int=0.38`, `falloff=38.0`):**
    - อบเงา AO โทนโกโก้อุ่น `#4A2E1E` + ไฮไลต์นุ่ม + ลายทางเฉียง `stripe_*` ลง `<id>_atlas.png` พร้อม flood-fill dilation 100% กันขอบดำทุก mip level และเรนเดอร์พรีวิวด้วยสตูดิโอแสงอุ่น `AgX` ให้เห็นสี Milk-Cream และพาสเทลตรงตาจริง
+
+## มาตรฐาน V12 Sharp Pop-Art Low-Poly Engine (`kawaii_studio.py` V12)
+
+อัปเกรดจากบทเรียนภาพจริงในเกม GTA V ของ V11 (รอยเลอะ Smart-UV `margin=16 > island_margin=5` บนดาวเหลือง, ขอบมุมฟันเลื่อย, ป้าย `REDBOX`/`CRAFTING`/`ATM`/`SHOP` เบลอยืดเพราะโดนแพ็กลงช่อง 244x244 + `--max-res 512`, ท่อกันสาดทู่, และโพลีกอน Subsurf สูง 10.5k–17.6k tris):
+
+1. **ฆ่า Smart-UV 512px Cycles Bake -> ใช้ Shared Master Palette (`billie_master_pal.png` 1024px) + Continuous Stripe UVs:**
+   - ครึ่งบน (`1024x512`, `16x8 = 128` ช่องขนาด `64x64`): ครอบคลุมครบทั้ง 4 บ้าน Billie School + แอ็กเซนต์ (`cream`, `latte`, `caramel`, `cocoa`, `pink`, `pink_deep`/`berry_ink`, `sky`, `navy`, `grey`, `slate`, `lavender`, `redbox`/`berry`, `mint`/`sage`, `gold`, `amber`, `orange`, `red_collar`, `blue_collar` ฯลฯ) ไล่เงาไวนิลเนียนในกรอบกลาง `40x40` พร้อม guard border `12px` รอบทั้ง 4 ด้าน (UV อยู่ในช่วง `[0.25..0.75]` — ไร้ mipmap bleed ตลอดกาล!)
+   - ครึ่งล่าง (`1024x512`, `8` แถบ `1024x64`): ลายทางคาเฟ่เฉียง 45° ไร้รอยต่อ (`stripe_caramel`, `stripe_amber`, `stripe_pink`, `stripe_berry`, `stripe_sky`, `stripe_mint`, `stripe_grey`) + ลายจุดป๊อปอาร์ต `halftone_cream` โดยกล่องขอบมนใช้โปรเจกชันต่อเนื่อง `(x+y+z)` (ไร้รอยซิกแซ็กข้ามมุม bevel) และทรงกระบอกใช้ cylindrical wrap แบบจำนวนเต็มรอบวง (ไร้ตะเข็บ, ล็อก `v` ไว้กลางแถบ `[v0+0.26h..v1-0.26h]`)
+   - สีเรืองแสงแยกลง `billie_glow_pal.png` (`256x256`, `4x4`) ใช้ร่วมกันทั้งเซิร์ฟเวอร์ (ตัด `_atlas.png` รายชิ้นทิ้งทั้งหมด!)
+2. **Soft Plush Vertex Color AO (`Color 1`, `CORNER`, `BYTE_COLOR`):**
+   - คำนวณ BVHTree 16-ray hemispherical AO + แสงบนสตูดิโออุ่นลง `Color 1` ของตัวถัง `default_spec.sps` โดยล็อกช่วง `[212..255]` (สว่างสดทั้งกลางแดดและในเงา GTA V, ไร้ซอกดำ, ไร้รอยต่อ UV!) และตั้ง `(255, 255, 255, 255)` บริสุทธิ์บนทุก vertex ของ emissive, decal, sign, sticker และ face dome
+3. **Ultra-Crisp `1024px` Shared Official Art Pipeline (`prepare_billie_art_v3`) + Aspect-Aware Packing:**
+   - รวมอาร์ตทางการ `1nfx_selectschool` + `1nfx_assetsimg` เป็นชีตกลาง: `billie_art_houses.png` (2x2 `house-print-*.webp`), `billie_art_stickers.png` (2x2 RGBA die-cut `mascot-*-sticker.webp` พร้อม RGB bleed), `billie_art_faces.png` (2x2 ครอปหน้า 2048px พร้อม unsharp), `billie_art_logo.png` (`1024x512` ครอปตรงจาก `2000px logo-bg.png`), `billie_art_campus.png` (`512x512`), `billie_atm_screen.png` (`1024x1024`), `billie_gauge_dial.png` (`512x512`), และป้าย `sign_*.png` (`1024x512` ผสมมุม pop-art halftone)
+   - ใช้ `b.decal_region(sheet, ART_UV[...], ...)` / `b.house_poster()` / `b.mascot_sticker()` อ้างอิงชีตกลางโดยตรง (ไม่เพิ่มขยะใน YTD) และเมื่อต้องรวมหลายภาพใน slot เดียว `_pack_image_group(..., size=1024)` จะเรียงแบบ aspect-aware (ซ้อนป้าย 2:1 เป็น `1024x512` บน-ล่างเต็มความละเอียด ไม่บีบเป็นจัตุรัส!) พร้อม export ด้วย `--max-res 1024 --shared-ytd <name>_tex`
+4. **True Low-Poly Smooth Geometry (`low_poly=True` default, `2,100-4,500` tris/ชิ้น, `auto_decimate=False`):**
+   - `plush_box(subsurf=0, bevel_segs=2)`, `plush_cyl(segs=12)`, `plush_pill(segs=8)`, `plush_star(~60t)`, `face_dome(6x6=72t)`
+   - **Redesigned `cafe_awning()` (~330 tris):** หลังคาโค้งคาเฟ่ฝรั่งเศสเรียบต่อเนื่อง + ชายระบายลอนครึ่งวงกลมบาง (กำจัดท่อทรงกระบอกทู่ยื่นหน้าของ V11 ถาวร!)
+   - **Detailed 4-House 3D Mascots (`billie_bear_plush`):** ฮู้ดกลมเนียน `u=16, v=10` + ปลอกขอบหน้า `seg_major=16` ไร้เหลี่ยม, ผมหน้าม้า 3D, และเอกลักษณ์ครบทั้ง 4 บ้าน (`brown` หูหมี+แผ่นหูในไม่คลิป+ส้ม+ใบมิ้นต์+หูกระต่าย, `pink` หูกระต่ายตกแนบแก้ม+ปอมปอม+กิ๊บดอกซากุระ+หัวใจท้อง, `skyblue` หูลูกหมาตก+ปอยผมม้วนบน+ปกแดง-น้ำเงิน+ดาวทองท้อง, `grey` หูแมวแหลม+ลายเสือหน้าผาก+กิ๊บดาวทอง+โบว์ลาเวนเดอร์+หางลายม้วน)
+
+## มาตรฐาน V13 Unified Warm-Brown Edge-Craft Engine (`kawaii_studio.py` V13)
+
+ยกระดับจาก V12 เพื่อให้ทั้งคอลเลกชัน **14 ชิ้นกลมกลืนเป็นโทนน้ำตาลอุ่น BILLIE BROWN เดียวกัน 100%** และ **เก็บรายละเอียดขอบทุกมุม/วงแหวน/กรอบป้าย/กันสาดอย่างประณีต (`เก็บรายละเอียดตามขอบทั้งหมด`)** โดยยังคงความลื่นระดับ low-poly (`2,490–4,798` tris/ชิ้น, `auto_decimate=False`):
+
+1. **Unified Warm-Brown Studio Palette (`billie_master_pal.png` `1024px` + `billie_glow_pal.png` `256px`):**
+   - รวมสีตัวถังทั้งหมดให้อยู่ในตระกูล **BILLIE BROWN Studio Caramel-Cocoa-Cream-Gold**: `cream` `#FFFBF4`, `latte` `#FAF0E2`, `biscuit` `#F0DEC6`, `honey` `#E5B98A`, `caramel` `#C8966B`, `caramel_deep` `#A67248`, `walnut` `#7C4F32`, `cocoa` `#3B281E`, `espresso` `#2B1B13`, `chestnut` `#A84438` & `chestnut_soft` `#C86454` (แดงเกาลัดคั่วสำหรับตู้ Redbox ให้เข้าโทนน้ำตาลอุ่น), `gold` `#FFD147`, `gold_deep` `#D99B26`, `amber` `#F5A623`, `orange` `#FFA34F`, `sage_warm` `#8BB084` (ใบไม้/ธนบัตร), `aqua_cream` `#C6DDE6` (กระจก/หยดน้ำ), `blush` `#EFA49B`, `skin` `#FFF0E1`, `metal_warm` `#D4C4B4`
+   - 8 แถบลายทาง 45° ไร้รอยต่อโทนน้ำตาลอุ่น (`stripe_caramel`, `stripe_walnut`, `stripe_honey`, `stripe_chestnut`, `stripe_gold`, `stripe_cocoa`, `stripe_biscuit`, `halftone_brown`) + สีเรืองแสงอุ่น (`glow`, `glow_amber`, `glow_cream`, `glow_honey`, `glow_chestnut`, `screen`)
+2. **Fresh V4 Custom Pop-Art 4-Sheet Packaging (`prepare_billie_art_v4` + `ART_UV_V4`):**
+   - แพ็กภาพป๊อปอาร์ต Billie Brown Bear วาดใหม่ครบทั้ง 14 ชิ้น + `logo_panel` + `campus` ลงชีตกลาง `1024x1024` 4 ใบ (`billie_v4_art_{a,b,c,d}.png`, ช่องละ `504x504` คมกริบ + ขอบเอสเปรสโซ `6px` + ขอบ bleed `4px`) พร้อมป้ายโทนน้ำตาลอุ่น 14 ใบ (`1024x512` เม็ด halftone + ขอบทอง + ดาวทอง), จอ `billie_atm_screen.png` (`1024x1024` โทน `BILLIE BANK` คาราเมล-ครีม-ทอง-เสจ), และหน้าปัดเกจ `:3` `billie_gauge_dial.png` (`512x512` โทนฮันนี่-ทอง-เกาลัด-เอสเปรสโซ)
+   - ตัวจัดสรร slot ฉลาดใน `_build_and_join_cards()` ล็อกชีตกลาง `billie_v4_art_{a,b,c,d}.png` และ `billie_art_faces.png` เป็น DIRECT เสมอเมื่อมี slot เหลือ (`<= 4` mats) ช่วยคงความละเอียด `1024px` เต็มและลด VRAM ใน `billie_prop_tex.ytd`
+3. **Edge-Craft Polish Helpers & Silky 20–24 Seg Curves:**
+   - **`edge_piped_box()` (~404 tris):** ตัวตู้ขอบมนหุ้มคิ้วบัวล่าง-บนแบบเข้ามุม 45° (`_add_mitered_molding_slab`), รางกันชนมุมแนวตั้ง 4 มุม, และหมุดทองทรงโดม 8 มุม ไร้ขอบกล่องเปลือยทุกชิ้น
+   - **`smooth_bezel_ring(segs=24)` (~480 tris) + `decal_disc()` / `v4_art_medallion()`:** วงแหวนกรอบโค้ง 24 ด้านเนียนกริบสองชั้น (เอสเปรสโซนอก + ทองขั้นใน) คู่กับแผ่นกลม/โดม UV แท้ (`24-seg`, ไร้ขอบแปดเหลี่ยมและไร้การโผล่มุมสี่เหลี่ยมบนเกจ/เหรียญตรา/ช่องซักผ้า/โหลกาชา)
+   - **Double-Stepped Plaque Frame (`decal_card` / `decal_region` / `v4_art_panel`, `segs_corner=6`):** กรอบเอสเปรสโซเอียงนอก + ขอบฝังทองขั้นใน พร้อมเมชป้ายทรงสี่เหลี่ยมมุมมน (`rrect`) แนบพอดีขอบด้านใน 100%
+   - **Upgraded `cafe_awning()`:** เสริมรางขอบเอสเปรสโซทั้งคานบน ชายคาหน้า และขอบโค้งซ้าย-ขวา พร้อมลูกปัดทองประดับปลายชายระบายลอนทุกโค้ง
+   - **Silky `billie_bear_plush()` (`1,504` หัว / `2,332` เต็มตัว):** ฮู้ด `u=18, v=12` + ปลอกคอ `20-seg` + หูหมีวางแกน Polar-Y ซ้อนกัน `18-seg` (กลมกริบและไม่คลิป 100%) + งดเม็ดผมหน้าม้าซ้อนเมื่อใช้หน้าวาด (`face_mode="illustrated"`) ไร้สามเหลี่ยมทะลุหน้าผาก
+
+## มาตรฐาน V14 Workshop Workbench & Ultra-Slim Flat Shop (`trainskills` 8-Video Study)
+
+ถอดบทเรียนโครงสร้าง สัดส่วน และฟังก์ชันจริงจากคลิปพร็อพ FiveM ระดับสตูดิโอ 8 คลิป (`trainskills` — นำมาใช้เฉพาะโครงสร้าง/สัดส่วน/การจัดวาง 0% การลอกแบรนด์/โลโก้/มาสคอตของผู้อื่น):
+
+1. **โต๊ะคราฟต์แท้ (`workbench` / `billie_crafting` — ห้ามใส่กันสาดร้านกาแฟ!):**
+   - **สัดส่วนโต๊ะช่างแท้:** กว้าง `~1.95–2.05 m × ลึก 0.85–0.90 m × สูงท็อป ~0.88–0.92 m` ขาโต๊ะแข็งแรงสี่มุมติดแท่นรองและหมุดนอตตัว X (`bolt_cap_x`) ทั้งฐานล่างและยอดเสาบน
+   - **ตู้ล่างสมมาตร 3 ช่อง:** ตู้ลิ้นชัก 2 ชั้นซ้าย-ขวา (รวม 4 ลิ้นชัก) ขนาบช่องกลางที่เป็นเหรียญตรา/มาสคอตวงกลม (`smooth_bezel_ring` / `v4_art_medallion`)
+   - **บนโต๊ะเต็มไปด้วยอุปกรณ์ช่างจริง:** แผ่นรองตัด+พิมพ์เขียวตรงกลาง, แท่นเทป (`craft_tape_dispenser`), แก้วเสียบเครื่องมือ/แปรง, กล่องเครื่องมือสองโทน (`craft_toolbox`), ขวดกาว/น้ำมัน, และปากกาจับชิ้นงาน (bench vise) ริมโต๊ะ
+   - **แผงหลัง Pegboard เต็มความกว้าง (ไร้กันสาดผ้าใบ):** ช่องชั้นวางของ 2 ชั้นฝั่งซ้าย (วางโหลสี 3 ขวด + กล่องอะไหล่ 2 ใบ) คู่กับแผ่น Pegboard รูเจาะ (`halftone_brown`) ฝั่งกลาง-ขวาแขวนเครื่องมือ 3D เต็มชุด (`craft_hammer`, `_mini_wrench`, `craft_screwdriver`, คทาดาวแกว่ง) ปิดยอดด้วยป้าย `CRAFTING` และหัวมาสคอตโผล่เกาะขอบบน
+2. **ป้ายร้านค้าแบบแบนตั้งพื้น (`kiosk_sign` / `billie_shop` — `แบนๆ` ไม่ใช่ซุ้มหนา!):**
+   - **สัดส่วนบางเฉียบสำหรับวางหน้าร้าน/ริมทางเท้า FiveM:** กว้าง `~0.96–1.16 m × ลึกไม่เกิน 0.34–0.38 m` (แผ่นป้ายหนาจริง `14 cm` เท่านั้น!) สูง `~1.55–1.65 m`
+   - **โครง 2 ชั้นหน้า-หลังครบ 360°:** ฐานสเต็ปบางติดไฟแถบ LED อุ่นด้านหน้า-หลัง, แผ่นป้ายแนวตั้ง `edge_piped_box` แบ่ง 2 โซนชัด (บน = ป้าย `SHOP` 2:1 คมกริบ, ล่าง = ภาพอาร์ตหลักขนาดใหญ่ + ชาร์มตะกร้าชอปปิ้งนูนต่ำ 4 cm ด้านหน้า / โลโก้ทางการด้านหลัง), ยอดบนเป็นก้อนเมฆ+หูมาสคอต+ดาวทองบางแนบระนาบป้าย (`~3,060 tris`, `2` กล่องชนบาง)
+3. **เครื่องมือช่วยใหม่ใน `kawaii_studio.py` V14:** `bolt_cap_x`, `craft_toolbox`, `craft_tape_dispenser`, `craft_hammer`, `craft_screwdriver` — เรียกใช้ซ้ำได้ทุกเซ็ตโดยคุม tris ต่ำ (`<= 4,800` สำหรับโต๊ะคราฟต์, `<= 3,400` สำหรับป้าย Shop แบน)
+
+## มาตรฐาน V15 Anti-Playdough Crisp Designer-Vinyl Engine (`kawaii_studio.py` V15)
+
+ยกระดับจาก V13/V14 เพื่อ **กำจัดลุค "ดินน้ำมัน (playdough)"** (ผิวมันเยิ้ม, ขอบนิ่มยวบ, ตุ๊กตาหัวไข่ไร้ผมหน้าม้า 3D, รถทรงก้อนขนมปัง, และเครื่องมือ/ชิ้นส่วนกลมนิ่ม) ให้กลายเป็นงาน **Pop-Mart Designer Satin-Matte Vinyl** คมกริบทุกเส้นสายในงบ Low-Poly แท้ (`auto_decimate=False`):
+
+1. **Global Anti-Playdough Engine (`kawaii_studio.py` V15):**
+   - **Crisper Hard-Edge Auto-Crease (`crease_deg=32.0`):** ปรับ `_clean_mesh_bmesh` จาก `44.0°` -> `32.0°` ให้สันขอบกลไก คิ้วบัว ปลอกข้อมือ พื้นรองเท้า เสาหน้าต่าง และคมเครื่องมือเฉียบคม ขณะที่ทรงโค้งเรียบ (`>= 12 segs`) ยังไล่แสงเนียนต่อเนื่อง
+   - **Designer Satin-Matte Vinyl Shader (`_new_game_mat`):** ลดความมันเยิ้มแบบดินน้ำมัน (`Roughness=0.46`, `Coat Weight=0.12`, `prop_forge_spec_int=0.22`, `prop_forge_spec_falloff=64.0`, `prop_forge_spec_fresnel=0.72`)
+   - **Deeper Crisp Crevice Vertex AO (`Color 1`, `[192..255]`):** ปรับ BVHTree AO เป็น `max_dist=0.22` พร้อม floor `192/255` (`min >= 192`, `mean ~233`) ให้ซอกพับ ขอบหู ปุ่มเสื้อ และรอยต่อเด่นชัดในแดด GTA V โดยยังคงสว่างสะอาดไม่หม่นดำ
+   - **Crisp Anime Chibi Face Sheet (`billie_art_faces.png` `1024x1024`):** โหลดภาพหน้าจิบิอนิเมะความคมสูง `billie_face_crisp_v5.png` (พื้นสีผิว `#FCEBD9` สม่ำเสมอไร้ผม/ขอบ ตาประกายดาว+ขนตา+แก้มชมพู+รอยยิ้มสดใสในกรอบ `y=44%..75.5%`) เข้าช่อง `brown` (`512x512`) พร้อม edge-color harmonization และ unsharp เบา ๆ
+2. **Re-Sculpted 3D Billie Bear (`billie_bear_plush()` V15 — รองรับ `detail="high"` แม้อยู่ในโหมด `low_poly=True`!):**
+   - **งบโพลีกอนแม่นยำ:** `detail="low"` **`966t`** หัว / **`1,502t`** ตัวเต็ม; `detail="high"` **`1,146t`** หัว / **`1,782t`** ตัวเต็ม (พื้นรองเท้าสลิปเปอร์คงพิกัด `z = -1.96 * r` รองรับสคริปต์เดิม 100%)
+   - **รายละเอียดระดับฟิกเกอร์ Pop-Mart:** ฮู้ดไร้รอยต่อ + ขอบท่อเอสเปรสโซด้านใน (`seg_major=18` high / `14` low), หูหมีเว้าจริงมีขอบนอกเอสเปรสโซ + ถ้วยคาราเมล + แอ่งหูครีมเว้าลึก, หน้าผากหมี `• T •` (จมูกวอลนัต + จมูก T เอสเปรสโซ + ตาลูกปัดคู่), ส้ม 6 กลีบ + ก้านเข้ม + ใบแหลม 2 ใบ, **ผมหน้าม้า 3D โค้งแนบเข้าใต้ขอบฮู้ดไร้ช่องว่าง + กิ๊บดาว 4 แฉกสีขาวคู่**, โดมหน้าโค้ง `7x6` (`84t`) วางใต้หน้าม้าไม่บังตา, โบว์จีบมีหางริบบิ้น, ตัวเต็มมีปกคอเอสเปรสโซ + ท้องครีมติดแถบสาบเสื้อ+กระดุมทอง 2 เม็ด + แขนติดข้อมือเอสเปรสโซ (มือขวาโบกทักทายมีนิ้วโป้ง+อุ้งเท้าชมพู) + สลิปเปอร์หน้าหมีพื้นแบนเอสเปรสโซพร้อมหูจิ๋วและจุดจมูก + หางหมีด้านหลัง
+3. **Detailed Designer Mini Sports Car (`plush_car()` V15, `944` tris) & Sharpened Workshop Tools:**
+   - รถสปอร์ตจิ๋วตัวถังตัดเหลี่ยมสปอร์ต + หลังคาลาด + กระจก `aqua_cream` เว้าในกรอบเสา A/B/C เอสเปรสโซ + กระจังหน้าเว้า 3 ซี่ทอง + กรอบไฟหน้ากลมเลนส์เรืองแสง + ไฟท้าย + ซุ้มล้อโค้ง + ล้อโกโก้ 18-seg ดุมทอง-ครีม + กันชนโครเมียมทองมีก้อนชน + กระจกมองข้างคู่
+   - เครื่องมือช่างคมกริบไร้ลุคดินน้ำมัน: `craft_hammer` (`180t` ด้ามจับเป็นร่อง+ปลอกคอทอง+หัวค้อน 8 เหลี่ยม+หงอนคู่), `craft_screwdriver` (`148t` ด้ามเซาะร่อง 6 แฉก+ปลอก 6 เหลี่ยม+ปลายไขควงปากแบน), `craft_toolbox` (`184t` ฝาทรงลาด+การ์ดมุม 4 ด้าน+ตัวล็อกสองชิ้น), `craft_tape_dispenser` (`180t` ฐานตัดเฉียง+แก้มจับแกน+แถบเทปพาดใบตัดทอง)
 
 สลับ `palette` ในสเปกหรือส่ง `palette={...}` เข้า `KawaiiBuilder` แล้วรันใหม่ได้ทั้งชุด ทุกชิ้นจะเปลี่ยนสีตามกันเพราะใช้ role เดียวกัน
