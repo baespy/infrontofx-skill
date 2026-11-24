@@ -368,7 +368,7 @@ class RoundsRecipes:
             height = float(tier["height"])
             rim = float(tier.get("rim", 0.5))
             start = float(z) if previous is None else previous["shoulder"] - rim * height
-            part = self.puck(b, tier["radius"], height, rim=rim, z=start, xy=xy, dome=tier.get("dome", 0.0), bulge=tier.get("bulge", 0.0), recess=tier.get("recess", 0.0) if previous is None else 0.0, role=tier.get("role"), fillet=0.0 if previous is None else joint_fillet, collide=collide and index == 0)
+            part = self.puck(b, tier["radius"], height, rim=rim, z=start, xy=xy, dome=tier.get("dome", 0.0), bulge=tier.get("bulge", 0.0), recess=tier.get("recess", 0.0) if previous is None else 0.0, role=tier.get("role"), fillet=0.0 if previous is None else joint_fillet, collide=collide and index == 0, detail=bool(tier.get("detail", False)))
             if previous is not None and trim_role is not None:
                 trims.append(self.torus_trim(b, part["radius"], previous["shoulder"] + 0.6 * previous["dome"], minor=trim_minor, sink=trim_sink, xy=xy, role=trim_role, fillet=trim_fillet))
             made.append(part)
@@ -563,8 +563,8 @@ class RoundsRecipes:
         prof = RoundsMath.cushion_profile(radius, z, thickness, dome)
         return {"node": b.lathe(prof, smooth=smooth, role=role, fillet=fillet), "top": float(z) + float(thickness) + float(dome)}
 
-    def padded_drum(self, b, radius=0.52, height=0.62, base_radius=0.78, base_height=0.14, staves=16, bulge=0.045, z=0.0, base_role=None, drum_role=None, collar_role=None, cushion_role=None, buoy=True, buoy_role=None, buoy_stripe_role=None, buoy_azimuth=-128.0, collide=True):
-        parts = {"base": self.puck(b, base_radius, base_height, rim=0.5, z=z, dome=0.012, recess=0.02, role=base_role, collide=collide)}
+    def padded_drum(self, b, radius=0.52, height=0.62, base_radius=0.78, base_height=0.14, staves=16, bulge=0.045, z=0.0, base_role=None, drum_role=None, collar_role=None, cushion_role=None, buoy=True, buoy_role=None, buoy_stripe_role=None, buoy_azimuth=-128.0, collide=True, base_dome=0.0, cushion_dome=0.06):
+        parts = {"base": self.puck(b, base_radius, base_height, rim=0.5, z=z, dome=float(base_dome), recess=0.02, role=base_role, collide=collide)}
         parts["base"]["top"] = parts["base"]["shoulder"]
         drum_z = parts["base"]["top"] - 0.04
         parts["drum"] = self.fluted_drum(b, radius, height, staves=staves, bulge=bulge, z=drum_z, role=drum_role, fillet=0.025, collide=collide)
@@ -572,7 +572,7 @@ class RoundsRecipes:
         if collar_role is not None:
             parts["collar_low"] = self.torus_trim(b, radius, parts["base"]["top"] + 0.004, minor=0.03, sink=0.42, role=collar_role, fillet=0.012)
         if cushion_role is not None:
-            parts["cushion"] = self.cushion(b, radius - 0.015, top - 0.035, thickness=0.14, dome=0.035, role=cushion_role, fillet=0.02)
+            parts["cushion"] = self.cushion(b, radius - 0.015, top - 0.035, thickness=0.14, dome=float(cushion_dome), role=cushion_role, fillet=0.02)
         if collar_role is not None:
             parts["collar_top"] = self.torus_trim(b, radius, top - 0.012, minor=0.034, sink=0.42, role=collar_role, fillet=0.012)
         if buoy:
@@ -590,23 +590,23 @@ class RoundsRecipes:
         parts["top"] = parts["cushion"]["top"] if "cushion" in parts else top
         return parts
 
-    def lantern(self, b, height=1.12, z=0.0, bars=6, frame_role=None, glass_role=None, roof_role=None, metal_role=None, foot_role=None, hanger=True, collide=True):
+    def lantern(self, b, height=1.12, z=0.0, bars=6, frame_role=None, glass_role=None, roof_role=None, metal_role=None, foot_role=None, hanger=True, collide=True, bar_radius=0.024, hanger_minor=0.021, band_edge=0.024):
         s = float(height) / 1.12
         base, roof = RoundsMath.lantern_profiles()
         parts = {"foot": self.puck(b, 0.30 * s, 0.08 * s, rim=0.5, z=z, dome=0.006 * s, recess=0.012 * s, role=foot_role or roof_role, collide=collide)}
         parts["base"] = b.lathe(RoundsMath.scaled(base, s, s, z), smooth=2, role=frame_role, fillet=0.02)
         parts["glass"] = self.puck(b, 0.186 * s, 0.50 * s, rim=0.06, z=z + 0.172 * s, bulge=0.022 * s, role=glass_role, fillet=0.01, collide=collide)
-        parts["bands"] = [b.round_cyl(0.238 * s, 0.056 * s, edge=0.024 * s, loc=(0.0, 0.0, z + zc * s), role=frame_role, fillet=0.014) for zc in (0.206, 0.640)]
+        parts["bands"] = [b.round_cyl(0.238 * s, 0.056 * s, edge=float(band_edge) * s, loc=(0.0, 0.0, z + zc * s), role=frame_role, fillet=0.014) for zc in (0.206, 0.640)]
         parts["bars"] = []
         for k in range(int(bars)):
             a = math.radians(-90.0 + 360.0 / float(bars) * (k + 0.5))
             direction = (math.cos(a), math.sin(a))
             path = [(rr * s * direction[0], rr * s * direction[1], z + zz * s) for rr, zz in ((0.214, 0.215), (0.232, 0.422), (0.214, 0.630))]
-            parts["bars"].append(b.tube(path, 0.024 * s, closed=False, role=frame_role, fillet=0.014))
+            parts["bars"].append(b.tube(path, float(bar_radius) * s, closed=False, role=frame_role, fillet=0.014))
         parts["roof"] = b.lathe(RoundsMath.scaled(roof, s, s, z), smooth=2, role=roof_role, fillet=0.016)
         parts["finial"] = b.sphere(0.05 * s, loc=(0.0, 0.0, z + 0.96 * s), role=metal_role, fillet=0.02)
         if hanger:
-            parts["hanger"] = b.torus(0.066 * s, 0.021 * s, loc=(0.0, 0.0, z + 1.06 * s), rot=(90.0, 0.0, 0.0), role=metal_role, fillet=0.014)
+            parts["hanger"] = b.torus(0.066 * s, float(hanger_minor) * s, loc=(0.0, 0.0, z + 1.06 * s), rot=(90.0, 0.0, 0.0), role=metal_role, fillet=0.014)
         parts["top"] = z + (1.147 if hanger else 1.01) * s
         return parts
 
@@ -693,7 +693,7 @@ class ToolRunner:
         self.validate_prop = os.path.normpath(os.path.join(engine_dir, "..", "..", "..", "prop-forge", "scripts", "blender", "validate_prop.py"))
 
     def call(self, script, args, factory=True, timeout=1200):
-        command = [self.blender, "-b"] + (["--factory-startup"] if factory else []) + ["-P", script, "--"] + [str(a) for a in args]
+        command = [self.blender, "-b"] + (["--factory-startup"] if factory else []) + ["-t", str(max(1, int(bpy.context.scene.render.threads)))] + ["-P", script, "--"] + [str(a) for a in args]
         started = time.perf_counter()
         try:
             done = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
@@ -773,8 +773,8 @@ class RoundsDemo:
             ("marker", self.build_marker),
         ]
 
-    def builder(self, key, budget, voxel, default_role, archetype, colliders="auto", lod_dist=120.0):
-        return self.recipes.sf.SculptBuilder("{}_{}".format(self.set_name, key), budget=max(500, int(round(budget * self.budget_scale))), lod_dist=lod_dist, colliders=colliders, set_name=self.set_name, archetype=archetype, voxel=float(self.voxel or voxel), palette=self.palette, default_role=default_role)
+    def builder(self, key, budget, voxel, default_role, archetype, colliders="auto", lod_dist=120.0, **extra):
+        return self.recipes.sf.SculptBuilder("{}_{}".format(self.set_name, key), budget=max(500, int(round(budget * self.budget_scale))), lod_dist=lod_dist, colliders=colliders, set_name=self.set_name, archetype=archetype, voxel=float(self.voxel or voxel), palette=self.palette, default_role=default_role, **extra)
 
     def build_trophy(self):
         s = self.scheme
@@ -789,7 +789,7 @@ class RoundsDemo:
         base = stack["tiers"][0]
         self.recipes.paint_band(b, "round_cyl", {"radius": base["radius"], "height": base["height"], "edge": base["edge"]}, s["band"], 0.096, 0.146, loc=(0.0, 0.0, 0.5 * base["height"]))
         with b.group("coin", fillet=0.03):
-            self.recipes.coin(b, 0.30, 0.10, (0.0, 0.0, stack["top"] - 0.05 + 0.30), role=s["warm"], rim_role=s["metal"], emblem="star", emblem_role=s["body"], collide=True)
+            self.recipes.coin(b, 0.30, 0.10, (0.0, 0.0, stack["top"] - 0.05 + 0.30), role=s["warm"], rim_role=s["metal"], emblem="star", emblem_role=s["body"], double_sided=False, collide=True)
         return b
 
     def build_drum(self):

@@ -161,10 +161,10 @@ if __name__ == "__main__":
 ```powershell
 $mf  = "$skill\map-forge\scripts\blender"
 $out = '<project>\work\cafe_map'
-& $blender -b --factory-startup -P '<project>\work\cafe_map\cafe_corner.py' -- $skill $out
-& $blender -b -P "$mf\export_map.py" -- --spec "$out\map-spec.json" --props "$out\props" --textures "$out\textures" --out "$out\pkg"
-& $blender -b -P "$mf\inspect_map.py" -- --dir "$out\pkg\stream" --spec "$out\map-spec.json" --json "$out\inspect_report.json"
-& $blender -b --factory-startup -P "$skill\sculpt-forge\scripts\blender\validate_sculpt.py" -- --blend "$out\props" --target map
+& $blender -b --factory-startup -t 6 -P '<project>\work\cafe_map\cafe_corner.py' -- $skill $out
+& $blender -b -t 6 -P "$mf\export_map.py" -- --spec "$out\map-spec.json" --props "$out\props" --textures "$out\textures" --out "$out\pkg"
+& $blender -b -t 6 -P "$mf\inspect_map.py" -- --dir "$out\pkg\stream" --spec "$out\map-spec.json" --json "$out\inspect_report.json"
+& $blender -b --factory-startup -t 6 -P "$skill\sculpt-forge\scripts\blender\validate_sculpt.py" -- --blend "$out\props" --target map
 ```
 
 - ชิ้นแมพจบด้วย `kit.finish(props_dir)` ไม่ใช่ `build()` แล้วตามด้วย `map_spec()` และ export สองคำสั่ง
@@ -181,9 +181,11 @@ $skill   = '<skill>'
 $sf      = "$skill\sculpt-forge\scripts\blender"
 $work    = '<project>\work\mapkit'
 
-& $blender -b --factory-startup -P "$sf\recipes\mapkit.py" -- --demo --out $work --export --validate
-& $blender -b --factory-startup -P "$sf\recipes\mapkit.py" -- --demo --out "$work\pastel" --palette pastel --quick
+& $blender -b --factory-startup -t 6 -P "$sf\recipes\mapkit.py" -- --demo --out $work --export --validate
+& $blender -b --factory-startup -t 6 -P "$sf\recipes\mapkit.py" -- --demo --out "$work\pastel" --palette pastel --quick
 ```
+
+จำกัดเธรดเสมอ: `MapKitRecipes.run_tool` ส่ง `-t <bpy.context.scene.render.threads>` ให้ Blender ลูก (`export_map`, `inspect_map`, `validate_sculpt`, `render_sculpt`) ลูกจึงใช้เธรดเท่าตัวแม่ที่รันด้วย `-t 6` และรันทีละตัวผ่าน `subprocess.run` ภาพ preview ของ kit (`MapKitPreview`) เรนเดอร์ 900 × 560 ทั้งโหมดปกติและ `--quick` (เดิมโหมดปกติ 1280 × 800) AO bake ใช้ Cycles บน CPU
 
 | ตัวเลือก | ค่าเริ่ม | ความหมาย |
 | --- | --- | --- |
@@ -199,13 +201,13 @@ $work    = '<project>\work\mapkit'
 | `--validate` | | รัน `validate_sculpt.py --target map` เขียน `sculpt_qa.json` |
 | `--qa-renders` | | รัน `render_sculpt.py` ลง `qa_renders/` (รวม `--validate`) |
 | `--no-render` | | ข้ามภาพ preview ของ kit |
-| `--quick` | | ภาพ preview เล็กและไม่มีภาพ tex/high/normal ของ close-up |
+| `--quick` | | sample ของ preview 16 และไม่มีภาพ vcol/tex/high/normal ของ close-up (ขนาด 900 × 560 เท่ากันทั้งสองโหมด) |
 
 ผล: `props/<shell>.blend` + `props/<shell>_high.blend`, `textures/` (PNG ก่อน export, DDS หลัง export), `renders/` (`overview_clay`, `overview_tex`, `overview_vcol`, `night_overview`, `night_eye` และต่อ close-up `_lo`, `_tex`, `_hi`, `_nlo`, `_nhi`, `_nerr`), `map-spec.json`, `mapkit_report.json` (`shells`, `screen_normal_lo_vs_dense`, `export`, `validate`), `mapkit_demo_all.blend`, `work/ornament/`, `pkg/stream/` + `pkg/fxmanifest.lua`, `inspect_report.json`, `sculpt_qa.json` บรรทัดที่พิมพ์: `MAPKIT_REPORT {...}` (ต่อ shell: tris, งบ, dihedral p90, normal err สูงสุด, G เฉลี่ยกลางแจ้ง), `MAPKIT_EXPORT <บรรทัด tag>`, `MAPKIT_VALIDATE <บรรทัด>`
 
 ## 10. demo ที่วัดแล้ว
 
-Blender 4.2.3, 2026-11-24, palette `house`, ลาน 30 × 22 m มุม R 5 m, anchor บนฟ้า (0, 0, 520) build 5.8 วินาที, finish (AO + save) 6.7 วินาที, รวม export และภาพ 39.3 วินาที
+Blender 4.2.3, 2026-11-24, palette `house`, ลาน 30 × 22 m มุม R 5 m, anchor บนฟ้า (0, 0, 520) build 5.8 วินาที, finish (AO + save) 6.7 วินาที, รวม export, validate และภาพ preview 900 × 560 ราว 30 วินาที (`-t 6`, รันตระกูลเดียว)
 
 | shell | ทำจาก | tris / งบ (dense) | วาง | G กลางแจ้ง | dihedral p90 | หมายเหตุ |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -224,7 +226,7 @@ Blender 4.2.3, 2026-11-24, palette `house`, ลาน 30 × 22 m มุม R 5 m
 | export | `MAP_EXPORT_PASS ydr_ok=9 fail=0 textures=19`, `.ybn` 7,448 prims (กล่องชนวาง 20 ชิ้น), shared `.ytd` 19 texture VRAM 0.67 MB, `.ytyp` 9 archetype, `.ymap` 15 entity (kit 12 + vanilla 3) `content_flags` 65, ดิสก์ 1.19 MB, 45,981 tris รวม, ไฟ 5 ดวง |
 | inspect | `MAP_INSPECT_PASS fail=0 warn=1` (G ของม้านั่งระแนง) |
 | normal บนจอ (low เทียบ dense มุมเดียวกัน) | ราว mean 0.36° p99 4.1°, บันได 0.43° / 5.9°, ซุ้ม 0.09° / 1.5°, ม้านั่งพอง 0.31° / 3.0°, หลังคาใบไม้ 0.34° / 5.1°, เสาไฟ 0.13° / 2.2°, โคม 0.60° / 11.3°, กระบะ 1.46° / 50.8° และม้านั่งระแนง 1.53° / 47.0° (สีแดงใน `_nerr.png` อยู่บนแผ่นดินกระบะและที่หักมุมของขาท่อ) |
-| `validate_sculpt --target map` | `SCULPT_QA fail=5 warn=19` เป็นข้อมูลประกอบ ไม่ใช่ประตู: `normal_error` FAIL ที่ม้านั่งระแนง หลังคาใบไม้ กระบะ ม้านั่งพอง ราว (max ~90° จากการเทียบข้ามขอบคม 90° กับ dense ที่รวมชิ้น), `interpenetration` WARN ทุก shell (ชิ้นแยกส่วนโดยตั้งใจ), `walk_surface` WARN ที่หลังคาใบไม้ (ไม่มีพื้นที่ z = 0) |
+| `validate_sculpt --target map` | engine ปัจจุบัน (guard normals ของ sweep): `SCULPT_QA fail=0 warn=18` รันก่อนหน้า `SCULPT_QA fail=5 warn=19` เป็นข้อมูลประกอบ ไม่ใช่ประตู: `normal_error` FAIL ที่ม้านั่งระแนง หลังคาใบไม้ กระบะ ม้านั่งพอง ราว (max ~90° จากการเทียบข้ามขอบคม 90° กับ dense ที่รวมชิ้น), `interpenetration` WARN ทุก shell (ชิ้นแยกส่วนโดยตั้งใจ), `walk_surface` WARN ที่หลังคาใบไม้ (ไม่มีพื้นที่ z = 0) |
 
 ## 11. ข้อผิดพลาดที่พบบ่อย
 

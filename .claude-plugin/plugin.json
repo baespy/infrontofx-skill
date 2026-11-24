@@ -1,6 +1,6 @@
 {
     "name": "infrontofx-skill",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "description": "infrontofx FiveM toolkit: Lua + NUI/DUI standard (OOP, no comments, no FC), dev-flow work discipline, terse replies, poster-forge, weapon-forge, prop-forge, map-forge and sculpt-forge smooth sculpting.",
     "author": {
         "name": "baespy"

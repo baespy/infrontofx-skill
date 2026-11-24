@@ -1102,11 +1102,11 @@ class DemoSet:
         "glow": {"color": "#FFF3DC", "finish": "emissive"},
     }
     props = (
-        {"id": "1nfx_sign_word", "recipe": "lobed_plaque_sign", "budget": 3900, "kwargs": {"text": "CAFE"}},
-        {"id": "1nfx_sign_stop", "recipe": "stop_sign", "budget": 2500, "kwargs": {"text": "BUS", "text_back": False}},
+        {"id": "1nfx_sign_word", "recipe": "lobed_plaque_sign", "budget": 3900, "kwargs": {"text": "CAFE", "face_puff": 0.04, "piping_radius": 0.05}},
+        {"id": "1nfx_sign_stop", "recipe": "stop_sign", "budget": 2500, "kwargs": {"text": "BUS", "text_back": False, "face_puff": 0.035}},
         {"id": "1nfx_sign_arrow", "recipe": "arrow_pillar", "budget": 3700, "kwargs": {"text": "PARK"}},
         {"id": "1nfx_sign_totem", "recipe": "totem", "budget": 3950, "kwargs": {"text": "INFO"}},
-        {"id": "1nfx_sign_shop", "recipe": "squircle_sign", "budget": 3000, "kwargs": {"text": "MART"}},
+        {"id": "1nfx_sign_shop", "recipe": "squircle_sign", "budget": 3000, "kwargs": {"text": "MART", "face_puff": 0.04, "rim_radius": 0.048}},
         {"id": "1nfx_sign_script", "recipe": "script_plaque", "budget": 1950, "kwargs": {"word": "hello"}},
     )
 
@@ -1152,7 +1152,7 @@ class QARunner:
         os.makedirs(self.qa_dir, exist_ok=True)
 
     def run(self, script, args, factory=True, timeout=900):
-        cmd = [self.blender, "-b"] + (["--factory-startup"] if factory else []) + ["-P", script, "--"] + [str(a) for a in args]
+        cmd = [self.blender, "-b"] + (["--factory-startup"] if factory else []) + ["-t", str(max(1, int(bpy.context.scene.render.threads)))] + ["-P", script, "--"] + [str(a) for a in args]
         done = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
         return done.returncode, done.stdout + done.stderr
 

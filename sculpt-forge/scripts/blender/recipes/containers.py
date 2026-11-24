@@ -168,6 +168,31 @@ class ContainerMath:
         n = Vector((x / (rx * rx), y / (ry * ry), z / (rz * rz) if z > 1e-6 else 1e-6))
         return z, n.normalized()
 
+    @staticmethod
+    def pillow_point(x, y, half_x, half_y, radius, dome, step=0.005):
+        lift = float(dome) * ContainerMath.pillow_lift(abs(x), half_x, radius) * ContainerMath.pillow_lift(abs(y), half_y, radius)
+        gx = float(dome) * (ContainerMath.pillow_lift(abs(x + step), half_x, radius) - ContainerMath.pillow_lift(abs(x - step), half_x, radius)) * ContainerMath.pillow_lift(abs(y), half_y, radius) / (2.0 * step)
+        gy = float(dome) * ContainerMath.pillow_lift(abs(x), half_x, radius) * (ContainerMath.pillow_lift(abs(y + step), half_y, radius) - ContainerMath.pillow_lift(abs(y - step), half_y, radius)) / (2.0 * step)
+        return lift, Vector((-gx, -gy, 1.0)).normalized()
+
+    @staticmethod
+    def coin_profile(radius, thickness, roll=0.34, dish=0.22, rim=0.2, samples=5):
+        r = float(radius)
+        t = float(thickness)
+        e = max(1e-4, min(0.48, float(roll)) * t)
+        top = 0.5 * t
+        pts = [(0.0, -top), (r - e, -top)]
+        for i in range(1, int(samples) + 1):
+            a = math.radians(-90.0 + 90.0 * i / float(samples))
+            pts.append((r - e + e * math.cos(a), -top + e + e * math.sin(a)))
+        for i in range(int(samples) + 1):
+            a = math.radians(90.0 * i / float(samples))
+            pts.append((r - e + e * math.cos(a), top - e + e * math.sin(a)))
+        inner = min(r * (1.0 - float(rim)), r - 1.2 * e)
+        floor = top - float(dish) * t
+        pts += [(inner, top), (inner - 0.3 * e, floor), (0.0, floor)]
+        return [(round(u, 6), round(v, 6)) for u, v in pts]
+
 
 class PanelHoldMixin:
     hold_reserve = 0.07
@@ -301,8 +326,8 @@ class ContainersRecipes:
         "gold": ("#D9A441", "gloss"),
     }
     themes = {
-        "house": {"body": "cream", "trim": "caramel", "wood": "caramel", "ink": "ink", "line": "outline", "accent": "honey", "metal": "gold", "frost": "cream", "stripe": "caramel", "wrap": "cream", "ribbon": "caramel", "knot": "gold", "cherry": "honey", "sprinkles": ("honey", "gold", "caramel")},
-        "pastel": {"body": "cream", "trim": "pink", "wood": "pink", "ink": "ink", "line": "outline", "accent": "honey", "metal": "gold", "frost": "cream", "stripe": "pink", "wrap": "pink", "ribbon": "mint", "knot": "gold", "cherry": "pink", "sprinkles": ("pink", "mint", "sky")},
+        "house": {"body": "cream", "trim": "caramel", "wood": "caramel", "ink": "ink", "line": "outline", "accent": "honey", "metal": "gold", "hoard": "honey", "frost": "cream", "stripe": "caramel", "wrap": "cream", "ribbon": "caramel", "knot": "gold", "cherry": "honey", "sprinkles": ("honey", "gold", "caramel")},
+        "pastel": {"body": "cream", "trim": "pink", "wood": "pink", "ink": "ink", "line": "outline", "accent": "honey", "metal": "gold", "hoard": "honey", "frost": "cream", "stripe": "pink", "wrap": "pink", "ribbon": "mint", "knot": "gold", "cherry": "pink", "sprinkles": ("pink", "mint", "sky")},
     }
 
     def __init__(self, theme="house", roles=None, seed=7):
@@ -394,7 +419,7 @@ class ContainersRecipes:
         parts["size"] = (w, d, h)
         return parts
 
-    def striped_box(self, b, size=(0.95, 0.72, 0.72), radius=0.07, stripe=0.085, rise=0.007, skirt=0.07, frost=0.06, overhang=0.022, per_m=8.0, drop=0.08, drips=5, label="STASH", sprinkles=10, cherry=True, roles=None, loc=(0.0, 0.0, 0.0), seed=None):
+    def striped_box(self, b, size=(0.95, 0.72, 0.72), radius=0.07, stripe=0.085, rise=0.007, skirt=0.07, frost=0.06, overhang=0.022, per_m=5.5, drop=0.08, drips=5, label="STASH", sprinkles=6, cherry=True, roles=None, loc=(0.0, 0.0, 0.0), seed=None, scallop_thickness=0.045, sprinkle_radius=0.015, sprinkle_length=0.05, letter_height=0.09, plaque_size=(0.5, 0.16), label_outline=False):
         r = self.slots(roles)
         rng = random.Random(self.seed if seed is None else seed)
         w, d, h = ContainerMath.extents(size)
@@ -424,7 +449,7 @@ class ContainersRecipes:
             with b.group("frosting", fillet=0.01):
                 parts["frost_cap"] = b.pillow_box((w + 2.0 * overhang, d + 2.0 * overhang, frost), radius=cap_r, puff=(0.0, 0.0, cap_puff), loc=(x0, y0, cap_z), role=r["frost"])
                 rim = {"shape": "rounded_rect", "w": w + 0.012, "h": d + 0.012, "r": rad + 0.006, "plane": "XY", "at": (x0, y0, z0 + h - 0.012)}
-                parts["scallops"] = b.scallops(rim, drop=drop, thickness=0.036, per_m=per_m, role=r["frost"], fillet=0.012)
+                parts["scallops"] = b.scallops(rim, drop=drop, thickness=float(scallop_thickness), per_m=per_m, role=r["frost"], fillet=0.012)
                 if drips:
                     low = dict(rim)
                     low["at"] = (x0, y0, z0 + h - 0.75 * drop)
@@ -439,11 +464,11 @@ class ContainersRecipes:
                     if sx * sx + sy * sy < 0.11 * 0.11 and cherry:
                         continue
                     lift = cap_puff * ContainerMath.pillow_lift(abs(sx), half_x, cap_r) * ContainerMath.pillow_lift(abs(sy), half_y, cap_r)
-                    zz = top_z + lift + 0.004
+                    zz = top_z + lift + 0.004 + max(0.0, float(sprinkle_radius) - 0.011) * 0.4
                     a = rng.uniform(0.0, math.pi)
-                    dx = 0.022 * math.cos(a)
-                    dy = 0.022 * math.sin(a)
-                    parts["sprinkles"].append(b.capsule((x0 + sx - dx, y0 + sy - dy, zz), (x0 + sx + dx, y0 + sy + dy, zz), 0.011, role=tones[k % len(tones)], fillet=0.004))
+                    dx = 0.5 * float(sprinkle_length) * math.cos(a)
+                    dy = 0.5 * float(sprinkle_length) * math.sin(a)
+                    parts["sprinkles"].append(b.capsule((x0 + sx - dx, y0 + sy - dy, zz), (x0 + sx + dx, y0 + sy + dy, zz), float(sprinkle_radius), role=tones[k % len(tones)], fillet=0.004))
             if cherry:
                 cz = top_z + cap_puff + 0.042
                 parts["cherry"] = b.sphere(0.05, loc=(x0, y0, cz), role=r["cherry"], fillet=0.012)
@@ -452,17 +477,25 @@ class ContainersRecipes:
                 ly = y0 - 0.5 * d - rise
                 lz = z0 + skirt + 0.5 * (h - skirt - drop)
                 plate_y = ly - 0.012
-                parts["plaque"] = b.extrude2d({"shape": "rounded_rect", "w": 0.42, "h": 0.13, "r": 0.064}, 0.03, edge=0.012, puff=0.004, plane="XZ", loc=(x0, plate_y, lz), role=r["accent"], fillet=0.008)
+                pw, ph = (float(v) for v in plaque_size)
+                parts["plaque"] = b.extrude2d({"shape": "rounded_rect", "w": pw, "h": ph, "r": min(0.064, 0.49 * ph)}, 0.03, edge=0.012, puff=0.004, plane="XZ", loc=(x0, plate_y, lz), role=r["accent"], fillet=0.008)
                 front = plate_y - 0.019
-                parts["letters_outline"] = b.text(label, height=0.07, max_width=0.33, depth=0.012, puff=0.009, plane="XZ", loc=(x0, front + 0.002, lz), role=r["ink"], fillet=0.004)
-                parts["letters"] = b.text(label, height=0.07, max_width=0.33, depth=0.02, puff=0.004, plane="XZ", loc=(x0, front - 0.009, lz), role=r["body"], fillet=0.003)
+                if label_outline:
+                    parts["letters_outline"] = b.text(label, height=float(letter_height), max_width=pw - 0.09, depth=0.012, puff=0.009, plane="XZ", loc=(x0, front + 0.002, lz), role=r["ink"], fillet=0.004)
+                    parts["letters"] = b.text(label, height=float(letter_height), max_width=pw - 0.09, depth=0.02, puff=0.004, plane="XZ", loc=(x0, front - 0.009, lz), role=r["body"], fillet=0.003)
+                else:
+                    parts["letters"] = b.text(label, height=float(letter_height), max_width=pw - 0.09, depth=0.024, puff=0.006, plane="XZ", loc=(x0, front + 0.004, lz), role=r["ink"], fillet=0.005)
             b.cut(point=(x0, y0, z0 + 0.004), fillet=0.006)
         parts["root"] = root
         ContainersRecipes.add_collider(b, (x0, y0, z0 + 0.5 * (h + frost)), (w + 2.0 * overhang, d + 2.0 * overhang, h + frost), parts["colliders"])
         parts["size"] = (w + 2.0 * overhang, d + 2.0 * overhang, top_z + cap_puff - z0)
         return parts
 
-    def loot_chest(self, b, size=(0.9, 0.6, 0.48), radius=0.07, lid=0.24, open_deg=105.0, wall=0.045, bolster=0.04, straps=True, lock=True, coins=24, spill=7, stars=True, roles=None, loc=(0.0, 0.0, 0.0), seed=None):
+    def coin(self, b, center, radius=0.055, thickness=0.022, normal=(0.0, 0.0, 1.0), spin=0.0, rot=None, role=None, fillet=0.004):
+        euler = tuple(float(a) for a in rot) if rot is not None else ContainerMath.tilt_to(normal, spin)
+        return b.lathe(ContainerMath.coin_profile(radius, thickness), loc=tuple(float(v) for v in center), rot=euler, smooth=2, role=role or self.theme["metal"], fillet=fillet)
+
+    def loot_chest(self, b, size=(0.9, 0.6, 0.48), radius=0.07, lid=0.24, open_deg=105.0, wall=0.045, bolster=0.04, straps=True, lock=True, coins=9, spill=3, stars=True, roles=None, loc=(0.0, 0.0, 0.0), seed=None, coin_radius=0.055, coin_thickness=0.022, mound_height=0.11, coin_spread=0.76, coin_sink=0.006, coin_blend=0.01):
         r = self.slots(roles)
         rng = random.Random(self.seed + 11 if seed is None else seed)
         w, d, h = ContainerMath.extents(size)
@@ -476,8 +509,8 @@ class ContainersRecipes:
         lid_side = 0.05
         lid_dome = max(0.04, lid - lid_side)
         strap_x = (-0.3 * w, 0.3 * w) if straps else ()
-        coin_r = 0.04
-        coin_t = 0.014
+        coin_r = float(coin_radius)
+        coin_t = float(coin_thickness)
         parts = {"coins": [], "straps": [], "colliders": []}
         with b.group("loot_chest") as root:
             with b.group("body"):
@@ -501,35 +534,38 @@ class ContainersRecipes:
                     parts["straps"].append(b.round_box((0.07, 0.03, h - 0.09), radius=0.012, loc=(x0 + sx, y0 + sy * (0.5 * d - 0.006), z0 + 0.5 * h + 0.01), role=r["metal"], fillet=0.006))
             if stars:
                 for sx in (-1.0, 1.0):
-                    parts.setdefault("stars", []).append(b.extrude2d({"shape": "star", "r_out": 0.075, "r_in": 0.038, "points": 5, "smooth": 3}, 0.03, edge=0.011, puff=0.004, plane="YZ", loc=(x0 + sx * (0.5 * w + 0.004), y0, z0 + 0.5 * h), rot=(0.0, 0.0, 0.0 if sx < 0 else 180.0), role=r["metal"], fillet=0.006))
+                    parts.setdefault("stars", []).append(b.extrude2d({"shape": "star", "r_out": 0.08, "r_in": 0.048, "points": 5, "smooth": 3}, 0.03, edge=0.011, puff=0.004, plane="YZ", loc=(x0 + sx * (0.5 * w + 0.004), y0, z0 + 0.5 * h), rot=(0.0, 0.0, 0.0 if sx < 0 else 180.0), role=r["metal"], fillet=0.006))
             if lock:
                 lz = top - 0.11
                 parts["lock"] = b.extrude2d({"shape": "heart", "size": 0.13}, 0.036, edge=0.012, puff=0.005, plane="XZ", loc=(x0, front - 0.014, lz), role=r["metal"], fillet=0.006)
                 parts["shackle"] = b.torus(0.036, 0.011, loc=(x0, front - 0.012, lz + 0.068), rot=(90.0, 0.0, 0.0), role=r["metal"], fillet=0.005)
                 b.extrude2d(ContainerMath.keyhole(0.013), 0.04, plane="XZ", loc=(x0, front - 0.036, lz + 0.006), role=r["ink"], op="subtract", fillet=0.003)
             if is_open:
-                mound = (0.5 * w - wall - 0.004, 0.5 * d - wall - 0.004, 0.11)
-                mound_c = (x0, y0, top - 0.05)
-                parts["hoard"] = b.ellipsoid(mound, loc=mound_c, role=r["metal"], fillet=0.01)
-                spots = ContainerMath.scatter(rng, int(coins), mound[0] * 0.92, mound[1] * 0.92, 2.1 * coin_r, fill=0.86)
+                half_x = 0.5 * w - wall + 0.015
+                half_y = 0.5 * d - wall + 0.015
+                fill_top = top - 0.02
+                fill_base = top - 0.16
+                parts["hoard"] = b.pillow_box((2.0 * half_x, 2.0 * half_y, fill_top - fill_base), radius=0.03, puff=(0.0, 0.0, float(mound_height)), loc=(x0, y0, 0.5 * (fill_top + fill_base)), role=r["hoard"], fillet=0.02)
+                spots = ContainerMath.scatter(rng, int(coins), half_x * float(coin_spread), half_y * float(coin_spread), 2.2 * coin_r, fill=0.92)
                 for sx, sy in spots:
-                    dz, n = ContainerMath.dome_point(sx, sy, mound)
-                    if mound_c[2] + dz < top - 0.01:
-                        continue
-                    tilt = Vector((n.x + rng.uniform(-0.25, 0.25), n.y + rng.uniform(-0.25, 0.25), n.z)).normalized()
-                    c = (mound_c[0] + sx + tilt.x * 0.004, mound_c[1] + sy + tilt.y * 0.004, mound_c[2] + dz + 0.002)
-                    parts["coins"].append(b.round_cyl(coin_r, coin_t, edge=0.48 * coin_t, loc=c, rot=ContainerMath.tilt_to(tilt), role=r["metal"], fillet=0.003))
+                    dz, n = ContainerMath.pillow_point(sx, sy, half_x, half_y, 0.03, mound_height)
+                    tilt = Vector((n.x + rng.uniform(-0.15, 0.15), n.y + rng.uniform(-0.15, 0.15), n.z)).normalized()
+                    lift = 0.5 * coin_t - float(coin_sink)
+                    c = (x0 + sx + n.x * lift, y0 + sy + n.y * lift, fill_top + dz + n.z * lift)
+                    parts["coins"].append(self.coin(b, c, coin_r, coin_t, tilt, rng.uniform(0.0, 360.0), role=r["metal"], fillet=float(coin_blend)))
             if spill:
-                heap = (0.17, 0.1, 0.05)
-                heap_c = (x0 + 0.2 * w, front - 0.06, z0)
-                parts["spill"] = b.ellipsoid(heap, loc=heap_c, role=r["metal"], fillet=0.015)
-                for k, (sx, sy) in enumerate(ContainerMath.scatter(rng, max(0, int(spill) - 2), heap[0] * 0.85, heap[1] * 0.8, 1.9 * coin_r, fill=0.8)):
-                    dz, n = ContainerMath.dome_point(sx, sy, heap)
-                    tilt = Vector((n.x + rng.uniform(-0.3, 0.3), n.y + rng.uniform(-0.3, 0.3), n.z)).normalized()
-                    parts["coins"].append(b.round_cyl(coin_r, coin_t, edge=0.48 * coin_t, loc=(heap_c[0] + sx, heap_c[1] + sy, heap_c[2] + dz + 0.002), rot=ContainerMath.tilt_to(tilt), role=r["metal"], fillet=0.003))
-                for k in range(min(2, int(spill))):
-                    cxk = x0 + (0.02 + 0.075 * k) * w - 0.05
-                    parts["coins"].append(b.round_cyl(coin_r, coin_t, edge=0.48 * coin_t, loc=(cxk, front - 0.016, z0 + coin_r * 0.95), rot=(72.0 + 6.0 * k, 0.0, 8.0 - 14.0 * k), role=r["metal"], fillet=0.003))
+                sx0 = x0 + 0.2 * w
+                sy0 = front - coin_r - 0.035
+                for k in range(int(spill)):
+                    a = rng.uniform(0.0, math.tau)
+                    if k % 3 == 2:
+                        c = (sx0 + (2.25 + 0.4 * (k // 3)) * coin_r, sy0 - 0.4 * coin_r, z0 + 0.5 * coin_t)
+                        normal = (0.0, 0.0, 1.0)
+                    else:
+                        c = (sx0 - 1.2 * coin_r * (k // 3) + 0.15 * coin_r * (k % 3) * math.cos(a), sy0 + 0.15 * coin_r * (k % 3) * math.sin(a), z0 + ((k % 3) + 0.5) * coin_t * 0.94)
+                        normal = (0.05 * math.cos(a) * (k % 3), 0.05 * math.sin(a) * (k % 3), 1.0)
+                    parts["coins"].append(self.coin(b, c, coin_r, coin_t, normal, rng.uniform(0.0, 360.0), role=r["metal"], fillet=float(coin_blend)))
+                parts["spill"] = parts["coins"][-int(spill):]
             with b.group("lid"):
                 base = (x0, y0, top - 0.002)
                 rot = ContainerMath.hinge_rot(angle)
@@ -597,7 +633,7 @@ class ContainersRecipes:
         parts["size"] = (w + 0.05, d + 0.05, h + 0.016)
         return parts
 
-    def corner_crate(self, b, size=(0.95, 0.75, 0.7), rail=0.07, cap=1.65, inset=0.02, lid_puff=0.035, brace=True, handles=True, roles=None, loc=(0.0, 0.0, 0.0)):
+    def corner_crate(self, b, size=(0.95, 0.75, 0.7), rail=0.07, cap=1.65, inset=0.02, lid_puff=0.035, brace=True, handles=True, roles=None, loc=(0.0, 0.0, 0.0), rail_roll=0.4, cap_roll=0.32):
         r = self.slots(roles)
         w, d, h = ContainerMath.extents(size)
         x0, y0, z0 = ContainerMath.at(loc)
@@ -611,13 +647,13 @@ class ContainersRecipes:
             with b.group("rails", fillet=0.012):
                 for sx in (-1.0, 1.0):
                     for sy in (-1.0, 1.0):
-                        parts["rails"].append(b.round_box((t, t, h), radius=0.4 * t, loc=(x0 + sx * ax, y0 + sy * ay, z0 + 0.5 * h), role=r["trim"]))
+                        parts["rails"].append(b.round_box((t, t, h), radius=float(rail_roll) * t, loc=(x0 + sx * ax, y0 + sy * ay, z0 + 0.5 * h), role=r["trim"]))
                 for sy in (-1.0, 1.0):
                     for zz in (zl, zh):
-                        parts["rails"].append(b.round_box((w, t, t), radius=0.4 * t, loc=(x0, y0 + sy * ay, zz), role=r["trim"]))
+                        parts["rails"].append(b.round_box((w, t, t), radius=float(rail_roll) * t, loc=(x0, y0 + sy * ay, zz), role=r["trim"]))
                 for sx in (-1.0, 1.0):
                     for zz in (zl, zh):
-                        parts["rails"].append(b.round_box((t, d, t), radius=0.4 * t, loc=(x0 + sx * ax, y0, zz), role=r["trim"]))
+                        parts["rails"].append(b.round_box((t, d, t), radius=float(rail_roll) * t, loc=(x0 + sx * ax, y0, zz), role=r["trim"]))
             if brace:
                 span_w = w - 2.0 * t
                 span_h = h - 2.0 * t
@@ -631,7 +667,7 @@ class ContainersRecipes:
                 for sx in (-1.0, 1.0):
                     for sy in (-1.0, 1.0):
                         for zz in (zl, zh):
-                            parts["caps"].append(b.pillow_box((c, c, c), radius=0.32 * c, puff=0.006, loc=(x0 + sx * ax, y0 + sy * ay, zz), role=r["metal"]))
+                            parts["caps"].append(b.pillow_box((c, c, c), radius=float(cap_roll) * c, puff=0.006, loc=(x0 + sx * ax, y0 + sy * ay, zz), role=r["metal"]))
             if handles:
                 hz = z0 + 0.6 * h
                 for sx in (-1.0, 1.0):
@@ -696,8 +732,8 @@ class ContainerDemo:
         pastel = {"wrap": "pink", "ribbon": "mint", "knot": "gold"} if self.theme == "house" else {}
         return [
             {"id": "1nfx_ctr_padded_cube", "method": "padded_cube", "kwargs": {}, "budget": 2600, "voxel": 0.005, "default_role": "cream"},
-            {"id": "1nfx_ctr_striped_box", "method": "striped_box", "kwargs": {}, "budget": 3000, "voxel": 0.005, "default_role": "cream"},
-            {"id": "1nfx_ctr_loot_chest", "method": "loot_chest", "kwargs": {}, "budget": 3200, "voxel": 0.004, "default_role": "caramel"},
+            {"id": "1nfx_ctr_striped_box", "method": "striped_box", "kwargs": {}, "budget": 2900, "voxel": 0.005, "default_role": "cream"},
+            {"id": "1nfx_ctr_loot_chest", "method": "loot_chest", "kwargs": {}, "budget": 3350, "voxel": 0.004, "default_role": "caramel"},
             {"id": "1nfx_ctr_vault_safe", "method": "vault_safe", "kwargs": {}, "budget": 3300, "voxel": 0.004, "default_role": "cream"},
             {"id": "1nfx_ctr_corner_crate", "method": "corner_crate", "kwargs": {}, "budget": 2800, "voxel": 0.005, "default_role": "cream"},
             {"id": "1nfx_ctr_gift_box", "method": "gift_box", "kwargs": {"roles": pastel}, "budget": 2800, "voxel": 0.005, "default_role": "pink"},
@@ -717,7 +753,7 @@ class ContainerDemo:
 
     def run_blender(self, script, args, log_path):
         os.makedirs(os.path.dirname(log_path), exist_ok=True)
-        cmd = [self.blender, "-b", "--factory-startup", "-P", script, "--"] + [str(a) for a in args]
+        cmd = [self.blender, "-b", "--factory-startup", "-t", str(max(1, int(bpy.context.scene.render.threads))), "-P", script, "--"] + [str(a) for a in args]
         started = time.perf_counter()
         proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
         with open(log_path, "w", encoding="utf-8") as handle:

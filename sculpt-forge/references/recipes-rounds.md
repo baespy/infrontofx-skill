@@ -44,14 +44,14 @@ demo สร้าง builder ด้วย `SculptBuilder("<set>_<key>", budget, 
 | --- | --- | --- | --- |
 | `puck(b, radius, height, rim=0.5, z=0, xy=(0, 0), dome=0, bulge=0, recess=0, role, fillet, op, collide, detail, smooth=2)` | แผ่นกลมขอบมน | | ขอบ `rim` × ความสูง, `dome` โป่งบน, `bulge` ข้างป่อง, `recess` ก้นเว้า |
 | `torus_trim(b, host_radius, z, minor=0.025, sink=0.3, ...)` | ห่วงคาดรอบ host | | ฝัง 30% ของ minor (กฎปลอก 30-50%), minor 2.5 cm (กฎห่วง torus 1.5-3 cm) |
-| `pedestal(b, tiers, z=0, trim_role=None, trim_minor=0.025, trim_sink=0.3, joint_fillet=0.02, trim_fillet=0.01, collide=True)` | puck ซ้อนตาม `tiers` แต่ละชั้นเริ่มที่ไหล่ชั้นล่างลบขอบของตัวเอง ห่วงคาดทุกรอยต่อ | `tiers` = list ของ dict (`radius`, `height`, `rim`, `dome`, `bulge`, `recess` เฉพาะชั้นแรก, `role`) | demo: ชั้นล่าง r 0.60 สูง 0.24 rim 0.35 ชั้นบน r 0.49 สูง 0.30 rim 0.25, ห่วง minor 2.6 cm |
+| `pedestal(b, tiers, z=0, trim_role=None, trim_minor=0.025, trim_sink=0.3, joint_fillet=0.02, trim_fillet=0.01, collide=True)` | puck ซ้อนตาม `tiers` แต่ละชั้นเริ่มที่ไหล่ชั้นล่างลบขอบของตัวเอง ห่วงคาดทุกรอยต่อ | `tiers` = list ของ dict (`radius`, `height`, `rim`, `dome`, `bulge`, `recess` เฉพาะชั้นแรก, `role`, `detail`) | demo: ชั้นล่าง r 0.60 สูง 0.24 rim 0.35 ชั้นบน r 0.49 สูง 0.30 rim 0.25, ห่วง minor 2.6 cm, เหรียญบนแท่น `double_sided=False` (ดาวด้านหน้าด้านเดียว คืนงบให้ผนังแท่น) `detail` ของชั้นทำให้ fail (วัดแล้ว) |
 | `numbered_plinth(b, digit="1", radius=0.31, height=0.32, base_radius=0.36, base_height=0.13, rim=0.25, base_rim=0.5, ...)` | ฐานสองชั้น + ป้ายนูนตามผิว + เลขพอง | `plaque_size` (0.2, 0.135), `plaque_relief` 0.014, `digit_height` 0.1, `digit_relief` 0.016, `digit_depth` 0.035 | ป้ายนูน 1.4 cm (กฎ relief 1-2 cm), เลขยื่นจากป้าย 1.6 cm |
 | `trophy(b, cup_height=1.15, digit="1", z=0, ..., plinth=True, handles=True, shield=True, laurel=True, font=None, leaves=6)` | ฐานเลข + ถ้วย lathe มีขอบปาก torus + หูสองข้าง + โล่นูนสามชั้น + กิ่งลอเรลสองข้าง | ทุกขนาดคูณจาก `cup_height` (h) | ฐาน r 0.35h ชั้นล่าง r 0.40h, หู r 0.032h (3.7 cm) fillet 0.022, ขอบปาก minor 0.026h, โล่ 0.27h × 0.30h นูน 0.014h, ใบลอเรล 0.085h × 0.034h นูน 0.012h |
 | `coin(b, radius, thickness, center, rot=(90, 0, 0), edge=0.3, dome=None, rim=True, emblem="star", emblem_size=0.48, double_sided=True, ...)` | เหรียญ lathe โป่งสองหน้า ห่วงขอบ ลายดาว หัวใจ หรือข้อความ | | ขอบ 30% ของความหนา, โป่ง 3% ของ r, ห่วง minor 0.075r ห่างขอบ 0.15r, ลายนูน 0.16 × หนา + 0.85 × โป่ง |
 | `lifebuoy(b, major=0.2, minor=0.062, center, rot=(90, 0, 0), segments=8, role, stripe_role, fillet=0.012)` | ห่วง torus + ลายสลับ `segments` เสี้ยว | | ลายใช้ `paint_sectors` (ขยาย 2 mm ขอบ 1.5 mm) |
-| `padded_drum(b, radius=0.52, height=0.62, base_radius=0.78, base_height=0.14, staves=16, bulge=0.045, buoy=True, buoy_azimuth=-128, ...)` | ฐาน puck + กลองลอนตั้ง + ห่วงคาดล่างบน + เบาะ + ห่วงชูชีพพิงข้างเอียง 9° | | ลอน 16 ลอนป่อง 4.5% ของ R (กฎ 14-18 ลอน, 4-5%), กลองหลอมฐาน 0.025, ห่วงคาด minor 3-3.4 cm ฝัง 42% |
+| `padded_drum(b, radius=0.52, height=0.62, base_radius=0.78, base_height=0.14, staves=16, bulge=0.045, buoy=True, buoy_azimuth=-128, ..., base_dome=0.0, cushion_dome=0.06)` | ฐาน puck + กลองลอนตั้ง + ห่วงคาดล่างบน + เบาะ + ห่วงชูชีพพิงข้างเอียง 9° | | ลอน 16 ลอนป่อง 4.5% ของ R (กฎ 14-18 ลอน, 4-5%), กลองหลอมฐาน 0.025, ห่วงคาด minor 3-3.4 cm ฝัง 42%, เบาะโป่ง 6 cm และหน้าฐานแบน (เดิม 3.5 cm / 1.2 cm: โดมเตี้ยกว้างทำ wobble 2.5°) |
 | `fluted_drum(b, radius=0.5, height=0.6, staves=16, bulge=0.045, sharpness=0.55, edge=None, ...)` | ทรงกระบอกลอนตั้งจาก outline ยืด | | ขอบ min(0.1R, 0.12 × ความสูง) |
-| `lantern(b, height=1.12, z=0, bars=6, frame_role, glass_role, roof_role, metal_role, foot_role, hanger=True, collide=True)` | ฐาน puck, ฐานโคม lathe, แก้วเรืองแสง, แถบรัดบนล่าง, ซี่ 6 ซี่, หลังคา lathe, ลูกยอด, ห่วงแขวน | ทุกขนาดคูณ `height` / 1.12 | ซี่ r 2.4 cm, แก้ว rim 0.06 (ขอบเกือบคม) ป่อง 2.2 cm, emissive เฉพาะแก้ว |
+| `lantern(b, height=1.12, z=0, bars=6, frame_role, glass_role, roof_role, metal_role, foot_role, hanger=True, collide=True, bar_radius=0.024, hanger_minor=0.021, band_edge=0.024)` | ฐาน puck, ฐานโคม lathe, แก้วเรืองแสง, แถบรัดบนล่าง, ซี่ 6 ซี่, หลังคา lathe, ลูกยอด, ห่วงแขวน | ทุกขนาดคูณ `height` / 1.12 | ซี่ r 2.4 cm, แก้ว rim 0.06 (ขอบเกือบคม) ป่อง 2.2 cm, emissive เฉพาะแก้ว, ซี่ 3 cm / ห่วง 2.8 cm / แถบมน 2.8 cm ทำ roughness แย่ลง (วัดแล้ว) |
 | `vase(b, height=0.78, belly_radius=0.42, foot_radius=None, neck_radius=None, lip_radius=None, belly_at=0.44, shoulder_at=0.86, lip=True, ...)` | ไห lathe ท้องป่อง ไหล่ คอ ปาก | ค่าเริ่มตีน 0.58, คอ 0.72, ปาก 0.80 × รัศมีท้อง | คืน `outer` (เส้นผิวนอก) ให้ `pour_glaze` และ `lathe_relief` |
 | `pour_glaze(b, curve, z_top, z_edge, thickness=0.018, depth_in=0.025, drips=7, drip_length=(0.08, 0.17), drip_width=(0.05, 0.075), seed=3, ..., drip_fillet=0.022)` | เปลือกน้ำเชื่อมหนา 1.8 cm คลุมบน `z_edge` มีหยดย้อย | | หยดกว้าง 5-7.5 cm (กฎ 5-8 cm) ยาว 8-17 cm, หยดหลอมขอบเปลือก 0.022 |
 | `lid(b, radius, z, dome=0.11, knob_radius=0.06, role, knob_role, fillet=0.012)` | ฝาโดม + คอปุ่ม + ปุ่มกลม | | ปุ่มหลอมฝา 0.022 |
@@ -119,7 +119,7 @@ if __name__ == "__main__":
 ```
 
 ```powershell
-& $blender -b --factory-startup -P '<project>\work\cafe\honey_jar.py' -- '<skill>' '<project>\work\cafe\build'
+& $blender -b --factory-startup -t 6 -P '<project>\work\cafe\honey_jar.py' -- '<skill>' '<project>\work\cafe\build'
 ```
 
 - `SculptBuilder` ไม่มี `finish()` จบด้วย `b.build(out_dir)` (ผลตาม `references/pipeline.md` หัวข้อ 8)
@@ -136,10 +136,12 @@ $skill   = '<skill>'
 $sf      = "$skill\sculpt-forge\scripts\blender"
 $work    = '<project>\work\rounds'
 
-& $blender -b --factory-startup -P "$sf\recipes\rounds.py" -- --out $work
-& $blender -b --factory-startup -P "$sf\recipes\rounds.py" -- --out $work --only pedestal --budget-scale 1.4 --no-render
-& $blender -b --factory-startup -P "$sf\recipes\rounds.py" -- --out "$work\pastel" --variant pastel --set 1nfx_roundp
+& $blender -b --factory-startup -t 6 -P "$sf\recipes\rounds.py" -- --out $work
+& $blender -b --factory-startup -t 6 -P "$sf\recipes\rounds.py" -- --out $work --only pedestal --budget-scale 1.1 --no-render
+& $blender -b --factory-startup -t 6 -P "$sf\recipes\rounds.py" -- --out "$work\pastel" --variant pastel --set 1nfx_roundp
 ```
+
+จำกัดเธรดเสมอ: `ToolRunner.call` ส่ง `-t <bpy.context.scene.render.threads>` ให้ Blender ลูก (`validate_sculpt`, `validate_prop`, `render_sculpt`) ลูกจึงใช้เธรดเท่าตัวแม่ที่รันด้วย `-t 6` และรันทีละตัวผ่าน `subprocess.run` ห้ามรันหลายตระกูลพร้อมกัน `RoundsDemo.builder(key, budget, voxel, default_role, archetype, colliders="auto", lod_dist=120.0, **extra)` ส่ง kwarg อื่นของ `SculptBuilder` ต่อได้ (เช่น `stage_ratio`, `detail_share`)
 
 | ตัวเลือก | ค่าเริ่ม | ความหมาย |
 | --- | --- | --- |
@@ -158,34 +160,38 @@ $work    = '<project>\work\rounds'
 
 ## 7. demo ที่วัดแล้ว
 
-Blender 4.2.3, 2026-11-24, variant `house`, `SculptBuilder` ธรรมดา, set `1nfx_round` (รัน 6 ตระกูลพร้อมกัน เวลาจึงสูงกว่ารันเดี่ยว)
+Blender 4.2.3, 2026-11-24, variant `house`, `SculptBuilder` ธรรมดา, set `1nfx_round`, engine ที่มี `SurfaceRefiner` รันตระกูลเดียว `-t 6` ด้วย `run_seq.ps1`
 
 | id | builder | voxel | ขนาด (m) | tris / งบ | tris/m² | วินาที | `SCULPT_QA` | `validate_prop` |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `1nfx_round_trophy` | `trophy` ถ้วย 1.15 m เลข 1 | 0.005 | 1.44 × 0.97 × 1.58 | 3,920 / 4,000 | 599 | 21.5 | fail=0 warn=5 | 0 / 0 |
-| `1nfx_round_pedestal` | `pedestal` 2 ชั้น + `paint_band` + `coin` | 0.005 | 1.20 × 1.20 × 1.01 | 2,548 / 2,600 | 630 | 6.0 | fail=1 warn=4: `deviation` p95 7.10 mm, `sagitta` p99 5.0 mm (WARN) | 0 / 0 |
-| `1nfx_round_drum` | `padded_drum` | 0.005 | 1.56 × 1.56 × 0.86 | 3,528 / 3,600 | 511 | 14.0 | fail=1 warn=5: `lumpiness` wobble 2.40° | 0 / 0 |
-| `1nfx_round_lantern` | `lantern` | 0.004 | 0.62 × 0.62 × 1.15 | 2,156 / 2,200 | 1,033 | 9.0 | fail=1 warn=5: `lumpiness` roughness 3.81° | 0 / 0 |
-| `1nfx_round_honeypot` | `vase` + `pour_glaze` + `lid` | 0.004 | 0.85 × 0.84 × 1.01 | 2,548 / 2,600 | 954 | 9.4 | fail=0 warn=3 | 0 / 0 |
-| `1nfx_round_marker` | `ring_marker` (`colliders=0`) | 0.005 | 1.44 × 1.44 × 0.22 | 1,468 / 1,500 | 394 | 3.9 | fail=0 warn=4 | 0 / 0 |
+| `1nfx_round_trophy` | `trophy` ถ้วย 1.15 m เลข 1 | 0.005 | 1.44 × 0.97 × 1.58 | 3,920 / 4,000 | 599 | 14.5 | fail=0 warn=5 | 0 / 0 |
+| `1nfx_round_pedestal` | `pedestal` 2 ชั้น + `paint_band` + `coin` ดาวหน้าเดียว | 0.005 | 1.20 × 1.20 × 1.01 | 2,548 / 2,600 | 630 | 3.8 | fail=0 warn=3 | 0 / 0 |
+| `1nfx_round_drum` | `padded_drum` | 0.005 | 1.56 × 1.56 × 0.88 | 3,528 / 3,600 | 510 | 11.1 | fail=0 warn=6 | 0 / 0 |
+| `1nfx_round_lantern` | `lantern` | 0.004 | 0.61 × 0.62 × 1.15 | 2,156 / 2,200 | 1,033 | 8.1 | fail=1 warn=5: `lumpiness` roughness 3.82° | 0 / 0 |
+| `1nfx_round_honeypot` | `vase` + `pour_glaze` + `lid` | 0.004 | 0.84 × 0.84 × 1.01 | 2,548 / 2,600 | 954 | 7.1 | fail=0 warn=4 | 0 / 0 |
+| `1nfx_round_marker` | `ring_marker` (`colliders=0`) | 0.005 | 1.44 × 1.44 × 0.22 | 1,468 / 1,500 | 394 | 2.7 | fail=0 warn=3 | 0 / 0 |
 
-ทั้งชุด `qa_fail=3 qa_warn=26`, `validate_prop` fail=0 warn=0 ทุกไฟล์, render 6/6 ทุกชิ้นเป็น 1 shell
+ทั้งชุด `qa_fail=1 qa_warn=26` (ก่อนแก้ fail=3: แท่น, กลอง, โคม), `validate_prop` fail=0 warn=0 ทุกไฟล์, render 6/6 ทุกชิ้นเป็น 1 shell
 
 การแก้ที่ลองแล้ว:
 
 | เปลี่ยน | ผล |
 | --- | --- |
-| pedestal งบ × 1.4 (3,640) | 3,566 tris (880 tris/m²), `fail=0 warn=4` (`deviation` p95 1.07 mm, sagitta ผ่าน), `validate_prop` 0 / 0 |
-| drum งบ × 1.4 (5,040) | ยัง FAIL `lumpiness` wobble 2.58° |
-| lantern งบ × 1.4 (3,080) | ยัง FAIL `lumpiness` roughness 3.66° |
+| pedestal เหรียญ `double_sided=False` งบเดิม 2,600 | fail 1 → 0: `deviation` p95 5.17 → 1.40 mm (ลายดาวสองหน้ากินงบจนผนังแท่นได้ด้านไม่พอ) |
+| pedestal งบ 2,830 (เหรียญสองหน้า) | fail=0 `deviation` 1.59 mm แต่หนาแน่นกว่า (684 tris/m²) |
+| pedestal ชั้นเป็น `detail` + `stage_ratio` 1.5 | fail=2 (`deviation` 5.05 mm, fold 0.24%) |
+| drum `cushion_dome` 0.06 + `base_dome` 0 | fail 1 → 0: wobble 2.50 → 1.16° (WARN), เบาะดูพองขึ้น |
+| drum งบ 4,400 / 4,800, voxel 0.004 / 0.0035 | ยัง FAIL wobble 2.3-3.2° (wobble อยู่บนโดมเตี้ยกว้างของเบาะ ไม่ใช่เรื่องความหนาแน่น) |
+| lantern `bar_radius` 0.03 + `hanger_minor` 0.028 (+ `band_edge` 0.028 / `bars` 4) | แย่ลง roughness 4.35-4.57° งบเพิ่มไม่ได้ (1,033 tris/m²) |
+| pedestal งบ × 1.4 (engine เก่า) | 3,566 tris (880 tris/m²), `fail=0 warn=4` |
 
 ## 8. ข้อผิดพลาดที่พบบ่อย
 
 | เห็นอะไร | key ที่ขึ้น | สาเหตุ | แก้ |
 | --- | --- | --- | --- |
-| clay: ขอบแท่นกว้างเป็นเหลี่ยม ชั้นล่างเป็นคลื่น zebra: แถบหักเป็นขั้น | `deviation` FAIL p95 7.10 mm, `sagitta` WARN (เหลี่ยม R 0.14 m ~8 ด้าน) | ของกลม Ø 1.2 m ที่ 630 tris/m² ได้ด้านไม่พอ (กฎ R 0.5-1 m ต้อง 36-48 ด้าน) | งบ × 1.4 (880 tris/m²) ผ่าน (วัดแล้ว) ของกลม Ø ≥ 1 m เริ่มที่ ~850-900 tris/m² |
-| zebra: แถบซิกแซกบนลอนกลองและเบาะ จุดแตกที่ห่วงคาดล่างกับฐาน และที่ห่วงชูชีพแตะกลอง | `lumpiness` FAIL wobble 2.40°, `folds` WARN 18 ขอบ | ลอนตั้ง 16 ลอนบนผิว 6.9 m² normals ส่ายข้ามสามเหลี่ยมใหญ่, fold อยู่ที่ z ≈ 0.15 m (ห่วงคาดล่าง), ≈ 0.54 m (จุดที่ห่วงชูชีพแตะ) และ ≈ 0.7 m (เบาะ) | เพิ่มงบ 40% ไม่พอ (วัดแล้ว) ลองลด `staves` หรือ `bulge` แล้ววัดใหม่ ห้ามส่งโดยไม่ดู zebra |
-| clay: ซี่โคมเป็นปล้อง ผิวหลังคามีก้อน | `lumpiness` FAIL roughness 3.81°, `folds` WARN 6 ขอบ | ซี่ r 2.4 cm 6 ซี่บนชิ้นเล็ก fold อยู่ที่ปลายซี่ชนแถบรัดบน (z ≈ 0.6-0.65 m) | เพิ่มงบ 40% ไม่พอ (วัดแล้ว) ลดจำนวน `bars` หรือขยายซี่แล้ววัดใหม่ |
+| clay: ขอบแท่นกว้างเป็นเหลี่ยม ชั้นล่างเป็นคลื่น zebra: แถบหักเป็นขั้น | `deviation` FAIL p95 5-7 mm, `sagitta` WARN | ของกลม Ø 1.2 m ได้ด้านไม่พอเพราะงานนูนเล็ก (ลายดาวสองหน้าของเหรียญ) กินงบ ผนังกระบอกใหญ่ครองพื้นที่ใน p95 | ลดงานนูนที่ไม่เห็นก่อน (เหรียญ `double_sided=False` ผ่านที่งบเดิม วัดแล้ว) แล้วค่อยเพิ่มงบ |
+| zebra: แถบซิกแซกบนเบาะและหน้าฐาน จุดแตกที่ห่วงคาดล่างกับฐาน และที่ห่วงชูชีพแตะกลอง | `lumpiness` FAIL wobble 2.4-2.5°, `folds` WARN | wobble อยู่บนโดมเตี้ยกว้าง (เบาะโป่ง 3.5 cm บน R 0.5 m, หน้าฐานโป่ง 1.2 cm) ไม่ใช่ลอนกลอง | ค่าเริ่มใหม่ `cushion_dome` 0.06, `base_dome` 0 ผ่าน (วัดแล้ว) งบหรือ voxel ไม่ช่วย |
+| clay: ซี่โคมเป็นปล้อง ผิวหลังคามีก้อน | `lumpiness` FAIL roughness 3.82°, `folds` WARN | ซี่ r 2.4 cm 6 ซี่ ฐานโคมและหลังคากรวยบนชิ้นเล็ก 2.1 m² ที่ 1,033 tris/m² | ขยายซี่/ห่วง หรือลดซี่ แย่ลง (วัดแล้ว) ต้องการงบเกินเพดานความหนาแน่น ยังไม่มีค่าที่ผ่าน |
 | clay: ใบลอเรลและดาวในโล่เป็นเศษยับบนถ้วย | `dihedral` WARN p90 36.3°, `flat_panels` WARN | งานนูนบาง (1.4-2.5 cm) บนถ้วย 1.58 m ที่ 599 tris/m² | ผ่านเกณฑ์ตัวเลข แต่ดูภาพก่อนส่ง ถ้ายับให้ลด `leaves` หรือตัด `laurel=False` |
 | colour: แถบสีบนแท่นเป็นฟันเลื่อย | | `paint_band` เรียบเสมอผิว เส้นแบ่งสีขึ้นกับ voxel | คง `smooth_roles`/`crisp_roles` ของ engine ไว้ หรือใช้ `raised_band` ที่นูน 3 mm ให้เส้นแบ่งเป็นขั้นจริง |
 | งานนูนลอยจากผิวหรือหายเข้าไปในเนื้อ | `deviation` | ส่ง `curve` ที่ไม่ใช่ profile ของชิ้นจริง หรือ `azimuth` ผิดด้าน | ใช้ `outer`/`profile` ที่ method คืน และ `azimuth=-90` สำหรับด้านหน้า |
@@ -203,4 +209,4 @@ Blender 4.2.3, 2026-11-24, variant `house`, `SculptBuilder` ธรรมดา, 
 5. export ด้วย `export_prop.py --format native --max-res 512 --shared-ytd <set>_tex` (ไม่ใส่ `--factory-startup`) ตาม `references/pipeline.md` หัวข้อ 13
 6. รายงานว่ายังไม่ได้ทดสอบในเกม marker ที่หมุนหรือลอยทำด้วยสคริปต์ spawn ตาม `prop-forge/references/integration.md`
 
-ชิ้น demo ที่ยัง fail (`1nfx_round_pedestal` ที่งบเดิม, `1nfx_round_drum`, `1nfx_round_lantern`) ห้ามส่งตามสภาพนั้น
+ชิ้น demo ที่ยัง fail (`1nfx_round_lantern`) ห้ามส่งตามสภาพนั้น

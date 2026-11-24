@@ -12,6 +12,7 @@
 | 4 | roles | role ต่อหน้า = node ที่ใกล้ที่สุด (argmin) ที่จุดกลางหน้า, majority filter 3 รอบ, ถ้า `smooth_roles` เกลี่ยเส้นแบ่งสี 4 รอบ (น้ำหนัก 0.5) แล้วฉายกลับลงผิว SDF | `roles` |
 | 5 | high | object `<id>_high` (material `sf_role_<role>` ต่อ role) smooth ทั้งตัว | `high_object` |
 | 6 | reduce | ดูหัวข้อถัดไป | `reduce` |
+| 6.5 | refine | `SurfaceRefiner` (`SculptBuilder.refine(low)`) หมุนขอบหลังย่อเพื่อลดมุมพับ ให้คะแนนแต่ละการหมุนจากมุมระหว่างหน้า (ยกกำลังสอง) ระยะห่างจากผิว SDF ที่จุดใหม่ และความเอียงของหน้าเทียบ normal ของ SDF ที่มุม หมุนเฉพาะระหว่างหน้า role เดียวกันและต้องหันออกเหมือนเดิม แล้วสร้าง mesh ใหม่ (ทิ้งหน้าซ้ำ) และ repair อีกรอบ `build()` เรียกให้อัตโนมัติ ผลอยู่ใน `metrics.folds.refine` | |
 | 7 | normals | smooth ทุกหน้า ลบ `sharp_edge`/`sharp_face` แล้ว `DATA_TRANSFER` (`CUSTOM_NORMAL`, `POLYINTERP_NEAREST`, REPLACE 1.0) จาก high แล้ว apply นี่คือขั้นสุดท้ายของ geometry | `normals` |
 | 8 | poly parts | `bevel_box`/`poly_part`: smooth + `WEIGHTED_NORMAL` (FACE_AREA, 50, keep_sharp) + `TRIANGULATE` (BEAUTY, keep_custom_normals) apply แล้ว join เข้า low | |
 | 9 | recentre | จุดต่ำสุด z = 0, กลางกล่อง XY = 0 (ย้าย high ไปด้วย ค่าที่ย้ายเก็บเป็น `shift`) | |

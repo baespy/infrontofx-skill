@@ -38,13 +38,13 @@ recipe เรียกได้จาก Python เท่านั้น สเ�
 
 | method | ทำอะไร | พารามิเตอร์หลัก (ค่าเริ่ม) | ทำไมค่านี้ |
 | --- | --- | --- | --- |
-| `cloud(center, size, roles, gradient, crease, flat, seed, fillet, collide, name)` | แกนทรงรี + ลอนแถวล่าง (≥ 4 ลอน สลับหน้าหลัง) + แถวกลาง + ลอนยอด 2 ลอน ตัดก้นแบน | `size` (1.9, 1.05, 0.95), `roles` ("snow",), `gradient` "x"/"z"/None, `crease` 0.22, `flat` 0.1 | ลอนล่าง r 22-28% ของความสูง ลอนกลาง 29-36%, fillet ลอน = `crease` × รัศมีลอนเฉลี่ย (≈ 6 cm) ต่ำกว่ากฎหลอม 0.5-1.0r โดยตั้งใจให้เห็นร่องระหว่างลอน, ก้นตัดที่ 10% ของความสูง มน 0.6 × ระยะตัด, ไล่สีแบ่ง role เท่าๆ กันตามแกน |
+| `cloud(center, size, roles, gradient, crease, flat, seed, fillet, collide, name)` | ซาลาเปาฐานเตี้ยกว้าง + ลอนกลมแถวหน้า 5 ลอนเรียงจังหวะเล็ก-กลาง-ใหญ่-กลาง-เล็ก (ลอนใหญ่แตะยอด) + ลอนหลัง 2 ลอน ทุกลอนนั่งบนก้นแบน | `size` (1.9, 1.05, 0.95), `roles` ("snow",), `gradient` "x"/"z"/None, `crease` 0.22, `flat` 0.1 | รัศมีลอนหน้า 22/33/45/35/24% ของความสูง ลอนหลัง 30-31% (`cloud_lobes(width, depth, height, rng, flat=0.1)`), ลอนเป็นทรงกลม (ไม่ใช่ทรงรีแบน) เส้นรอบนอกจึงอ่านเป็นก้อนเมฆชัด ไม่ใช่มันฝรั่งยับ, fillet ลอน = `crease` × รัศมีลอนเฉลี่ย (≈ 6 cm) ให้เห็นร่องระหว่างลอน (`crease` 0.3 ทำ wobble แย่ลง 2.6°), ก้นตัดที่ 10% ของความสูง มน 0.6 × ระยะตัด, ไล่สีแบ่ง role เท่าๆ กันตามแกน |
 | `cloud_skirt(center, radius=0.5, height=0.22, roles, gradient, count, crease=0.3, ...)` | วงลอนรอบแผ่นทรงรี ตัดก้น | | ลอน r 0.92 × ความสูง จำนวนตามเส้นรอบวง / 1.3r, fillet 0.3r คืน `radius` และ `top` ไว้วางของบน |
 | `pot(center, height=0.5, radius=0.34, base_ratio=0.74, wall=0.04, rim=None, soil_drop=0.07, bulge=None, band=True, ...)` | กระถาง lathe ท้องป่อง ขอบ torus แถบคาด ดิน | | ขอบปาก minor 8.5% ของความสูง (4.3 cm) fillet 0.45 × ขอบ, ท้องป่อง 8% ของรัศมีปาก, ผนัง 4 cm |
 | `leaf(base, length=0.36, width=0.22, yaw, pitch=30, roll, thickness=None, vein=True, shape=0.62, fillet=0.02, ...)` | ใบพองหนา ร่องเส้นกลางใบ | | หนา max(3.2 cm, 17% ของความกว้าง), ขอบมน 48% ของความหนา, โดม 26%, ร่อง r 7.5% ของความกว้าง (subtract fillet 0.45r) |
 | `stem(points, radius=0.015, taper=0.75, ...)`, `flower(center, radius=0.09, petals=5, facing, cup=14, ...)`, `berry(top, size=0.09, kind="strawberry", hang, ...)` | ก้าน ดอก 5 กลีบ ผลสตรอว์เบอร์รี/บลูเบอร์รี/ผลกลม | | ก้านเรียว 75%, กลีบหนา max(1.8 cm, 22% ของ r) งุ้ม 14° |
 | `potted_plant(center, pot_height=0.5, pot_radius=0.34, leaves=8, leaf_length=0.4, leaf_width=0.25, flowers=3, berries=3, ...)` | กระถาง + กอใบ (62% ล่างเอียง ~12°, ที่เหลือเอียง 55°) + ดอกบนก้าน + ผลห้อยข้ามขอบ | | ก้านดอก r 2.1 cm ก้านผล r 1.8 cm, ผล 12.5 cm, กอทั้งกอใน group fillet 0.03 |
-| `pastry_stand(center, radius=0.52, height=0.36, sprinkles=0, ...)` | ถาดขาตั้ง lathe + คัพเค้ก + โดนัทเอียง + ขนมปังมีรอยกรีด | | piping ขอบถาด torus minor 2.6 cm (กฎ 2.5-3.5 cm), ขนมแต่ละชิ้นวางตามระดับก้นจาน (`dish_height`) |
+| `pastry_stand(center, radius=0.52, height=0.36, sprinkles=0, ..., scores=3, ribs=12)` | ถาดขาตั้ง lathe + คัพเค้ก + โดนัทเอียง + ขนมปังมีรอยกรีด | | piping ขอบถาด torus minor 2.6 cm (กฎ 2.5-3.5 cm), ขนมแต่ละชิ้นวางตามระดับก้นจาน (`dish_height`), `scores` จำนวนรอยกรีดขนมปัง `ribs` จำนวนจีบถ้วย (2 และ 8 ยังไม่แก้ fold วัดแล้ว) |
 | `cupcake(base, radius=0.17, height=0.52, ribs=12, turns=2.5, cherry=True, ...)` | ถ้วยกระดาษ lathe + จีบ 12 แคปซูล + เนื้อเค้ก + ครีมเกลียว + เชอร์รี่ | | จีบ r 16% ของรัศมี fillet 0.9 × จีบ, ครีมเป็นท่อหนึ่งเส้นต่อรอบ เรียวลง 42% |
 | `donut(center, major=0.13, minor=0.066, icing=True, sprinkles=0, rot, ...)` | torus + ไอซิ่งตัดครึ่งบน + ลอนไอซิ่งย้อย + sprinkles | | major : minor ≈ 2 : 1, ลอนย้อย 10 ต่อเมตร ห้อย 0.36 × minor |
 | `bread(center, size=(0.4, 0.22, 0.17), yaw=0, scores=3, ...)` | ก้อนขนมปังรี + ท้องโป่ง + รอยกรีดแคปซูล subtract | | รอยกรีดกว้าง 16% ของความกว้าง มน 0.6 × ร่อง |
@@ -114,7 +114,7 @@ if __name__ == "__main__":
 ```
 
 ```powershell
-& $blender -b --factory-startup -P '<project>\work\cafe\hood_figure.py' -- '<skill>' '<project>\work\cafe\build'
+& $blender -b --factory-startup -t 6 -P '<project>\work\cafe\hood_figure.py' -- '<skill>' '<project>\work\cafe\build'
 ```
 
 - `SculptBuilder` ไม่มี `finish()` จบด้วย `b.build(out_dir)` (ผลตาม `references/pipeline.md` หัวข้อ 8)
@@ -131,9 +131,11 @@ $skill   = '<skill>'
 $sf      = "$skill\sculpt-forge\scripts\blender"
 $work    = '<project>\work\organics'
 
-& $blender -b --factory-startup -P "$sf\recipes\organics.py" -- --out $work
-& $blender -b --factory-startup -P "$sf\recipes\organics.py" -- --out $work --only 1nfx_org_chibi,1nfx_org_blob --budget-scale 1.2 --no-render
+& $blender -b --factory-startup -t 6 -P "$sf\recipes\organics.py" -- --out $work
+& $blender -b --factory-startup -t 6 -P "$sf\recipes\organics.py" -- --out $work --only 1nfx_org_chibi,1nfx_org_blob --budget-scale 1.2 --no-render
 ```
+
+จำกัดเธรดเสมอ: `QaRunner.run` ส่ง `-t <bpy.context.scene.render.threads>` ให้ Blender ลูก (`validate_sculpt`, `validate_prop`, `render_sculpt`) ลูกจึงใช้เธรดเท่าตัวแม่ที่รันด้วย `-t 6` และรันทีละตัวผ่าน `subprocess.run` ห้ามรันหลายตระกูลพร้อมกัน
 
 | ตัวเลือก | ค่าเริ่ม | ความหมาย |
 | --- | --- | --- |
@@ -151,34 +153,36 @@ $work    = '<project>\work\organics'
 
 ## 7. demo ที่วัดแล้ว
 
-Blender 4.2.3, 2026-11-24, `SculptBuilder` ธรรมดา, set `1nfx_organic` (รัน 6 ตระกูลพร้อมกัน เวลาจึงสูงกว่ารันเดี่ยว)
+Blender 4.2.3, 2026-11-24, `SculptBuilder` ธรรมดา, set `1nfx_organic`, engine ที่มี `SurfaceRefiner` รันตระกูลเดียว `-t 6` ด้วย `run_seq.ps1`
 
 | id | builder | voxel / `ao_distance` | ขนาด (m) | tris / งบ | tris/m² | วินาที | `SCULPT_QA` | `validate_prop` |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `1nfx_org_cloud` | `cloud` ไล่ pink → snow → sky | 0.006 / 0.24 | 1.99 × 0.89 × 0.85 | 3,528 / 3,600 | 774 | 7.8 | fail=1 warn=1: `lumpiness` wobble 2.97° | 0 / 0 |
-| `1nfx_org_plant` | `potted_plant` | 0.005 / 0.18 | 0.92 × 0.93 × 1.03 | 4,116 / 4,200 | 1,263 | 15.3 | fail=0 warn=6 | 0 / 0 |
-| `1nfx_org_pastry` | `pastry_stand` | 0.005 / 0.18 | 1.06 × 1.06 × 0.98 | 4,116 / 4,200 | 1,323 | 18.7 | fail=1 warn=5: `folds` 47 ขอบ (0.24% ของผิว) | 0 / 0 |
-| `1nfx_org_chibi` | `chibi` หูหมี | 0.005 / 0.2 | 1.10 × 1.09 × 1.44 | 5,880 / 6,000 | 1,263 | 13.2 | fail=0 warn=3 | 0 / 0 |
-| `1nfx_org_blob` | `blob_mascot` | 0.005 / 0.2 | 1.30 × 1.21 × 0.89 | 3,528 / 3,600 | 1,005 | 14.0 | fail=0 warn=6 | 0 / 0 |
-| `1nfx_org_snowtree` | `cone_tree` | 0.006 / 0.22 | 1.30 × 1.22 × 1.60 | 4,116 / 4,200 | 616 | 12.1 | fail=0 warn=6 | 0 / 0 |
+| `1nfx_org_cloud` | `cloud` ไล่ pink → snow → sky | 0.0045 / 0.24 | 1.84 × 0.94 × 0.85 | 2,890 / 2,950 | 699 | 7.9 | fail=0 warn=2 | 0 / 0 |
+| `1nfx_org_plant` | `potted_plant` | 0.005 / 0.18 | 0.92 × 0.93 × 1.03 | 4,116 / 4,200 | 1,262 | 13.3 | fail=0 warn=6 | 0 / 0 |
+| `1nfx_org_pastry` | `pastry_stand` | 0.005 / 0.18 | 1.06 × 1.06 × 0.98 | 4,112 / 4,200 | 1,321 | 18.2 | fail=1 warn=5: `folds` 29 ขอบ (0.19% ของผิว) | 0 / 0 |
+| `1nfx_org_chibi` | `chibi` หูหมี | 0.005 / 0.2 | 1.10 × 1.09 × 1.44 | 5,868 / 6,000 | 1,260 | 13.0 | fail=0 warn=3 | 0 / 0 |
+| `1nfx_org_blob` | `blob_mascot` | 0.005 / 0.2 | 1.30 × 1.21 × 0.89 | 3,520 / 3,600 | 1,003 | 18.0 | fail=0 warn=6 | 0 / 0 |
+| `1nfx_org_snowtree` | `cone_tree` | 0.006 / 0.22 | 1.30 × 1.22 × 1.60 | 4,116 / 4,200 | 616 | 11.0 | fail=0 warn=6 | 0 / 0 |
 
-ทั้งชุด `SCULPT_QA fail=2 warn=27`, `validate_prop` fail=0 warn=0 ทุกไฟล์, render 6/6 ชิ้นที่ผ่านดีที่สุดคือ chibi (dihedral p90 21.8°, deviation p95 1.22 mm) ความหนาแน่น 616-1,323 tris/m² สูงกว่าฮีโร่ 2-4 m เพราะผิวน้อย (`references/smooth-craft.md` หัวข้อ 10)
+ทั้งชุด `SCULPT_QA fail=1 warn=28` (ก่อนแก้ fail=2: เมฆ, ถาดขนม), `validate_prop` fail=0 warn=0 ทุกไฟล์, render 6/6 ความหนาแน่น 616-1,321 tris/m² ชิ้นเล็กหนาแน่นกว่าฮีโร่ 2-4 m เพราะผิวน้อย (`references/smooth-craft.md` หัวข้อ 10) เพดานงานนี้ ~700 tris/m² จึงไม่เพิ่มงบชิ้นที่เกินอยู่แล้ว
 
 การแก้ที่ลองแล้ว:
 
 | เปลี่ยน | ผล |
 | --- | --- |
-| cloud งบ × 1.4 (5,040) | ยัง FAIL wobble 2.37° |
-| cloud `crease` 0.5 / 0.8 | wobble 2.84° / 1.95° ยัง FAIL (0.8 ผิวเรียบสุด roughness 0.55° แต่ร่องลอนตื้นลง) |
-| cloud voxel 0.004 | ยัง FAIL wobble 2.96° |
-| pastry งบ × 1.4 (5,880) | แย่ลง: `folds` 37 ขอบ 0.15% และ `lumpiness` wobble 5.56° FAIL |
+| cloud ทรงใหม่ (ลอนกลม 5 + 2 บนก้นแบน) voxel 0.006 → 0.0045 งบ 3,600 → 2,950 | fail 1 → 0: wobble 3.02 → 1.14° (WARN), 774 → 699 tris/m² |
+| cloud ทรงใหม่ voxel 0.006 งบ 3,600 / 3,200 | ยัง FAIL wobble 1.93° / 1.76° |
+| cloud ทรงใหม่ `crease` 0.3 | แย่ลง wobble 2.6-2.8° |
+| cloud ทรงเดิม งบ × 1.4 / `crease` 0.5, 0.8 / voxel 0.004 (engine เก่า) | ยัง FAIL wobble 2.37 / 2.84, 1.95 / 2.96° |
+| pastry `scores` 2, `ribs` 8 | `folds` 24-30 ขอบ 0.18-0.20% ยัง FAIL (รอยพับจริงที่ขอบถาดและขดครีม) |
+| pastry งบ × 1.4 (engine เก่า) | แย่ลง: `folds` 37 ขอบ 0.15% และ `lumpiness` wobble 5.56° FAIL |
 
 ## 8. ข้อผิดพลาดที่พบบ่อย
 
 | เห็นอะไร | key ที่ขึ้น | สาเหตุ | แก้ |
 | --- | --- | --- | --- |
-| zebra: แถบซิกแซกบนลอนกลางของเมฆ และจุดบีบตรงที่ลอนชนกัน clay ดูเรียบ | `lumpiness` FAIL shading wobble 2.97° | ลอนใหญ่ผิว 4.6 m² ที่ 3,600 tris normals ที่โอนมาส่ายข้ามสามเหลี่ยมใหญ่ | ยังไม่มีค่าที่วัดแล้วว่าผ่าน (ตารางหัวข้อ 7) เพิ่ม `crease` ช่วยมากที่สุด ห้ามส่งโดยไม่ดู zebra และบันทึกเหตุผล |
-| zebra: จุดแตกรอบก้นคัพเค้กบนจาน ในขดครีม และที่ขอบถาด clay: จีบถ้วยเป็นปล้อง | `folds` FAIL 47 ขอบ | fold กระจุกที่ก้นถ้วยบนพื้นจาน (z ≈ 0.33 m) ซึ่งถ้วยหลอมกับถาดแบบ k = 0, ในขดครีม (z 0.56-0.69 m) และที่ piping ขอบถาด | เพิ่มงบไม่ช่วย (แย่ลง วัดแล้ว) ประกอบเองโดยห่อขนมใน `with b.group("items", fillet=0.015):` ให้มี fillet กับถาด แล้ววัดใหม่ (ยังไม่วัด) |
+| เมฆดูเป็นมันฝรั่งยับ zebra: แถบซิกแซกบนลอนกลาง | `lumpiness` FAIL shading wobble ~3° | ทรงเดิมเป็นลอนทรงรีเล็กหลายชั้นสลับหน้าหลัง และ voxel 0.006 | ทรงใหม่ของ `cloud` (ลอนกลมเรียงจังหวะบนก้นแบน) + voxel 0.0045 ผ่าน (วัดแล้ว) อย่าเพิ่ม `crease` เกิน 0.22 |
+| zebra: จุดแตกรอบก้นคัพเค้กบนจาน ในขดครีม และที่ขอบถาด clay: จีบถ้วยเป็นปล้อง | `folds` FAIL 29 ขอบ | fold กระจุกที่ก้นถ้วยบนพื้นจาน (z ≈ 0.33 m) ซึ่งถ้วยหลอมกับถาดแบบ k = 0, ในขดครีม (z 0.56-0.69 m) และที่ piping ขอบถาด | เพิ่มงบไม่ช่วย (แย่ลง วัดแล้ว) ประกอบเองโดยห่อขนมใน `with b.group("items", fillet=0.015):` ให้มี fillet กับถาด แล้ววัดใหม่ (ยังไม่วัด) |
 | clay: ใบเป็นแผ่นแบน มีรอยทแยงบนใบ | `flat_panels` WARN (92 แผง), `dihedral` p90 44.5° | ใบบาง 3.2 cm ผิวเกือบแบน | ยอมรับได้ถ้าเงาดูเป็นใบโค้ง ถ้าต้องการโค้งชัดเพิ่ม `pitch`/`roll` หรือความหนาใบ |
 | ตา แก้ม หรือปากหาย หรือเลอะเป็นก้อน | `deviation` max สูง | node `detail` กินผิวเกิน `detail_share` engine เลิกกันความหนาแน่น หรือชิ้นเล็กกว่า max(4 voxel, 15 mm) ถูกทิ้งเป็น speck | ดู warning `detail nodes cover N%` ใน `SCULPT_PROP` ใส่ `detail` เฉพาะชิ้นหน้า ขยายชิ้นเล็ก |
 | zebra: จุดแตกรอบฐานมงกุฎบนหัวสไลม์ | `folds` WARN (blob 9 ขอบ ทั้งหมดที่ z ≈ 0.68 m) | มงกุฎหลอมหัวด้วย fillet 0.03R (1.1 cm) แถบและขอบ torus ชิดผิวหัว | ประกอบเองให้ fillet ของรอยต่อแคบ ≥ 1.2-1.6r ของชิ้นที่บางสุด (ขอบ torus) แล้ววัดใหม่ |
@@ -197,4 +201,4 @@ Blender 4.2.3, 2026-11-24, `SculptBuilder` ธรรมดา, set `1nfx_organic
 5. export ด้วย `export_prop.py --format native --max-res 512 --shared-ytd <set>_tex` (ไม่ใส่ `--factory-startup`) ตาม `references/pipeline.md` หัวข้อ 13
 6. รายงานว่ายังไม่ได้ทดสอบในเกม ดูตอนกลางคืนว่าตัวสีอ่อนอ่านออก (`references/smooth-craft.md` หัวข้อ 14)
 
-ชิ้น demo ที่ยัง fail (`1nfx_org_cloud`, `1nfx_org_pastry`) ห้ามส่งตามสภาพนั้น
+ชิ้น demo ที่ยัง fail (`1nfx_org_pastry`: `folds` 29 ขอบ ต้องการงบที่เกินเพดานความหนาแน่น หรือห่อขนมใน group ที่มี fillet กับถาด) ห้ามส่งตามสภาพนั้น

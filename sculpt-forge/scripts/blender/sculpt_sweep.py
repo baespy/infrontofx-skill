@@ -1662,14 +1662,25 @@ class SweepBuilder:
         on_sharp = np.zeros(len(co), bool)
         if len(sp):
             on_sharp[sp.ravel()] = True
-        pos = co[lv].copy()
+        fn = np.empty(len(ls) * 3, np.float64)
+        me.polygons.foreach_get("normal", fn)
+        face_n = fn.reshape(-1, 3)[poly_of]
+        base = co[lv]
         hard = on_sharp[lv]
-        shift = cent[poly_of] - pos
+        shift = cent[poly_of] - base
         sl = np.linalg.norm(shift, axis=1, keepdims=True)
-        pos[hard] += shift[hard] * np.minimum(1.0, nudge / np.maximum(sl[hard], 1e-12))
+        pos = base + shift * np.minimum(1.0, nudge / np.maximum(sl, 1e-12))
         ref, ok, dist = self.sample_normals(sampler, pos)
+        retry = np.nonzero(ok & ((ref * face_n).sum(1) < 0.5))[0]
+        if len(retry):
+            near, near_ok, _ = self.sample_normals(sampler, base[retry] + shift[retry] * np.minimum(1.0, 1e-4 / np.maximum(sl[retry], 1e-12)))
+            deep, deep_ok, _ = self.sample_normals(sampler, base[retry] + shift[retry] * 0.35)
+            near_same = near_ok & ((near * face_n[retry]).sum(1) >= 0.5)
+            deep_same = deep_ok & ((deep * face_n[retry]).sum(1) >= 0.5)
+            keep = (ref[retry] * face_n[retry]).sum(1) >= 0.2
+            ref[retry] = np.where(near_same[:, None], near, np.where(deep_same[:, None], deep, np.where(keep[:, None], ref[retry], face_n[retry])))
         diff = self.angles(cn, ref)
-        fix = ok & (hard | (diff > guard_deg))
+        fix = ok & (hard | (diff > guard_deg) | ((cn * face_n).sum(1) < 0.2))
         out = cn.copy()
         out[fix] = ref[fix]
         if np.any(fix):
@@ -1687,6 +1698,7 @@ class SweepBuilder:
             "loops": int(len(lv)),
             "hard_loops": int(hard.sum()),
             "guard_fixed": int(fix.sum()),
+            "side_retried": int(len(retry)),
             "modifier_wrong_side": int((ok & (diff > 60.0)).sum()),
             "vertex_err": [round(float(err.mean()), 3), round(float(np.percentile(err, 95)), 3), round(float(err.max()), 3)] if len(err) else [0, 0, 0],
             "interior_err": [round(float(err_c.mean()), 3), round(float(np.percentile(err_c, 95)), 3), round(float(err_c.max()), 3)] if len(err_c) else [0, 0, 0],
@@ -2034,7 +2046,7 @@ class SweepBuilder:
 
     @staticmethod
     def run_tool(blender, script, args, factory=False, timeout=1800):
-        cmd = [blender, "-b"] + (["--factory-startup"] if factory else []) + ["-P", script, "--"] + list(args)
+        cmd = [blender, "-b"] + (["--factory-startup"] if factory else []) + ["-t", str(max(1, int(bpy.context.scene.render.threads)))] + ["-P", script, "--"] + list(args)
         t0 = time.perf_counter()
         proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
         tags = ("YDR_EXPORT", "YBN_EXPORT", "YTYP_EXPORT", "YMAP_EXPORT", "SHARED_YTD", "PACKAGE_READY", "MAP_EXPORT", "DDS_PREENCODED", "FAIL", "WARN", "MAP_INSPECT", "PASS")

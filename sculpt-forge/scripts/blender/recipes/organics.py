@@ -151,38 +151,28 @@ class OrganicsRecipes:
         return roles
 
     @staticmethod
-    def cloud_lobes(width, depth, height, rng):
+    def cloud_lobes(width, depth, height, rng, flat=0.1):
         lobes = []
-        base_count = max(4, int(round(width / (0.44 * height))))
-        for i in range(base_count):
-            u = -0.4 + 0.8 * i / (base_count - 1)
-            edge = abs(u) / 0.4
-            r = height * (0.27 - 0.05 * edge) * rng.uniform(0.93, 1.07)
-            v = (0.19 if i % 2 else -0.19) + rng.uniform(-0.04, 0.04)
-            lobes.append({"loc": (u * width, v * depth, 0.04 * height + r), "radii": (1.18 * r, min(r, 0.36 * depth), r), "tier": 0})
-        mid_count = max(3, base_count - 1)
-        for i in range(mid_count):
-            u = -0.29 + 0.58 * i / (mid_count - 1) + rng.uniform(-0.02, 0.02)
-            edge = min(1.0, abs(u) / 0.29)
-            r = height * (0.36 - 0.06 * edge) * rng.uniform(0.95, 1.05)
-            v = rng.uniform(-0.06, 0.06)
-            lobes.append({"loc": (u * width, v * depth, height * (0.46 + 0.03 * (1.0 - edge))), "radii": (1.1 * r, min(r, 0.42 * depth), r), "tier": 1})
-        peak = rng.uniform(-0.1, 0.04)
-        r = 0.33 * height
-        lobes.append({"loc": (peak * width, rng.uniform(-0.04, 0.04) * depth, height - r), "radii": (1.12 * r, min(r, 0.4 * depth), r), "tier": 2})
-        r = 0.26 * height
-        lobes.append({"loc": ((peak + 0.21) * width, rng.uniform(-0.04, 0.04) * depth, 0.9 * height - r), "radii": (1.1 * r, min(r, 0.38 * depth), r), "tier": 2})
+        floor = float(flat) * height
+        front = ((-0.36, 0.22), (-0.18, 0.33), (0.03, 0.45), (0.23, 0.35), (0.38, 0.24))
+        for u, k in front:
+            r = height * k * rng.uniform(0.98, 1.02)
+            z = max(floor + 0.86 * r, height - r) if k >= 0.45 else floor + 0.86 * r
+            lobes.append({"loc": (u * width, -0.05 * depth + rng.uniform(-0.015, 0.015) * depth, z), "radii": (r, min(r, 0.44 * depth), r), "tier": 1})
+        for u, k in ((-0.09, 0.3), (0.14, 0.31)):
+            r = height * k * rng.uniform(0.98, 1.02)
+            lobes.append({"loc": (u * width, 0.16 * depth, floor + 0.92 * r), "radii": (1.05 * r, min(r, 0.4 * depth), r), "tier": 2})
         return lobes
 
     def cloud(self, center=(0.0, 0.0, 0.0), size=(1.9, 1.05, 0.95), roles=("snow",), gradient="x", crease=0.22, flat=0.1, seed=None, fillet=0.0, collide=False, name="cloud"):
         rng = self.rng(seed)
         width, depth, height = (float(v) for v in size)
         cx, cy, cz = (float(v) for v in center)
-        lobes = OrganicsRecipes.cloud_lobes(width, depth, height, rng)
+        lobes = OrganicsRecipes.cloud_lobes(width, depth, height, rng, flat)
         k = float(crease) * float(np.mean([lobe["radii"][2] for lobe in lobes]))
         nodes = []
         with self.b.group(name, fillet=fillet) as group:
-            core = self.b.ellipsoid((0.38 * width, 0.34 * depth, 0.3 * height), loc=(cx, cy, cz + 0.4 * height), role=OrganicsRecipes.band_role(roles, 0.5), collide=collide)
+            core = self.b.ellipsoid((0.42 * width, 0.34 * depth, 0.2 * height), loc=(cx, cy + 0.03 * depth, cz + (float(flat) + 0.12) * height), role=OrganicsRecipes.band_role(roles, 0.5), collide=collide)
             for lobe in lobes:
                 lx, ly, lz = lobe["loc"]
                 if gradient == "x":
@@ -456,7 +446,7 @@ class OrganicsRecipes:
         result["group"] = group
         return result
 
-    def pastry_stand(self, center=(0.0, 0.0, 0.0), radius=0.52, height=0.36, sprinkles=0, roles=None, seed=None, name="pastry"):
+    def pastry_stand(self, center=(0.0, 0.0, 0.0), radius=0.52, height=0.36, sprinkles=0, roles=None, seed=None, name="pastry", scores=3, ribs=12):
         roles = OrganicsRecipes.merged(self.pastry_roles, roles)
         cx, cy, cz = (float(v) for v in center)
         stand = self.cake_stand(center, radius, height, roles=roles, name=name + "_stand")
@@ -464,9 +454,9 @@ class OrganicsRecipes:
         result = {"stand": stand}
         spots = {"cupcake": (0.0, 0.2 * r), "donut": (-0.42 * r, -0.33 * r), "bread": (0.42 * r, -0.3 * r)}
         floor = {key: OrganicsRecipes.dish_height(stand, x, y) for key, (x, y) in spots.items()}
-        result["cupcake"] = self.cupcake((cx + spots["cupcake"][0], cy + spots["cupcake"][1], floor["cupcake"] - 0.008), 0.32 * r, 1.0 * r, roles=roles, name=name + "_cupcake")
+        result["cupcake"] = self.cupcake((cx + spots["cupcake"][0], cy + spots["cupcake"][1], floor["cupcake"] - 0.008), 0.32 * r, 1.0 * r, ribs=int(ribs), roles=roles, name=name + "_cupcake")
         result["donut"] = self.donut((cx + spots["donut"][0], cy + spots["donut"][1], floor["donut"] + 0.1 * r), 0.24 * r, 0.12 * r, rot=(9.0, -12.0, 0.0), sprinkles=sprinkles, roles=roles, seed=seed, name=name + "_donut")
-        result["bread"] = self.bread((cx + spots["bread"][0], cy + spots["bread"][1], floor["bread"] - 0.012), (0.74 * r, 0.44 * r, 0.3 * r), yaw=32.0, roles=roles, name=name + "_bread")
+        result["bread"] = self.bread((cx + spots["bread"][0], cy + spots["bread"][1], floor["bread"] - 0.012), (0.74 * r, 0.44 * r, 0.3 * r), yaw=32.0, scores=int(scores), roles=roles, name=name + "_bread")
         return result
 
     def chibi(self, center=(0.0, 0.0, 0.0), height=1.3, ears="bear", hood=True, base="cloud", roles=None, seed=None, name="chibi"):
@@ -725,7 +715,7 @@ class OrganicsDemo:
         "gold": {"color": "#D9A441", "finish": "gloss"},
     }
     props = (
-        {"id": "1nfx_org_cloud", "kind": "cloud", "archetype": "cloud", "budget": 3600, "voxel": 0.006, "lod": 150.0, "ao": 0.24, "seed": 7},
+        {"id": "1nfx_org_cloud", "kind": "cloud", "archetype": "cloud", "budget": 2950, "voxel": 0.0045, "lod": 150.0, "ao": 0.24, "seed": 7},
         {"id": "1nfx_org_plant", "kind": "plant", "archetype": "plant", "budget": 4200, "voxel": 0.005, "lod": 120.0, "ao": 0.18, "seed": 3},
         {"id": "1nfx_org_pastry", "kind": "pastry", "archetype": "pastry_stand", "budget": 4200, "voxel": 0.005, "lod": 120.0, "ao": 0.18, "seed": 5},
         {"id": "1nfx_org_chibi", "kind": "chibi", "archetype": "figure", "budget": 6000, "voxel": 0.005, "lod": 150.0, "ao": 0.2, "seed": 11},
@@ -805,7 +795,7 @@ class QaRunner:
         return os.path.normpath(os.path.join(self.folder, "..", "..", "..", "prop-forge", "scripts", "blender", "validate_prop.py"))
 
     def run(self, script, args):
-        command = [self.blender, "-b", "--factory-startup", "-P", script, "--"] + [str(a) for a in args]
+        command = [self.blender, "-b", "--factory-startup", "-t", str(max(1, int(bpy.context.scene.render.threads))), "-P", script, "--"] + [str(a) for a in args]
         proc = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=self.timeout)
         return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
 

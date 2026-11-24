@@ -123,7 +123,7 @@ if __name__ == "__main__":
 ```
 
 ```powershell
-& $blender -b --factory-startup -P '<project>\work\cafe\shop_sign.py' -- '<skill>' '<project>\work\cafe\build'
+& $blender -b --factory-startup -t 6 -P '<project>\work\cafe\shop_sign.py' -- '<skill>' '<project>\work\cafe\build'
 ```
 
 - `SculptBuilder` ไม่มี `finish()` จบด้วย `b.build(out_dir)` ซึ่งคืน dict ผล (`tris`, `blend`, `high_blend`, `metrics`, ...) ตาม `references/pipeline.md` หัวข้อ 8
@@ -139,9 +139,11 @@ $skill   = '<skill>'
 $sf      = "$skill\sculpt-forge\scripts\blender"
 $work    = '<project>\work\signs'
 
-& $blender -b --factory-startup -P "$sf\recipes\signs.py" -- --out $work
-& $blender -b --factory-startup -P "$sf\recipes\signs.py" -- --out $work --only 1nfx_sign_stop --budget 3600 --no-render
+& $blender -b --factory-startup -t 6 -P "$sf\recipes\signs.py" -- --out $work
+& $blender -b --factory-startup -t 6 -P "$sf\recipes\signs.py" -- --out $work --only 1nfx_sign_stop --budget 3600 --no-render
 ```
+
+จำกัดเธรดเสมอ: `QARunner.run` ส่ง `-t <bpy.context.scene.render.threads>` ให้ Blender ลูก (`validate_sculpt`, `validate_prop`, `render_sculpt`) ลูกจึงใช้เธรดเท่าตัวแม่ที่รันด้วย `-t 6` และรันทีละตัวผ่าน `subprocess.run` ห้ามรันหลายตระกูลพร้อมกัน
 
 | ตัวเลือก | ค่าเริ่ม | ความหมาย |
 | --- | --- | --- |
@@ -159,32 +161,45 @@ $work    = '<project>\work\signs'
 
 ## 7. demo ที่วัดแล้ว
 
-Blender 4.2.3, 2026-11-24, voxel 0.005, `lod_dist` 120, set `1nfx_sign` (รัน 6 ตระกูลพร้อมกัน เวลาจึงสูงกว่ารันเดี่ยว)
+Blender 4.2.3, 2026-11-24, voxel 0.005, `lod_dist` 120, set `1nfx_sign`, engine ที่มี `SurfaceRefiner` รันตระกูลเดียว `-t 6` ด้วย `run_seq.ps1`
 
 | id | recipe | ขนาด (m) | tris / งบ | tris/m² | วินาที | `SCULPT_QA` | `validate_prop` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `1nfx_sign_word` | `lobed_plaque_sign` CAFE | 1.90 × 0.32 × 2.13 | 3,820 / 3,900 | 672 | 19.8 | fail=1 warn=5: `lumpiness` roughness 3.22° | 0 / 0 |
-| `1nfx_sign_stop` | `stop_sign` BUS, `text_back=False` | 0.78 × 0.54 × 2.94 | 2,448 / 2,500 | 696 | 10.1 | fail=2 warn=4: `dihedral` p90 45.5°, `deviation` p95 3.23 mm | 0 / 0 |
-| `1nfx_sign_arrow` | `arrow_pillar` PARK | 1.31 × 0.70 × 2.55 | 3,624 / 3,700 | 688 | 7.9 | fail=0 warn=6 | 0 / 0 |
-| `1nfx_sign_totem` | `totem` INFO | 1.06 × 0.56 × 2.14 | 3,864 / 3,950 | 673 | 9.3 | fail=0 warn=4 | 0 / 0 |
-| `1nfx_sign_shop` | `squircle_sign` MART | 1.08 × 0.46 × 1.44 | 2,934 / 3,000 | 670 | 14.8 | fail=0 warn=5 | 0 / 0 |
-| `1nfx_sign_script` | `script_plaque` hello | 1.31 × 0.36 × 0.72 | 1,910 / 1,950 | 665 | 12.9 | fail=1 warn=6: `lumpiness` roughness 3.81°, `split_edges` 2.4% | 0 / 0 |
+| `1nfx_sign_word` | `lobed_plaque_sign` CAFE, `face_puff` 0.04, `piping_radius` 0.05 | 1.90 × 0.33 × 2.13 | 3,820 / 3,900 | 663 | 15.4 | fail=0 warn=6 | 0 / 0 |
+| `1nfx_sign_stop` | `stop_sign` BUS, `text_back=False`, `face_puff` 0.035 | 0.78 × 0.54 × 2.94 | 2,448 / 2,500 | 703 | 9.5 | fail=0 warn=4 (`deviation` p95 2.98 mm WARN) | 0 / 0 |
+| `1nfx_sign_arrow` | `arrow_pillar` PARK | 1.31 × 0.70 × 2.55 | 3,624 / 3,700 | 688 | 7.1 | fail=0 warn=6 | 0 / 0 |
+| `1nfx_sign_totem` | `totem` INFO | 1.06 × 0.56 × 2.14 | 3,870 / 3,950 | 674 | 6.9 | fail=0 warn=2 | 0 / 0 |
+| `1nfx_sign_shop` | `squircle_sign` MART, `face_puff` 0.04, `rim_radius` 0.048 | 1.08 × 0.46 × 1.44 | 2,940 / 3,000 | 656 | 16.3 | fail=0 warn=6 | 0 / 0 |
+| `1nfx_sign_script` | `script_plaque` hello | 1.31 × 0.36 × 0.72 | 1,910 / 1,950 | 666 | 15.0 | fail=1 warn=6: `lumpiness` roughness 3.30° | 0 / 0 |
 
-ทั้งชุด `SCULPT_QA fail=4 warn=30`, `validate_prop` ทุกไฟล์ fail=0 warn=0, render 6/6 ที่เกินเป้าทุกชิ้น: `dihedral` (p90 31-46°), `normal_error` WARN (mean 0.33-0.81°), `deviation` (p95 1.1-2.0 mm, ซุ้ม 3.23 mm) และ `flat_panels` (totem เป็น INFO) ที่ผ่านทุกชิ้น: sagitta p99 0.9-2.7 mm, split ratio 1.22-1.29, 1 shell, ไม่มีชิ้นทะลุกัน
+ทั้งชุด `SCULPT_QA fail=1 warn=30` (ก่อนแก้ fail=4: คำ, ซุ้มรถเมล์, ร้าน, ตัวเขียน), `validate_prop` ทุกไฟล์ fail=0 warn=0, render 6/6 ค่าเริ่มของ builder ยังเป็น `face_puff` 0.0 demo ส่ง `face_puff` และท่อหนาขึ้นผ่าน kwargs ของ `DemoSet.props`
+
+การแก้ที่วัดแล้ว:
+
+| เปลี่ยน | ผล |
+| --- | --- |
+| word `face_puff` 0.04 + `piping_radius` 0.042 → 0.05 | fail 1 → 0: roughness 3.26 → 2.09° (หน้าแผ่นโป่งเป็นผิวโค้งใหญ่ที่ quadric fit ได้ดี ท่อหนาขึ้นได้ด้านต่อรัศมีมากขึ้น) |
+| shop `face_puff` 0.04 + `rim_radius` 0.04 → 0.048 | fail 1 → 0: roughness 3.85 → 2.14° |
+| word / shop `face_puff` 0.025 | ยัง FAIL roughness 3.33 / 3.21° |
+| stop `face_puff` 0.035 | fail 1 → 0: `deviation` p95 3.19 → 2.98 mm (เส้นฉิวเฉียด) |
+| stop `double_sided=False` | fail=0 `deviation` 2.94 mm แต่หลังป้ายเปล่า ไม่ใช้เป็นค่าเริ่ม |
+| stop งบ 2,560 | ยัง FAIL `deviation` 3.05 mm |
+| script `rim_radius` 0.056, `tube_radius` 0.024, `thickness` 0.1, `face_puff` 0.04/0.06, งบ 2,000 | roughness 3.3-4.5° ยัง FAIL (`face_puff` ทำตัวเขียนลอย/จม `deviation` 3.8-4.8 mm) |
+| script `panel_tilt` 20 (ดึง normals หน้าแผ่นให้แบนแรงขึ้น) | หน้าแผ่นหายคลื่นแต่ `normal_error` p99 15.6° FAIL จึงไม่ใช้ |
 
 งบต่อส่วน (`SIGNS_PARTS`) บอกว่างบไปอยู่ที่ไหน: ป้ายเมฆ แผ่น 1,282 / piping 938 / ตัวอักษร 513 + outline 369 / ฐานเสา 505 / เสา 213, totem ตัว 834 / sticker 748 + รูป 269 / ท่อทอง 653 / ตัวอักษร 534 + outline 223 ท่อหนึ่งเส้นรอบป้ายกินงบ 17-25%
 
-งบ demo ตั้งไว้ราว 665-700 tris/m² ซึ่งพอสำหรับคำที่มีเส้นตรงเยอะ คำที่มีตัวโค้งมาก (S, O, C) หรือชิ้นย่อยเยอะให้เริ่มที่ ~900 tris/m² แล้ววัด
+งบ demo ตั้งไว้ราว 655-705 tris/m² (เพดานงานนี้ ~700) ซึ่งพอสำหรับคำที่มีเส้นตรงเยอะเมื่อหน้าแผ่นโป่งและท่อหนา ≥ 4.8 cm คำที่มีตัวโค้งมาก (S, O, C) หรือชิ้นย่อยเยอะ ลองโป่งหน้าแผ่นและขยายท่อก่อนเพิ่มงบ
 
 ## 8. ข้อผิดพลาดที่พบบ่อย
 
 | เห็นอะไร | key ที่ขึ้น | สาเหตุ | แก้ |
 | --- | --- | --- | --- |
-| clay: รอยทแยงเป็นพัดหรือกากบาทบนหน้าแผ่นเรียบ (ใต้เส้นแบ่งของ squircle, หน้า script, หน้าซุ้ม) zebra: แถบแผ่เป็นรัศมีจากมุมแผง | `flat_panels` WARN (tilt mean 15-41°) | แผ่นแบนใหญ่เหลือสามเหลี่ยมใหญ่ไม่กี่ชิ้น normals ที่โอนมาเอียงที่มุม `panel_tilt` 9° ดึงได้เฉพาะมุมที่เอียงไม่เกิน 9° | เพิ่มงบ (SHOP 3,000 → 4,000: tilt mean 38.5° → 14.7° วัดแล้ว) หรือใส่ `face_puff` เล็กน้อยให้เงาหมอนดูตั้งใจ (แนวทางใน `references/qa.md` ยังไม่วัดในตระกูลนี้) |
-| clay: ตัวอักษรยับ มุมตัวอักษรเป็นก้อน zebra: แถบหักฟันเลื่อยบนหน้าตัวอักษร | `lumpiness` (CAFE roughness 3.22°), `folds` WARN | fold ทั้ง 11 จุดของป้ายเมฆอยู่ในโซนตัวอักษร ตัวอักษรได้งบแค่ ~23% ของชิ้น | เพิ่มงบหรือลดส่วนที่กินงบ (piping) แล้ววัดใหม่ ตัวอักษรต้องสูง ≥ ~0.15 m ที่ voxel 5 mm |
+| clay: รอยทแยงเป็นพัดหรือกากบาทบนหน้าแผ่นเรียบ (ใต้เส้นแบ่งของ squircle, หน้า script, หน้าซุ้ม) zebra: แถบแผ่เป็นรัศมีจากมุมแผง | `flat_panels` WARN (tilt mean 15-41°) | แผ่นแบนใหญ่เหลือสามเหลี่ยมใหญ่ไม่กี่ชิ้น normals ที่โอนมาเอียงที่มุม `panel_tilt` 9° ดึงได้เฉพาะมุมที่เอียงไม่เกิน 9° | เพิ่มงบ (SHOP 3,000 → 4,000: tilt mean 38.5° → 14.7° วัดแล้ว) หรือใส่ `face_puff` 0.035-0.04 ให้เงาหมอนดูตั้งใจ (วัดแล้วกับ CAFE, MART, BUS ผ่าน lumpiness/deviation ด้วย) |
+| clay: ตัวอักษรยับ ขอบแผ่นและท่อเป็นปล้อง zebra: แถบหักฟันเลื่อย | `lumpiness` FAIL roughness 3.2-3.9° | ส่วนที่วัด roughness เหลือแค่ขอบมนของแผ่นและท่อขอบบาง (หน้าแบนถูกนับเป็นแผงและตัดทิ้ง) ซึ่งได้ด้านไม่พอที่ ~670 tris/m² | `face_puff` 0.035-0.04 และท่อขอบหนาขึ้น 15-20% ผ่าน (CAFE, MART, BUS วัดแล้ว) ตัวอักษรต้องสูง ≥ ~0.15 m ที่ voxel 5 mm |
 | colour: คำที่มีตัวโค้งเป็นเหลี่ยม เส้นสี outline เป็นฟันเลื่อย | `deviation` FAIL, `sagitta` WARN | งบต่อพื้นที่ต่ำ (SHOP ที่ 3,000 = 670 tris/m²: deviation p95 4.83 mm, sagitta p99 5.1 mm) | งบ 4,000 (≈ 890 tris/m²) ผ่าน `fail=0` (วัดแล้ว) |
-| clay: ซุ้มและห่วงของ `stop_sign` เป็นเหลี่ยม | `dihedral` FAIL p90 45.5°, `deviation` p95 3.23 mm | 13 ส่วนย่อยแบ่งงบ 2,500 (ท่อขอบสองหน้า 395 tris, ห่วงป้ายกลม 359) fold อยู่ที่ขอบล่างซุ้มตรงเสาเข้า (z ≈ 1.9-2.0 m) | งบ 3,600 แก้ dihedral เหลือ WARN 39.3° แต่ deviation ยัง 3.15 mm (FAIL, วัดแล้ว) ลองตัดชิ้นด้านหลัง (`double_sided=False`) หรือลด `rim` ของป้ายกลมแล้ววัดใหม่ |
-| clay: ท่อตัวเขียนเป็นปล้อง zebra: แถบบนท่อหักไม่วนตามท่อ | `lumpiness` roughness 3.81°, `split_edges` 2.4% | ท่อ r 2.1 cm ที่ 665 tris/m² ตัว e และ l กินงบ 360 tris ในท่อเดียว | เพิ่มงบก่อน (ยังไม่วัด) แถบที่วนเป็นระเบียบรอบท่อคือดีไซน์ ไม่ใช่ตำหนิ |
+| clay: ซุ้มและห่วงของ `stop_sign` เป็นเหลี่ยม | `deviation` p95 ~3.2 mm | 13 ส่วนย่อยแบ่งงบ 2,500 (ท่อขอบสองหน้า, ห่วงป้ายกลม, ดาวสองหน้า) | `face_puff` 0.035 ผ่าน (2.98 mm วัดแล้ว) หรือ `double_sided=False` (2.94 mm แต่หลังป้ายเปล่า) |
+| clay: ท่อตัวเขียนเป็นปล้อง หน้าแผ่น script เป็นคลื่นเป็นพัดจากโคนตัวอักษร | `lumpiness` roughness 3.3°, `split_edges` | ตัวเขียนกินงบ 38% ของชิ้น (ไม่ถูกวัดเพราะมุมสูง) roughness มาจากฐานและท่อขอบ, คลื่นบนหน้าแผ่นคือ normals เอียงจาก fillet โคนตัวอักษรกระจายบนสามเหลี่ยมใหญ่ | ยังไม่มีค่าที่ผ่านภายในเพดานความหนาแน่น (ตารางหัวข้อ 7) อย่าใช้ `face_puff` กับ script (ตัวเขียนลอย) แถบที่วนเป็นระเบียบรอบท่อคือดีไซน์ |
 | คำชนท่อขอบหรือเลยขอบแผ่น | | ไม่ได้ส่ง `max_width` ตอนเรียก `layered_word` เอง | builder สำเร็จรูปคำนวณ `max_width` ให้แล้ว ถ้าเรียกเองให้ใส่ความกว้างภายในท่อขอบลบ 0.1-0.24 m |
 | palette หลายแผ่นในโฟลเดอร์เดียว | | หลายสคริปต์ใช้ `set_name` เดียวกันแต่ role ต่างกัน | หนึ่งชุดหนึ่ง palette (`DemoSet.palette` หรือ dict เดียวกันทุกชิ้น) |
 
@@ -199,4 +214,4 @@ Blender 4.2.3, 2026-11-24, voxel 0.005, `lod_dist` 120, set `1nfx_sign` (รั�
 5. export ด้วย `export_prop.py --format native --max-res 512 --shared-ytd <set>_tex` (ไม่ใส่ `--factory-startup`) ตาม `references/pipeline.md` หัวข้อ 13
 6. รายงานว่ายังไม่ได้ทดสอบในเกมจนกว่าผู้ใช้จะเห็นเอง ดูตอนกลางคืนด้วย: ป้ายสีน้ำตาลมืดต้องมีจุดเรืองแสงหรือตัวสีอ่อน (`references/smooth-craft.md` หัวข้อ 14)
 
-ชิ้นที่ยัง fail ใน demo (`1nfx_sign_word`, `1nfx_sign_stop`, `1nfx_sign_script`) ห้ามส่งตามสภาพนั้น แก้ตามตารางหัวข้อ 8 แล้ววัดใหม่ หรือบันทึกเหตุผลว่าเป็นข้อจำกัดของ metric พร้อมภาพ zebra
+ชิ้นที่ยัง fail ใน demo (`1nfx_sign_script`) ห้ามส่งตามสภาพนั้น แก้ตามตารางหัวข้อ 8 แล้ววัดใหม่ หรือบันทึกเหตุผลว่าเป็นข้อจำกัดของ metric พร้อมภาพ zebra

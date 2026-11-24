@@ -1607,6 +1607,148 @@ class QualityProbe:
         }
 
 
+class SurfaceRefiner:
+    def __init__(self, field, voxel, tau=0.002, strain_deg=20.0, strain_weight=4.0, strain_cap_deg=60.0):
+        self.field = field
+        self.voxel = float(voxel)
+        self.h = 0.5 * float(voxel)
+        self.tau = float(tau)
+        self.strain_free = math.radians(float(strain_deg))
+        self.strain_weight = float(strain_weight)
+        self.strain_cap = math.radians(float(strain_cap_deg))
+
+    @staticmethod
+    def face_frame(verts, tris):
+        n = np.cross(verts[tris[:, 1]] - verts[tris[:, 0]], verts[tris[:, 2]] - verts[tris[:, 0]])
+        length = np.linalg.norm(n, axis=1)
+        return n / np.maximum(length, 1e-20)[:, None], 0.5 * length
+
+    @staticmethod
+    def halfedges(tris):
+        return tris.reshape(-1), tris[:, [1, 2, 0]].reshape(-1), tris[:, [2, 0, 1]].reshape(-1)
+
+    @staticmethod
+    def twins(start, end, count):
+        key = np.minimum(start, end).astype(np.int64) * int(count) + np.maximum(start, end)
+        order = np.argsort(key, kind="stable")
+        ks = key[order]
+        first = np.flatnonzero(np.r_[True, ks[1:] != ks[:-1]])
+        size = np.diff(np.r_[first, len(ks)])
+        pair = first[size == 2]
+        h1 = order[pair]
+        h2 = order[pair + 1]
+        good = (start[h1] == end[h2]) & (end[h1] == start[h2])
+        twin = np.full(len(start), -1, np.int64)
+        twin[h1[good]] = h2[good]
+        twin[h2[good]] = h1[good]
+        return twin, key
+
+    @staticmethod
+    def angle(n1, n2):
+        return np.arccos(np.clip((n1 * n2).sum(axis=1), -1.0, 1.0))
+
+    @staticmethod
+    def unit(v):
+        return v / np.maximum(np.linalg.norm(v, axis=1), 1e-20)[:, None]
+
+    @staticmethod
+    def dedupe(tris):
+        ordered = np.sort(tris, axis=1)
+        valid = np.flatnonzero((ordered[:, 0] != ordered[:, 1]) & (ordered[:, 1] != ordered[:, 2]))
+        keep = np.zeros(len(tris), bool)
+        keep[valid[np.unique(ordered[valid], axis=0, return_index=True)[1]]] = True
+        return keep
+
+    def distances(self, points):
+        return self.field.distances(np.ascontiguousarray(points, np.float32)).astype(np.float64)
+
+    def normals(self, points):
+        g = self.field.gradient(np.ascontiguousarray(points, np.float32), self.h).astype(np.float64)
+        return g / np.maximum(np.linalg.norm(g, axis=1), 1e-12)[:, None]
+
+    def strain(self, normal, corners, vnorm):
+        tilt = np.stack([self.angle(normal, vnorm[c]) for c in corners], axis=1)
+        return (np.maximum(tilt - self.strain_free, 0.0) ** 2).sum(axis=1) * self.strain_weight, tilt.max(axis=1)
+
+    def flip_cost(self, n1, n2, outer, sides, dev, strain):
+        cost = self.angle(n1, n2) ** 2
+        for o, side in zip(outer, sides):
+            term = np.zeros(len(n1))
+            term[o[1]] = self.angle(side[o[1]], o[0][o[1]]) ** 2
+            cost = cost + term
+        return cost + ((dev / self.tau) ** 2).sum(axis=1) + strain
+
+    def flip(self, verts, tris, mats, rounds=8):
+        flips = 0
+        count = len(verts)
+        vnorm = self.normals(verts)
+        for _ in range(int(rounds)):
+            start, end, apex = self.halfedges(tris)
+            twin, key = self.twins(start, end, count)
+            h1 = np.flatnonzero(twin > np.arange(len(twin)))
+            h2 = twin[h1]
+            t1 = h1 // 3
+            t2 = h2 // 3
+            a = start[h1]
+            b = end[h1]
+            c = apex[h1]
+            d = apex[h2]
+            new_key = np.minimum(c, d).astype(np.int64) * count + np.maximum(c, d)
+            pick = np.flatnonzero((mats[t1] == mats[t2]) & (c != d) & ~np.isin(new_key, key))
+            if not len(pick):
+                break
+            h1, h2, t1, t2, a, b, c, d, new_key = h1[pick], h2[pick], t1[pick], t2[pick], a[pick], b[pick], c[pick], d[pick], new_key[pick]
+            fn, area = self.face_frame(verts, tris)
+            n1 = fn[t1]
+            n2 = fn[t2]
+            pa, pb, pc, pd = verts[a], verts[b], verts[c], verts[d]
+            m1 = np.cross(pa - pc, pd - pc)
+            m2 = np.cross(pb - pd, pc - pd)
+            area1 = 0.5 * np.linalg.norm(m1, axis=1)
+            area2 = 0.5 * np.linalg.norm(m2, axis=1)
+            m1 = self.unit(m1)
+            m2 = self.unit(m2)
+            k1 = h1 % 3
+            k2 = h2 % 3
+            outer = []
+            for h in (3 * t1 + (k1 + 1) % 3, 3 * t1 + (k1 + 2) % 3, 3 * t2 + (k2 + 1) % 3, 3 * t2 + (k2 + 2) % 3):
+                tw = twin[h]
+                outer.append((fn[np.maximum(tw, 0) // 3], tw >= 0, np.where(tw >= 0, tw // 3, -1)))
+            m = len(pick)
+            samples = np.concatenate([(pa + pb + pc) / 3.0, (pa + pb + pd) / 3.0, 0.5 * (pa + pb), (pc + pa + pd) / 3.0, (pd + pb + pc) / 3.0, 0.5 * (pc + pd)])
+            dist = self.distances(samples).reshape(6, m).T
+            nq = self.normals(0.25 * (pa + pb + pc + pd))
+            s_old1, x_old1 = self.strain(n1, (a, b, c), vnorm)
+            s_old2, x_old2 = self.strain(n2, (b, a, d), vnorm)
+            s_new1, x_new1 = self.strain(m1, (c, a, d), vnorm)
+            s_new2, x_new2 = self.strain(m2, (d, b, c), vnorm)
+            old = self.flip_cost(n1, n2, outer, (n1, n1, n2, n2), dist[:, :3], s_old1 + s_old2)
+            new = self.flip_cost(m1, m2, outer, (m2, m1, m1, m2), dist[:, 3:], s_new1 + s_new2)
+            floor = 1e-4 * float(np.median(area)) + 1e-12
+            worst = np.maximum(np.maximum(x_old1, x_old2), self.strain_cap)
+            safe = ((m1 * nq).sum(axis=1) > 0.2) & ((m2 * nq).sum(axis=1) > 0.2) & (area1 > floor) & (area2 > floor) & (np.maximum(x_new1, x_new2) <= worst)
+            gain = old - new
+            good = np.flatnonzero(safe & (gain > 1e-3 + 0.02 * old))
+            if not len(good):
+                break
+            used = np.zeros(len(tris), bool)
+            made = set()
+            done = 0
+            for i in good[np.argsort(-gain[good])]:
+                faces = [t1[i], t2[i]] + [o[2][i] for o in outer if o[2][i] >= 0]
+                if used[faces].any() or int(new_key[i]) in made:
+                    continue
+                used[faces] = True
+                made.add(int(new_key[i]))
+                tris[t1[i]] = (c[i], a[i], d[i])
+                tris[t2[i]] = (d[i], b[i], c[i])
+                done += 1
+            flips += done
+            if done == 0:
+                break
+        return tris, flips
+
+
 class StageClock:
     def __init__(self):
         self.t0 = time.perf_counter()
@@ -2444,6 +2586,39 @@ class SculptBuilder:
         me.update()
         return {"flipped": int(len(flipped)), "folds": len(folds), "merged_verts": merged, "relaxed_verts": relaxed, "speck_faces": specks}, points
 
+    def refine(self, low):
+        me = low.data
+        faces, sizes = MeshArrays.faces(me)
+        if len(sizes) == 0 or int(sizes.max()) != 3:
+            return {"skipped": "not triangles"}
+        verts = MeshArrays.vertices(me).astype(np.float64)
+        tris = np.ascontiguousarray(faces[:, :3], np.int64)
+        mats = MeshArrays.polygon_ints(me, "material_index").astype(np.int64)
+        tris, flips = SurfaceRefiner(self.grid_field, self.voxel).flip(verts, tris, mats)
+        report = {"flips": int(flips)}
+        keep = SurfaceRefiner.dedupe(tris)
+        if not keep.all():
+            report["dropped_faces"] = int((~keep).sum())
+            tris = tris[keep]
+            mats = mats[keep]
+        new = MeshArrays.build(me.name + "_refined", verts, tris, np.full(len(tris), 3, np.int32))
+        if len(new.polygons) != len(tris) or len(new.vertices) != len(verts):
+            bpy.data.meshes.remove(new)
+            report["rejected"] = True
+            return report
+        new.polygons.foreach_set("material_index", mats.astype(np.int32))
+        for m in me.materials:
+            new.materials.append(m)
+        name = me.name
+        low.data = new
+        if me.users == 0:
+            bpy.data.meshes.remove(me)
+        new.name = name
+        MeshArrays.smooth_all(new)
+        report["repair"] = self.repair(new)[0]
+        self.clock.mark("refine")
+        return report
+
     def transfer_normals(self, low, high):
         MeshArrays.smooth_all(high.data)
         MeshArrays.smooth_all(low.data)
@@ -2702,6 +2877,7 @@ class SculptBuilder:
         high = self.high_object(verts, faces, sizes, roles)
         high_tris = int((sizes - 2).sum())
         low, folds = self.reduce(high, owners)
+        folds["refine"] = self.refine(low)
         self.transfer_normals(low, high)
         low_roles = MeshArrays.polygon_ints(low.data, "material_index")
         low.data.attributes.new("sf_role", "INT", "FACE").data.foreach_set("value", low_roles)

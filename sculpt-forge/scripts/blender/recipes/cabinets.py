@@ -60,20 +60,31 @@ class EngineLoader:
         return True
 
     @staticmethod
-    def builder_class(engine, hold=True):
+    def builder_class(engine, hold=True, settings=None):
         if not hold or not EngineLoader.compatible(engine):
             return engine.SculptBuilder
-        return type("CabinetSculptBuilder", (PlanarHoldMixin, engine.SculptBuilder), {"engine": engine})
+        attrs = {"engine": engine}
+        attrs.update({key: value for key, value in (settings or {}).items() if key in PlanarHoldMixin.settings})
+        return type("CabinetSculptBuilder", (PlanarHoldMixin, engine.SculptBuilder), attrs)
 
 
 class PlanarHoldMixin:
+    settings = ("hold_angle", "hold_area", "hold_share", "hold_reach", "hold_tilt", "hold_flat")
     hold_angle = 2.0
     hold_area = 0.01
     hold_share = 0.15
     hold_reach = 0.02
     hold_tilt = 1.0
+    hold_flat = None
     hold_pins = None
     hold_count = -1
+
+    def planar_enough(self, face):
+        if self.hold_flat is None:
+            return True
+        n = np.array(face.normal[:], np.float64)
+        co = np.array([v.co[:] for v in face.verts], np.float64)
+        return float(np.abs((co - co.mean(axis=0)) @ n).max()) <= float(self.hold_flat)
 
     def protection(self, me, points, radius, detail_owners):
         base = np.asarray(super().protection(me, points, radius, detail_owners), np.int64)
@@ -140,12 +151,13 @@ class PlanarHoldMixin:
         ngons = [f for f in bm.faces if len(f.verts) > 3]
         held = set()
         owners = {}
+        regions = 0
         for face in ngons:
-            if face.calc_area() >= self.hold_area:
+            if face.calc_area() >= self.hold_area and self.planar_enough(face):
+                regions += 1
                 held.update(face.verts)
                 for loop in face.loops:
                     owners.setdefault(loop.vert, []).append(loop)
-        regions = len([f for f in ngons if f.calc_area() >= self.hold_area])
         snapped = self.snap_boundary(owners) if self.hold_reach > 0.0 else 0
         if ngons:
             bmesh.ops.triangulate(bm, faces=ngons, quad_method="BEAUTY", ngon_method="BEAUTY")
@@ -359,8 +371,8 @@ class CabinetsRecipes:
         front = b.text(body, font=self.font, height=height, max_width=max_width, depth=depth, puff=puff, plane="XZ", loc=(x, loc_l, z), role=s["letter"], fillet=0.8 * fillet)
         return {"outline": back, "letters": front}
 
-    def beads(self, b, points, radius=0.019, closed=False, pitch=1.9, blend=0.3, role=None, fillet=0.008):
-        return b.beads([tuple(float(v) for v in p) for p in points], float(radius), spacing=float(pitch) * float(radius), closed=closed, blend=float(blend) * float(radius), role=role or self.theme["metal"], fillet=fillet)
+    def beads(self, b, points, radius=0.019, closed=False, pitch=1.9, blend=0.3, role=None, fillet=0.008, detail=False):
+        return b.beads([tuple(float(v) for v in p) for p in points], float(radius), spacing=float(pitch) * float(radius), closed=closed, blend=float(blend) * float(radius), role=role or self.theme["metal"], fillet=fillet, detail=detail)
 
     def relief(self, b, shape, center, face_y, depth=0.024, edge=0.01, puff=0.006, embed=0.01, role=None, fillet=0.008, plane="XZ", rot=(0.0, 0.0, 0.0)):
         x, z = center
@@ -445,10 +457,10 @@ class CabinetsRecipes:
                 made.append(b.pillow_box((cap, cap, cap), radius=radius, puff=0.006, loc=(x, y, z), role=role or self.theme["cap"], fillet=fillet, mirror_x=True))
         return made
 
-    def edge_guards(self, b, size, base_z, center=(0.0, 0.0), guard=0.08, proud=0.012, cap=0.13, rails=True, mid=None, role=None, fillet=0.008):
+    def edge_guards(self, b, size, base_z, center=(0.0, 0.0), guard=0.08, proud=0.012, cap=0.13, rails=True, mid=None, role=None, fillet=0.008, roll=0.3):
         w, d, h = (float(v) for v in size)
         cx, cy = center
-        r = 0.3 * guard
+        r = float(roll) * guard
         role = role or self.theme["guard"]
         made = []
         x = cx + 0.5 * w - 0.5 * guard + proud
@@ -580,7 +592,7 @@ class CabinetsRecipes:
         parts["colliders"] = colliders
         return parts
 
-    def flight_case(self, b, width=1.2, depth=0.62, height=0.96, lift=0.03, radius_pct=0.06, roles=None):
+    def flight_case(self, b, width=1.2, depth=0.62, height=0.96, lift=0.03, radius_pct=0.06, roles=None, guard_roll=0.42, cap_radius=0.045, guard=0.08, guard_rails=True, rivet_radius=0.018, pin_radius=0.012):
         s = self.slots(roles)
         colliders = []
         face_y = -0.5 * depth
@@ -588,8 +600,8 @@ class CabinetsRecipes:
         parts = {}
         with b.group("case", fillet=0.012):
             parts["body"] = self.body(b, size, base_z=lift, radius_pct=radius_pct, role=s["body"])
-            parts["guards"] = self.edge_guards(b, size, lift, mid=0.76 * height, role=s["guard"])
-            parts["caps"] = self.corner_caps(b, size, lift, role=s["cap"])
+            parts["guards"] = self.edge_guards(b, size, lift, guard=guard, rails=guard_rails, mid=0.76 * height, role=s["guard"], roll=guard_roll)
+            parts["caps"] = self.corner_caps(b, size, lift, radius=cap_radius, role=s["cap"])
         pz = lift + 0.4 * height
         hz = lift + 0.55 * height
         with b.group("cuts", fillet=0.008, op="subtract"):
@@ -600,17 +612,17 @@ class CabinetsRecipes:
             parts["star"] = self.relief(b, {"shape": "star", "r_out": 0.13, "r_in": 0.074, "points": 5, "smooth": 3}, (0.0, pz), face_y - 0.03, depth=0.024, edge=0.011, puff=0.006, embed=0.02, role=s["relief"], fillet=0.01)
             lz = lift + 0.76 * height
             parts["latches"] = b.round_box((0.09, 0.05, 0.075), radius=0.02, loc=(0.26 * width, face_y - 0.01, lz), role=s["accent"], fillet=0.008, mirror_x=True)
-            parts["latch_pins"] = b.capsule((0.26 * width - 0.03, face_y - 0.038, lz - 0.012), (0.26 * width + 0.03, face_y - 0.038, lz - 0.012), 0.009, role=s["metal"], fillet=0.004, mirror_x=True)
+            parts["latch_pins"] = b.capsule((0.26 * width - 0.03, face_y - 0.038, lz - 0.012), (0.26 * width + 0.03, face_y - 0.038, lz - 0.012), pin_radius, role=s["metal"], fillet=0.004, mirror_x=True)
             rz = [lift + 0.3 * height, lift + 0.5 * height]
-            gx = 0.5 * width + 0.012 - 0.04
-            parts["rivets"] = self.rivets(b, [(gx, face_y - 0.012, z) for z in rz], radius=0.012, role=s["metal"])
+            gx = 0.5 * width - guard - 0.032
+            parts["rivets"] = self.rivets(b, [(gx, face_y, z) for z in rz], radius=rivet_radius, sink=0.35, role=s["metal"])
         with b.group("handles", fillet=0.01):
             parts["handle_bar"] = b.capsule((-0.5 * width + 0.004, -0.085, hz), (-0.5 * width + 0.004, 0.085, hz), 0.016, role=s["cap"], fillet=0.008, mirror_x=True)
         self.add_collider(b, (0.0, 0.0, 0.5 * (height + 2.0 * lift)), (width + 0.04, depth + 0.04, height + 2.0 * lift), colliders)
         parts["colliders"] = colliders
         return parts
 
-    def cake_cabinet(self, b, width=0.84, depth=0.58, height=1.36, feet=0.08, radius_pct=0.1, beads=True, roles=None):
+    def cake_cabinet(self, b, width=0.84, depth=0.58, height=1.36, feet=0.08, radius_pct=0.1, beads=True, roles=None, bead_radius=0.03, bead_pitch=2.2, bead_drop=0.04, bead_proud=0.012, bead_detail=False):
         s = self.slots(roles)
         colliders = []
         face_y = -0.5 * depth
@@ -636,8 +648,8 @@ class CabinetsRecipes:
                 parts["heart_{}".format(int(sx))] = self.relief(b, {"shape": "heart", "size": 0.12, "smooth": 2}, (x, door_z + 0.2), face_y - 0.02, depth=0.024, edge=0.01, puff=0.005, embed=0.02, role=s["relief"], fillet=0.008)
             parts["knobs"] = b.sphere(0.026, loc=(0.045, face_y - 0.008, door_z - 0.02), role=s["metal"], fillet=0.008, mirror_x=True)
         if beads:
-            y = face_y - 0.026
-            parts["beads_top"] = self.beads(b, [(-0.5 * width + 0.02, y, crown_z - 0.012), (0.5 * width - 0.02, y, crown_z - 0.012)], radius=0.019, role=s["metal"])
+            y = face_y - float(bead_proud)
+            parts["beads_top"] = self.beads(b, [(-0.5 * width + 0.02, y, crown_z - float(bead_drop)), (0.5 * width - 0.02, y, crown_z - float(bead_drop))], radius=bead_radius, pitch=bead_pitch, role=s["metal"], detail=bead_detail)
         self.add_collider(b, (0.0, 0.0, 0.5 * height), (width + 0.08, depth + 0.08, height), colliders)
         parts["colliders"] = colliders
         return parts
@@ -650,6 +662,7 @@ class CabinetDemo:
         self.out = os.path.abspath(out_dir)
         self.engine_dir = engine_dir
         self.theme = theme
+        self.hold = bool(hold)
         self.builder = EngineLoader.builder_class(sf, hold)
         self.blender = bpy.app.binary_path
         self.validate_script = os.path.join(engine_dir, "validate_sculpt.py")
@@ -662,15 +675,16 @@ class CabinetDemo:
             {"id": "1nfx_cab_atm", "method": "atm", "kwargs": {}, "budget": 4200, "voxel": 0.005, "default_role": "caramel", "archetype": "atm", "lod": 120.0},
             {"id": "1nfx_cab_gacha", "method": "claw_machine", "kwargs": {"roles": pastel if self.theme == "house" else {}}, "budget": 3200, "voxel": 0.005, "default_role": "pink", "archetype": "gacha", "lod": 120.0},
             {"id": "1nfx_cab_kiosk", "method": "market_kiosk", "kwargs": {}, "budget": 8200, "voxel": 0.006, "default_role": "cream", "archetype": "kiosk", "lod": 150.0},
-            {"id": "1nfx_cab_case", "method": "flight_case", "kwargs": {}, "budget": 3700, "voxel": 0.005, "default_role": "caramel", "archetype": "counter", "lod": 120.0},
-            {"id": "1nfx_cab_cake", "method": "cake_cabinet", "kwargs": {}, "budget": 3400, "voxel": 0.005, "default_role": "cream", "archetype": "cabinet", "lod": 120.0},
+            {"id": "1nfx_cab_case", "method": "flight_case", "kwargs": {}, "budget": 3700, "voxel": 0.005, "default_role": "caramel", "archetype": "counter", "lod": 120.0, "hold": {"hold_reach": 0.0}},
+            {"id": "1nfx_cab_cake", "method": "cake_cabinet", "kwargs": {}, "budget": 3400, "voxel": 0.005, "default_role": "cream", "archetype": "cabinet", "lod": 120.0, "hold": {"hold_flat": 0.001}},
         ]
 
     def build(self, spec, overrides):
         started = time.perf_counter()
         args = {"budget": spec["budget"], "voxel": spec["voxel"], "stage_ratio": 2.0}
         args.update({k: v for k, v in overrides.items() if v is not None})
-        b = self.builder(spec["id"], size_class="hero", lod_dist=spec["lod"], set_name="1nfx_cab", archetype=spec["archetype"], palette=self.recipes.palette(), default_role=spec["default_role"], **args)
+        builder = EngineLoader.builder_class(self.sf, self.hold, spec.get("hold"))
+        b = builder(spec["id"], size_class="hero", lod_dist=spec["lod"], set_name="1nfx_cab", archetype=spec["archetype"], palette=self.recipes.palette(), default_role=spec["default_role"], **args)
         parts = getattr(self.recipes, spec["method"])(b, **spec["kwargs"])
         result = b.build(self.out)
         metrics = result["metrics"]
@@ -681,7 +695,7 @@ class CabinetDemo:
 
     def run_blender(self, script, args, log_path):
         os.makedirs(os.path.dirname(log_path), exist_ok=True)
-        cmd = [self.blender, "-b", "--factory-startup", "-P", script, "--"] + [str(a) for a in args]
+        cmd = [self.blender, "-b", "--factory-startup", "-t", str(max(1, int(bpy.context.scene.render.threads))), "-P", script, "--"] + [str(a) for a in args]
         started = time.perf_counter()
         proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
         with open(log_path, "w", encoding="utf-8") as handle:

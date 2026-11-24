@@ -897,6 +897,27 @@ class HighPolyReference:
                 distance[index] = hit[3]
         return location, triangle, distance
 
+    def oriented(self, points, facing, location, triangle, distance, reach=0.002, agree=0.5):
+        a = self.arrays
+        found = np.isfinite(distance)
+        hit_normal = a.poly_normal[a.tri_poly[triangle]]
+        wrong = np.flatnonzero(found & ((hit_normal * facing).sum(axis=1) < agree))
+        moved = 0
+        for index in wrong:
+            want = Vector(facing[index])
+            best = None
+            for co, normal, tri, dist in self.tree.find_nearest_range(Vector(points[index]), float(distance[index]) + reach):
+                if normal is None or want.dot(normal) < agree:
+                    continue
+                if best is None or dist < best[2]:
+                    best = (co, tri, dist)
+            if best is not None:
+                location[index] = best[0]
+                triangle[index] = best[1]
+                distance[index] = best[2]
+                moved += 1
+        return location, triangle, distance, moved
+
     def normals_at(self, location, triangle):
         a = self.arrays
         corners = a.tri_verts[triangle]
@@ -950,6 +971,8 @@ class HighPolyComparison:
         towards = a.poly_centroid[a.loop_poly[sample]] - position
         query = position + towards * np.minimum(1.0, 1e-4 / np.maximum(np.linalg.norm(towards, axis=1), 1e-9))[:, None]
         location, triangle, distance = self.reference.nearest(query)
+        location, triangle, distance, moved = self.reference.oriented(query, a.poly_normal[a.loop_poly[sample]], location, triangle, distance)
+        self.report.metrics["normal_lookup_reoriented"] = int(moved)
         found = np.isfinite(distance)
         reference = self.reference.normals_at(location[found], triangle[found])
         error = EdgeGraph.angle_deg(a.corner_normal[sample][found], reference)

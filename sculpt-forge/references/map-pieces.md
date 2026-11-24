@@ -169,7 +169,7 @@ $out = '<project>\work\cafe_map'
 
 `finish(props_dir, lamps=None, ao=True, ao_distance=1.6, ao_samples=48, save=True)` ทำทีละ shell: สร้าง mesh game และ dense, triangulate, ย่อตามงบ, โอน normals + hard-edge guard, join ด้วย numpy + `normals_split_custom_set`, กล่องชน manifold หันออก แล้ว bake AO ด้วย Cycles CPU (ทุก shell บังกัน) เขียน `Color 1`, meta และบันทึกไฟล์ต่อ shell คืน report
 
-hard-edge guard (`transfer_normals(lo, hi, guard_deg=20.0, nudge=0.0015)`): Data Transfer แบบ `POLYINTERP_NEAREST` ให้ loop บนขอบคม 90° เอา normal จากหน้าฝั่งผิด (110-1,213 loop ต่อชิ้น ผิดถึง 90°) guard จึงสุ่ม normal ใหม่จาก dense ที่จุดเข้าไปในหน้าตัวเอง 1.5 mm ให้ทุก loop บน vertex ของขอบคม และทุก loop ที่ต่างเกิน 20° ห้ามถอด guard ออก
+hard-edge guard (`transfer_normals(lo, hi, guard_deg=20.0, nudge=0.0015)`): Data Transfer แบบ `POLYINTERP_NEAREST` ให้ loop บนขอบคม 90° เอา normal จากหน้าฝั่งผิด (110-1,213 loop ต่อชิ้น ผิดถึง 90°) guard จึงสุ่ม normal ใหม่จาก dense ที่จุดเข้าไปในหน้าตัวเอง 1.5 mm ให้ทุก loop บน vertex ของขอบคม และทุก loop ที่ต่างเกิน 20° ค่าที่สุ่มได้ต้องห่างจาก normal ของหน้าไม่เกิน 60° ถ้าเกินจะสุ่มใหม่ที่ 0.1 mm จากมุม แล้วที่ 35% เข้าไปในหน้า ถ้ายังไม่ได้จะคงค่าเดิมหรือใช้ normal ของหน้า (แก้ normal_error ของม้านั่ง p99 16.2° → 8.4°) ห้ามถอด guard ออก
 
 ย่อเมื่อเกินงบ: planar dissolve 0.5° บนหน้าแบนที่ระบุ (ใต้ลาน ตัวขั้นบันได) ก่อน แล้ว COLLAPSE ด้วย ratio ≥ 0.25 เฉพาะชิ้นที่ย่อได้และ > 400 tris (เส้นไฟไม่ถูกย่อ) และ mark ขอบ > 60° เป็นคม ทดสอบงบ 2,600: 5,348 → 2,562 tris ถ้า `over_budget` เป็น true ให้ลดคุณภาพหรือแยก shell อย่าพึ่ง collapse เพราะทำลาย topology แบบ parametric
 

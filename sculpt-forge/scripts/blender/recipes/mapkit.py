@@ -1227,7 +1227,7 @@ class MapKitRecipes:
 
     @staticmethod
     def run_tool(blender, script, args, factory=False, tags=("PASS", "FAIL", "WARN"), timeout=2400):
-        cmd = [blender, "-b"] + (["--factory-startup"] if factory else []) + ["-P", script, "--"] + [str(a) for a in args]
+        cmd = [blender, "-b"] + (["--factory-startup"] if factory else []) + ["-t", str(max(1, int(bpy.context.scene.render.threads)))] + ["-P", script, "--"] + [str(a) for a in args]
         started = time.perf_counter()
         proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
         lines = [line for line in proc.stdout.splitlines() if line.startswith(tuple(tags))]
@@ -1259,7 +1259,7 @@ class MapKitPreview:
         self.kit = kit
         self.out_dir = out_dir
         self.quick = quick
-        self.pv = kit.sweep_module.SweepPreview(out_dir, (900, 560) if quick else (1280, 800), 16 if quick else samples)
+        self.pv = kit.sweep_module.SweepPreview(out_dir, (900, 560), 16 if quick else samples)
         self.created = []
 
     def emissive_materials(self):
