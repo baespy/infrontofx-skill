@@ -23,13 +23,22 @@ Every skill is a plain folder with a `SKILL.md`, so any agent that reads Agent S
 | --- | --- | --- |
 | Claude Code (plugin, recommended) | `/plugin marketplace add baespy/infrontofx-skill`, then `/plugin install infrontofx-skill@infrontofx` | Automatic. The plugin's `UserPromptSubmit` hook (`hooks/hooks.json`) reads each prompt and tells the model which skills to load (about 20-40 tokens, nothing when no rule matches). It needs bash, which Claude Code on Windows already uses through Git Bash |
 | Claude Code (project copy) | `git clone https://github.com/baespy/infrontofx-skill.git .claude/skills/infrontofx` | Skill descriptions. For the hook too, add a `UserPromptSubmit` command hook to `.claude/settings.json` that runs `bash "$CLAUDE_PROJECT_DIR/.claude/skills/infrontofx/hooks/skill-router.sh"` |
-| OpenAI Codex (GPT) | Copy the skill folders into `~/.codex/skills/`, or use the cross-agent installer `npx skills@latest add baespy/infrontofx-skill -a codex` | `AGENTS.md` |
+| Google Antigravity (all workspaces) | Clone the repo, then `powershell -ExecutionPolicy Bypass -File scripts/install-agents.ps1 -Tool antigravity`. It writes a native plugin to `~/.gemini/config/plugins/infrontofx-skill` with the 8 skills and a `PreInvocation` routing hook, then runs `agy plugin validate`. Run it again after `git pull`; `-Check` reports a stale copy, `-Uninstall` removes it. Do not use `agy plugin install` on this repo: it converts the Claude layout and ends up with 0 skills | Automatic. The plugin hook runs `hooks/skill-router.sh` through Git Bash (found at install time) |
+| Google Antigravity (one workspace) | Run each forge's `<forge>/scripts/sync-antigravity.ps1` to copy it into the workspace's `.agents/skills/<name>/` (edit the `.claude/skills` copy, never the `.agents` copy) | `AGENTS.md`, `GEMINI.md` |
+| OpenAI Codex (GPT) | `powershell -ExecutionPolicy Bypass -File scripts/install-agents.ps1 -Tool codex`. It copies the pack to `~/.codex/skills/infrontofx` as one folder and moves older copies of these skills to `~/.codex/skills-backup/` so nothing is listed twice | `AGENTS.md` and the root `SKILL.md` table, which point to each sub-skill |
 | Gemini CLI | `gemini extensions install https://github.com/baespy/infrontofx-skill` | `GEMINI.md` (imports `AGENTS.md`) |
-| Google Antigravity | Run each forge's `<forge>/scripts/sync-antigravity.ps1` to copy it into the workspace's `.agents/skills/<name>/` (edit the `.claude/skills` copy, never the `.agents` copy) | `AGENTS.md`, `GEMINI.md` |
 | Cursor | Keep the pack in the workspace | `.cursor/rules/infrontofx.mdc` |
 | GitHub Copilot | Keep the pack in the workspace | `.github/copilot-instructions.md` |
 
 The routing rules live in one data file, `hooks/skill-routes.tsv`, and the same table is written out in `AGENTS.md`; `scripts/validate-skill.mjs` checks that the two agree. Check each tool's own docs if an install command has changed.
+
+How routing behaves: every matching skill is named, with `infrontofx` and `dev-flow` always kept when they match (up to 5 in total); `infrontofx` always brings `dev-flow`; a sculpt request that mentions export or going in game also brings `prop-forge`. The hook speaks both formats: Claude Code and Codex `UserPromptSubmit` (`hookSpecificOutput.additionalContext`) and Antigravity `PreInvocation` (`injectSteps`, `{}` when nothing matches); repeats of the same prompt in a session print nothing.
+
+## Tests
+
+`node scripts/test-pack.mjs` runs every prompt in `tests/hooks/cases.tsv` through the hook in both formats (expected skills, JSON shape, repeat handling) and every fixture in `tests/lint/` through the linter (expected and forbidden rules), then lints the resource template. CI runs it on every push next to the validator. Add a row to `tests/hooks/cases.tsv` whenever a real prompt routes wrong, and a fixture to `tests/lint/` whenever the linter misses or wrongly flags something.
+
+Checked on Windows 10: the Claude Code plugin install, the Antigravity 1.5.16 plugin (`agy plugin validate --strict`: skills 8, hooks 1, hook run through `cmd /c`) and the Codex 0.171 copy. Gemini CLI, Cursor and Copilot entry files are provided but were not run.
 
 ---
 

@@ -1,0 +1,8 @@
+[
+    { "file": "nui_twice.lua", "expect": ["nui-cb-twice"] },
+    { "file": "nui_alias.lua", "expect": ["nui-cb"] },
+    { "file": "nui_return.lua", "expect": ["nui-cb-return"] },
+    { "file": "nui_inline_twice.lua", "expect": ["nui-cb-twice"] },
+    { "file": "syntax_assign.lua", "expect": ["syntax-assign"] },
+    { "file": "nui_good.lua", "forbid": ["nui-cb", "nui-cb-twice", "nui-cb-return", "syntax-assign", "unbalanced-blocks"] }
+]

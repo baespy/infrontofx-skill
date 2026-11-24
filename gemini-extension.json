@@ -1,6 +1,6 @@
 {
     "name": "infrontofx-skill",
-    "version": "4.1.0",
+    "version": "4.2.0",
     "description": "FiveM 1nfx skill pack: Lua/NUI standard, dev-flow, terse, poster, weapon, prop, sculpt and map forges with automatic skill routing.",
     "contextFileName": "GEMINI.md"
 }

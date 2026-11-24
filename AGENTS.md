@@ -17,7 +17,7 @@ Pick the row that matches the task and read that folder's `SKILL.md` before acti
 | Support or welfare posters (โปสเตอร์) | `poster-forge` |
 | Owner asks for short replies (ตอบสั้น) | `terse` |
 
-Claude Code applies the same table automatically through the plugin hook `hooks/hooks.json` (data in `hooks/skill-routes.tsv`; keep both in step). Entry files for other tools: `GEMINI.md` and `gemini-extension.json` (Gemini CLI, Antigravity), `.cursor/rules/infrontofx.mdc` (Cursor), `.github/copilot-instructions.md` (Copilot); Codex and other agents read this file.
+Claude Code applies the same table automatically through the plugin hook `hooks/hooks.json` (data in `hooks/skill-routes.tsv`; keep both in step). Entry files for other tools: `GEMINI.md` and `gemini-extension.json` (Gemini CLI, Antigravity), `.cursor/rules/infrontofx.mdc` (Cursor), `.github/copilot-instructions.md` (Copilot); Codex and other agents read this file. `scripts/install-agents.ps1` installs the pack for Antigravity (native plugin with the same hook) and Codex; `scripts/test-pack.mjs` checks the routing and the linter against `tests/`.
 
 ## กฎที่ห้ามผ่อน
 

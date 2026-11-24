@@ -1,6 +1,6 @@
 {
     "name": "infrontofx-skill",
-    "version": "4.1.0",
+    "version": "4.2.0",
     "description": "infrontofx FiveM toolkit with automatic skill routing (Claude Code hook; AGENTS.md/GEMINI.md for GPT, Gemini, Cursor, Copilot): Lua + NUI/DUI standard, dev-flow, terse, poster-forge, weapon-forge, prop-forge, sculpt-forge and map-forge.",
     "author": {
         "name": "baespy"

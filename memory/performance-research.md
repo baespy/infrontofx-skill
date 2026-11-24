@@ -112,7 +112,7 @@ Sources: [Cfx profiler](https://docs.fivem.net/docs/scripting-manual/debugging/u
 These came from static code review, not measurements. Re-measure before claiming a gain.
 
 Serialization and events:
-- FiveM Lua `json` is pure-Lua dkjson (`fxserver/citizen/scripting/lua/json.lua`). Never `json.encode` a whole large world table on a timer (plant snapshots, admin player polls). Cache each row's JSON keyed by its mutable fields and join with `table.concat`.
+- FiveM Lua `json` (rapidjson) and `msgpack` (cmsgpack) are C modules. `citizen-scripting-lua.dll` loads only `deferred.lua`, `graph.lua` and `scheduler.lua`; the `json.lua` (dkjson) and `MessagePack.lua` beside them are unused, and `MessagePack.lua` lacks the `pack_args`, `setoption` and `extend` that `scheduler.lua` calls (checked 2026-11-24, corrects an earlier dkjson note). Cost still grows with size and count: never `json.encode` a whole large world table on a timer (plant snapshots, admin player polls). Cache each row's JSON keyed by its mutable fields and join with `table.concat`.
 - A table holding functions (xPlayer) passed through `TriggerEvent` creates one function reference per method. With no listener nothing frees them. Send ids, never xPlayer or objects with methods.
 - Every event handler call in `scheduler.lua` costs a msgpack unpack, `debug.getinfo`, `string.format` and a new coroutine. `1nfx_core:setPlayerData` reaches about 68 resources, so client event fan-out is expensive.
 - `TriggerClientEvent(name, -1, payload)` is one native call and is counted by the 1nfx_core perfNet hook. `lib.triggerClientEvent(name, targets, ...)` packs once for a list, but it calls `TriggerClientEventInternal` and is invisible to perfNet.

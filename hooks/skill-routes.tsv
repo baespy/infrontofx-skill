@@ -7,5 +7,5 @@ dev-flow	debug	บั๊ก|บัค|เออเร่อ|ไม่ทำง�
 dev-flow	review or audit	รีวิว|ตรวจงาน|ตรวจโค้ด|ออดิต	review|audit
 dev-flow	design or plan	ออกแบบระบบ|ระบบใหม่|วางแผน|สเปก	plan|spec
 dev-flow	handoff	สรุปส่งต่อ|ส่งต่องาน	handoff
-infrontofx	code standard	เขียนใหม่|รีไรต์|แยกสคริป|สคริป|สร้าง resource|ทำ ui|ทำเมนู	rewrite|optimi[sz]e|resources?|lua|fxmanifest|nui|dui|html|ui|config|events?|exports?|callbacks?|1nfx_[a-z0-9_]+
+infrontofx	code standard	เขียนใหม่|รีไรต์|แยกสคริป|สคริป|สร้าง resource|ทำ ui|ทำเมนู	rewrite|optimi[sz]e|resources?|lua|fxmanifest|nui|dui|html|ui|config|events?|exports|callbacks?|1nfx_[a-z0-9_]+
 terse	short replies	ตอบสั้น|โหมดสั้น|สั้นโหด	terse|caveman

@@ -232,6 +232,89 @@ function lintBalance(rel, code) {
     }
 }
 
+function lintNuiCallback(rel, code, index) {
+    const header = code[index];
+    const fnAt = header.search(/function\s*\(/);
+    if (fnAt < 0) {
+        return;
+    }
+    const params = /^function\s*\(([^)]*)\)/.exec(header.slice(fnAt));
+    const name = params ? (params[1].split(",")[1] || "").trim() : "";
+    if (!/^[A-Za-z_]\w*$/.test(name)) {
+        add(rel, index + 1, "error", "nui-cb", "the RegisterNUICallback handler must take (data, cb) and call cb exactly once");
+        return;
+    }
+    const stack = [];
+    const parts = [];
+    const returns = [];
+    const nested = [];
+    let offset = 0;
+    let closed = false;
+    for (let k = index; k < Math.min(code.length, index + 400) && !closed; k++) {
+        const segment = k === index ? header.slice(fnAt) : code[k];
+        let cut = segment.length;
+        const tokens = /(?<![.\w:])(function|if|do|repeat|end|until|return)(?![\w])/g;
+        let match;
+        while ((match = tokens.exec(segment))) {
+            const word = match[1];
+            const at = offset + match.index;
+            if (word === "return") {
+                if (!stack.slice(1).some((item) => item.word === "function")) {
+                    returns.push({ line: k + 1, at, rest: segment.slice(match.index) });
+                }
+                continue;
+            }
+            if (word === "end" || word === "until") {
+                const top = stack.pop();
+                if (top && top.word === "function" && stack.length > 0) {
+                    nested.push([top.at, at]);
+                }
+                if (stack.length === 0) {
+                    cut = match.index;
+                    closed = true;
+                    break;
+                }
+            } else {
+                stack.push({ word, at });
+            }
+        }
+        let text = segment.slice(0, cut);
+        if (k === index) {
+            text = text.replace(/^function\s*\([^)]*\)/, (head) => " ".repeat(head.length));
+        }
+        parts.push({ line: k + 1, text, offset });
+        offset += text.length + 1;
+    }
+    const body = parts.map((part) => part.text).join("\n");
+    const inNested = (pos) => nested.some(([from, to]) => pos > from && pos < to);
+    const lineOf = (pos) => parts.filter((part) => part.offset <= pos).pop().line;
+    const ref = new RegExp(`(?<![.\\w:])${name}(?![\\w])`, "g");
+    const refs = [...body.matchAll(ref)].map((m) => m.index);
+    const calls = refs.filter((pos) => /^\s*\(/.test(body.slice(pos + name.length)));
+    const passed = refs.some((pos) => /[(,]\s*$/.test(body.slice(0, pos)) && /^\s*[,)]/.test(body.slice(pos + name.length)));
+    const delegated = passed || calls.some(inNested);
+    if (calls.length === 0 && !delegated) {
+        add(rel, index + 1, "error", "nui-cb", `${name} is never called, so the NUI request never gets an answer`);
+        return;
+    }
+    if (delegated) {
+        return;
+    }
+    for (let i = 1; i < calls.length; i++) {
+        const between = body.slice(calls[i - 1], calls[i]);
+        const endsPath = /(?<![.\w])return\s*$/.test(body.slice(0, calls[i - 1]));
+        if (!endsPath && !/(?<![.\w])(return|else|elseif)(?![\w])/.test(between)) {
+            add(rel, lineOf(calls[i]), "error", "nui-cb-twice", `${name} is called twice on the same path; answer the NUI request once`);
+        }
+    }
+    const callOnce = new RegExp(`(?<![.\\w:])${name}\\s*\\(`);
+    for (const ret of returns) {
+        if (ret.at < calls[0] && !callOnce.test(ret.rest)) {
+            add(rel, ret.line, "error", "nui-cb-return", `this return leaves before ${name} is called; use return ${name}(...)`);
+        }
+    }
+}
+
 function lintLua(file, rel) {
     const src = readFileSync(file, "utf8").replace(/\r\n/g, "\n");
     const raw = src.split("\n");
@@ -359,21 +442,16 @@ function lintLua(file, rel) {
             }
         }
         if (/RegisterNUICallback\s*\(/.test(line)) {
-            let depth = 0;
-            let found = false;
-            for (let k = index; k < Math.min(code.length, index + 200); k++) {
-                const segment = code[k];
-                if (/\bcb\b/.test(segment) && k > index) {
-                    found = true;
-                }
-                depth += (segment.match(/\b(function|do|then)\b/g) || []).length;
-                depth -= (segment.match(/\bend\b/g) || []).length;
-                if (k > index && depth <= 0) {
-                    break;
-                }
+            lintNuiCallback(rel, code, index);
+        }
+        if (/(?<![=~<>])=\s*$/.test(line)) {
+            let next = index + 1;
+            while (next < code.length && !code[next].trim()) {
+                next++;
             }
-            if (!found) {
-                add(rel, ln, "error", "nui-cb", "RegisterNUICallback must call cb exactly once");
+            const following = next < code.length ? code[next].trim() : "";
+            if (!following || /^(?:(?:end|local|if|for|while|return|else|elseif|until|do|repeat|break|goto)(?![\w])|[})\]])/.test(following)) {
+                add(rel, ln, "error", "syntax-assign", "assignment has no value after =");
             }
         }
     });

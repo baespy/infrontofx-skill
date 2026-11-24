@@ -14,3 +14,4 @@ jobs:
           node-version: 22
       - run: node scripts/validate-skill.mjs
       - run: node scripts/lint-resource.mjs templates/resource
+      - run: node scripts/test-pack.mjs
