@@ -1,6 +1,6 @@
 # CLAUDE.md - infrontofx
 
-repo นี้ (และ workspace FiveM ที่ติดตั้งไว้) ใช้ `infrontofx` เป็นมาตรฐานเขียน resource FiveM Lua และ NUI/DUI อ่าน `SKILL.md` ก่อนแล้วเปิดไฟล์ที่ชี้ไปตามงาน
+repo นี้ (และ workspace FiveM ที่ติดตั้งไว้) ใช้ `infrontofx` เป็นมาตรฐานเขียน resource FiveM Lua และ NUI/DUI อ่าน `SKILL.md` ก่อน (ตาราง Auto-route บนสุดบอกว่างานไหนโหลด skill ไหน ไม่ต้องรอเจ้าของสั่ง) แล้วเปิดเฉพาะไฟล์ที่ชี้ไปตามงาน
 
 ## กฎที่ห้ามผ่อน
 

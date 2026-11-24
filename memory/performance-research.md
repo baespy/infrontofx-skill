@@ -106,6 +106,9 @@ Sources: [Cfx profiler](https://docs.fivem.net/docs/scripting-manual/debugging/u
 
 ## Lessons From The 2026-11-23 [1nfx] + [core] Pass
 
+- Date: 2026-11-23
+- Game build: any
+
 These came from static code review, not measurements. Re-measure before claiming a gain.
 
 Serialization and events:

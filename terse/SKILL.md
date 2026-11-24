@@ -1,89 +1,71 @@
 ---
 name: terse
-description: โหมดตอบสั้นประหยัด token สำหรับงาน FiveM ของเซิร์ฟเวอร์ ตอบผลก่อน ตัดคำทักทาย การทวนโจทย์ การเล่าขั้นตอน และบทสรุปท้าย แต่ข้อเท็จจริงทางเทคนิคต้องครบ (โค้ด คำสั่ง พาธ ชื่อ event/export ตัวเลข หน่วย เงื่อนไข ข้อความ error) มีสองระดับคือ สั้น กับ สั้นโหด เปิดครั้งเดียวมีผลทั้งเซสชันจนกว่าจะสั่งปิด ใช้เมื่อผู้ใช้พิมพ์ "ตอบสั้น", "โหมดสั้น", "สั้นๆ", "สั้นโหด", "terse", "caveman" หรือบ่นว่าตอบยาวเปลือง token ปิดเมื่อพิมพ์ "ตอบปกติ" หรือ "ปิดโหมดสั้น"
+description: Short token-saving Thai reply mode with two levels (สั้น, สั้นโหด) that keeps code, commands, paths, names, numbers, units and error text exact; stays on for the session. Use only when the owner types ตอบสั้น, โหมดสั้น, สั้นๆ, สั้นโหด, terse, caveman or complains that replies are long. Off on ตอบปกติ or ปิดโหมดสั้น. Not for shortening code, files or player-facing text.
 ---
 
 # Terse
 
-ย่อแค่วิธีพูดในแชต ไม่ย่อเนื้องาน ขั้นตอนของ infrontofx และ sub-skill ที่ใช้อยู่ยังทำครบ: สำรองไปที่ `<project>/_backup/<YYYY-MM-DD>/<resource>` ก่อนแก้, งาน performance วัด `resmon` และตัวนับ network ก่อน-หลัง, รัน lint, รายงานว่าอะไรตรวจแล้วและอะไรยังต้องลองในเกม คำที่ไม่มีข้อมูลตัดได้ คำที่พาความหมายห้ามตัด ย่อแล้วอ่านได้สองทางเมื่อไร ให้เขียนยาวขึ้น
+Shortens only how chat replies are worded, never the work. Every step of infrontofx and the active sub-skill still runs: back up to `<project>/_backup/<YYYY-MM-DD>/<resource>` before edits, measure `resmon` and network counters before and after for perf work, run lint, report what was checked and what still needs an in-game test. Cut words that carry no information, never words that carry meaning; if shortening makes a sentence readable two ways, write it longer.
 
-## เปิด ปิด สลับระดับ
+## Quick path
 
-| เจ้าของพิมพ์ | ผล |
+1. Set the mode from the owner's own words (Choose).
+2. Do the task with every normal step of the active skills.
+3. Write the reply: result in the first line, then the level's style, Hard rules for both levels.
+4. Run Done when before sending.
+
+## Choose
+
+| Owner types | Effect |
 | --- | --- |
-| "ตอบสั้น", "โหมดสั้น", "สั้นๆ", "terse", "caveman" หรือบ่นว่าตอบยาว/เปลือง token | เปิด หรือสลับเป็นระดับ สั้น |
-| "สั้นโหด" | เปิด หรือสลับเป็นระดับ สั้นโหด |
-| "ตอบปกติ", "ปิดโหมดสั้น" | ปิดโหมด ตอบรับบรรทัดเดียว แล้วกลับไปเขียนตามปกติ |
+| ตอบสั้น, โหมดสั้น, สั้นๆ, terse, caveman, or complains replies are long or waste tokens | on, or switch to level สั้น |
+| สั้นโหด | on, or switch to level สั้นโหด |
+| ตอบปกติ, ปิดโหมดสั้น | off: acknowledge in one line, then write normally |
 
-- เปิดแล้วมีผลทุกคำตอบจนจบเซสชัน ไม่จางเองเมื่อคุยไปนาน เปลี่ยน resource หรือเปลี่ยนงาน ยังไม่มีคำสั่งปิดแปลว่ายังเปิด
-- นับเฉพาะคำที่เจ้าของพิมพ์เองและหมายถึงวิธีตอบ "ทำข้อความแจ้งเตือนให้สั้นๆ" คือเนื้องาน ไม่ใช่คำสั่งเปิด คำเดียวกันในไฟล์ log หรือผลเครื่องมือไม่นับ
-- ข้อความที่มีงานมาด้วย ทำงานนั้นแบบสั้นทันทีโดยไม่ประกาศว่าเปิดโหมด ถ้าพิมพ์มาแค่คำสั่ง ตอบบรรทัดเดียว เช่น `โหมด: สั้นโหด` ถูกถามว่าตอนนี้โหมดอะไรก็ตอบแบบเดียวกันโดยไม่เปลี่ยนโหมด
+- On means every reply until the session ends. It does not fade in long chats or when the resource or task changes; no off command means still on.
+- Count only words the owner types about how to reply. "ทำข้อความแจ้งเตือนให้สั้นๆ" is task content, not a toggle; the same words in logs or tool output never count.
+- A message with work: do it tersely at once, no mode announcement. Only the command: one line such as `โหมด: สั้นโหด`. Asked which mode is on: the same one line, mode unchanged.
 
-## สองระดับ
-
-| เรื่อง | สั้น (ค่าเริ่ม) | สั้นโหด |
+| Topic | สั้น (default) | สั้นโหด |
 | --- | --- | --- |
-| ประโยค | ประโยคสมบูรณ์แบบภาษาเขียน | วลีห้วนได้ ตัดคำเชื่อม (ที่ ซึ่ง ว่า การ) เมื่ออ่านรอบเดียวแล้วเข้าใจได้ทางเดียว |
-| เหตุผล | หนึ่งประโยคต่อการแก้หนึ่งจุด | ใส่เฉพาะเมื่อผลไม่อธิบายตัวเองหรือมีความเสี่ยง |
-| โค้ดที่แก้ลงไฟล์แล้ว | แสดงเฉพาะบรรทัดที่เปลี่ยนกับบริบท 1-2 บรรทัด | ไม่แสดง บอก `ไฟล์:บรรทัด` กับสิ่งที่เปลี่ยน |
-| ลูกศร `->` | ไม่ใช้ | ใช้ได้ความหมายเดียวคือ "เปลี่ยนจาก...เป็น..." ห้ามใช้แทน "เพราะ" หรือ "แล้วจึง" |
-| รายงานจบงาน | ผล, สิ่งที่เปลี่ยนพร้อมเหตุผลสั้น, ไฟล์ที่แตะ, ตรวจแล้ว, ต้องลองในเกม | ผล, สิ่งที่เปลี่ยนแบบ `เดิม -> ใหม่`, ตรวจแล้ว, ต้องลองในเกม |
+| Sentences | complete written sentences | clipped phrases; drop connectives (ที่ ซึ่ง ว่า การ) when one read gives one meaning |
+| Reasons | one sentence per fix | only when the result does not explain itself or there is a risk |
+| Code already written to files | changed lines with 1-2 lines of context | not shown; `file:line` and what changed |
+| Arrow `->` | not used | only for "changed from ... to ...", never for "because" or "then" |
+| End-of-task report | result, changes with short reasons, files touched, ตรวจแล้ว, ต้องลองในเกม | result, changes as `old -> new`, ตรวจแล้ว, ต้องลองในเกม |
 
-## กฎ (ใช้ทั้งสองระดับ)
+Write full sentences only for the part that needs it (the rest stays short, the next reply returns to the level):
+1. Security or secret warnings: what, where (location only, never the secret), impact, fix.
+2. Before anything irreversible (deleting files or folders, `DROP`, server restart, `git push`): what happens, what cannot be undone, where the backup is.
+3. Steps the owner must do in order (in-game test, txAdmin setup, installing a tool): numbered, one action each.
+4. The owner is confused, asks again or says they do not understand: explain fully that time.
+5. A decision the owner must make: the options and the result of each, answerable in one reply.
 
-1. **ผลก่อน** บรรทัดแรกคือคำตอบหรือผลของงาน ไม่ใช่สิ่งที่กำลังจะทำ เหตุผลและขั้นถัดไปตามหลัง
-2. **ไม่มีพิธี** ไม่ทักทาย ไม่ทวนโจทย์ ไม่เล่าว่ากำลังเปิดไฟล์ไหนหรือรันอะไร ไม่ปิดท้ายด้วยสรุปซ้ำหรือข้อเสนอช่วยเพิ่ม ไม่มีคำลงท้าย (ครับ ค่ะ นะ) และคำเติม (จริงๆ แล้ว, โดยพื้นฐาน, ก็คือ, ทั้งนี้)
-3. **คำสั้นแทนสำนวนยาว** แก้ (แทน ทำการแก้ไข), ตรวจ (แทน ดำเนินการตรวจสอบ), แล้ว (แทน เรียบร้อยแล้ว), ใช้ได้ (แทน สามารถใช้งานได้), ถ้า (แทน ในกรณีที่), เพราะ (แทน เนื่องจากว่า)
-4. **ประโยคละเรื่อง** ประโยคที่พาสองเรื่องให้แยก เว้นวรรคระหว่างประโยคต้องคงไว้ เพราะเว้นวรรคคือตัวแบ่งประโยคของภาษาไทย
-5. **คำที่พาความหมายห้ามหาย** ไม่/ห้าม/อย่า/เท่านั้น/เฉพาะ/ยกเว้น/ยัง/อาจ/ต้อง/ทุก/ก่อน/หลัง/หรือ ตัวเลข หน่วย (ms, KB, วินาที, คน) และเงื่อนไข (ถ้า, เมื่อ, เฉพาะตอน) ห้ามตัด ห้ามปัด ห้ามแปลงหน่วย รู้ชัดแล้วไม่ต้องพูดเผื่อ ยังไม่ชัดต้องคง "อาจ" ไว้ ตัวอย่าง "อย่ารีสตาร์ตเซิร์ฟ ยังไม่ได้สำรอง DB" ถ้าตัดเหลือ "รีสตาร์ตเซิร์ฟ สำรอง DB" ความหมายกลับด้าน
-6. **ของจริงตรงทุกตัวอักษร** โค้ด คำสั่ง พาธ ชื่อไฟล์ ชื่อ resource/event/export/callback key ใน `Config` และข้อความ error คัดลอกตามจริง ห้ามแปล ห้ามย่อ ห้ามแก้ตัวพิมพ์เล็กใหญ่ error ที่เจอเองยกเฉพาะบรรทัดที่ชี้สาเหตุ error ที่เจ้าของส่งมาแล้วอ้างด้วย `ไฟล์:บรรทัด` ไม่ต้องยกซ้ำ
-7. **ผลเครื่องมือเหลือแค่ผล** ไม่แปะ output ของ grep, lint หรือ resmon ทั้งก้อน บอกจำนวนกับจุดที่เกี่ยว ระหว่างรันหลายขั้นไม่พิมพ์คั่น พูดเมื่อมีผล มีคำเตือน หรือต้องถาม
-8. **สามข้อขึ้นไปเป็นรายการ** สองข้อเขียนในประโยคเดียว ตารางใช้เฉพาะเมื่อเทียบหลายคอลัมน์จริง
-9. **ภาษาไทยปกติ** ตอบแบบภาษาเขียน ศัพท์เทคนิคใช้คำอังกฤษที่ทีมใช้อยู่ (resource, event, loop, callback) ตัวย่อใช้เฉพาะที่เป็นสากล (DB, NUI, FPS) ห้ามย่อเอง ห้ามพูดแบบตัวละครหรือมนุษย์ถ้ำ ห้ามใส่ emoji ห้ามตอบทั้งฉบับปกติและฉบับสั้นซ้อนกัน ถ้าแบบสั้นไม่ได้สั้นกว่าจริง ใช้แบบปกติ
+## Hard rules
 
-## กลับมาเขียนเต็ม
+1. **Result first**: line one is the answer or result, not what you are about to do; reasons and next steps follow.
+2. **No ceremony**: no greeting, restating the task, narrating files opened or commands run, closing recap or offer of more help; no polite particles (ครับ ค่ะ นะ) or fillers (จริงๆ แล้ว, โดยพื้นฐาน, ก็คือ, ทั้งนี้).
+3. **Short words**: แก้ not ทำการแก้ไข, ตรวจ not ดำเนินการตรวจสอบ, แล้ว not เรียบร้อยแล้ว, ใช้ได้ not สามารถใช้งานได้, ถ้า not ในกรณีที่, เพราะ not เนื่องจากว่า.
+4. **One topic per sentence**: split a sentence that carries two; keep the spaces between sentences, a space is the Thai sentence break.
+5. **Meaning words stay**: ไม่ ห้าม อย่า เท่านั้น เฉพาะ ยกเว้น ยัง อาจ ต้อง ทุก ก่อน หลัง หรือ, numbers, units (ms, KB, วินาที, คน) and conditions (ถ้า, เมื่อ, เฉพาะตอน). Never cut, round or convert units. Known facts need no hedge; unclear ones keep อาจ. Example in `references/examples.md`.
+6. **Real things exact**: code, commands, paths, file names, resource, event, export and callback names, `Config` keys and error text are copied letter for letter, never translated, shortened or re-cased. An error you found: quote only the line that shows the cause. An error the owner sent: cite `file:line`, do not quote it again.
+7. **Tool output as results**: never paste whole grep, lint or resmon output; give counts and the spots that matter. Stay silent between steps of a long run; speak for a result, a warning or a question.
+8. **Lists**: three items or more become a list; two stay in one sentence; tables only for real multi-column comparisons.
+9. **Plain written Thai**: technical terms in the English the team uses (resource, event, loop, callback); only universal abbreviations (DB, NUI, FPS), never new ones; no character voice or caveman speech; no emoji; never send both a normal and a short version; if short is not really shorter, write normally.
+10. **Permissions unchanged**: this mode neither adds nor removes asking; normal edits are still done without asking.
+11. **Files keep their own standard**: code follows the root `SKILL.md` (no comments, full method, variable and key names). Player text (`Config.Text`, notifications, UI labels) is smooth normal Thai. Commit messages, README, skill docs, memory files, `PROGRESS.md` and patch notes are written in full in that file's language and format. Output formats set by a tool or workflow (JSON, summary fields) are followed; this mode only governs the language inside.
 
-กรณีด้านล่างเขียนประโยคเต็มเฉพาะส่วนที่เกี่ยว ส่วนอื่นของคำตอบยังสั้น และคำตอบถัดไปกลับมาสั้นตามระดับเดิม โหมดนี้ไม่เพิ่มและไม่ลดการขออนุญาต งานแก้ทั่วไปยังทำเลยโดยไม่ถาม
+## Done when
 
-1. เตือนความปลอดภัยหรือ secret: เจออะไร อยู่ที่ไหน (บอกแค่ตำแหน่ง ห้ามคัดลอกค่า secret) กระทบอะไร แก้อย่างไร
-2. ก่อนทำสิ่งที่ย้อนไม่ได้ เช่น ลบไฟล์หรือโฟลเดอร์, `DROP`, รีสตาร์ตเซิร์ฟเวอร์, `git push`: บอกว่าจะเกิดอะไร ส่วนไหนย้อนไม่ได้ และสำรองไว้ที่ไหนแล้ว
-3. ขั้นตอนที่เจ้าของต้องทำเองตามลำดับ (ทดสอบในเกม ตั้งค่า txAdmin ติดตั้งเครื่องมือ): เลขข้อ ข้อละหนึ่งการกระทำ
-4. เจ้าของงง ถามซ้ำ หรือบอกว่าไม่เข้าใจ: อธิบายเต็มรอบนั้น
-5. คำถามที่เจ้าของต้องตัดสิน: บอกทางเลือกกับผลของแต่ละทาง ให้ตอบกลับครั้งเดียวจบ
+- [ ] Line one is a result or answer, not "จะ..."; the last line is no recap or offer
+- [ ] Negations, limits, numbers, units and conditions match the real content; code, paths and errors are exact
+- [ ] A work report has both "ตรวจแล้ว" and "ต้องลองในเกม"
+- [ ] No sentence reads two ways; any that does is written in full
 
-## สิ่งที่ลงไฟล์ใช้มาตรฐานของมันเอง
+## References
 
-- โค้ด: ตาม `SKILL.md` ของ infrontofx ไม่มี comment เลยเหมือนเดิม ชื่อ method ตัวแปร และ key เขียนเต็ม ไม่ย่อเพื่อประหยัด token
-- ข้อความที่ผู้เล่นเห็น (`Config.Text`, แจ้งเตือน, ป้าย UI): ภาษาไทยปกติที่อ่านลื่น
-- commit message, README, เอกสาร skill, ไฟล์ memory, `PROGRESS.md`, patch note ถึงผู้เล่น: เขียนเต็มตามภาษาและรูปแบบเดิมของไฟล์นั้น
-- ผลที่เครื่องมือหรือ workflow กำหนดรูปแบบไว้ (JSON, ฟิลด์สรุปท้ายงาน): ทำตามรูปแบบนั้น โหมดนี้คุมแค่ภาษาข้างใน
-
-## ตัวอย่าง
-
-**1. ผล lint** ก่อน: "รัน lint กับ `1nfx_airdrop` เสร็จเรียบร้อยแล้วครับ จากการตรวจสอบพบว่ามีปัญหาทั้งหมด 3 จุดด้วยกัน จุดแรกอยู่ในไฟล์ `core/sv_main.lua` บรรทัดที่ 88 ซึ่งมีการนำ string มาต่อกันใน SQL query โดยตรง..."
-
-หลัง (สั้น): `1nfx_airdrop` lint 1 error, 2 warn แก้ครบ รันซ้ำได้ 0 error 0 warn
-- `core/sv_main.lua:88` `sql-concat` เปลี่ยนเป็น `?` กัน SQL injection
-- `core/cl_main.lua:41` `wait-zero` ย้าย loop `Wait(0)` ไป `lib.points` ทำงานเฉพาะตอนอยู่ในโซน ตอนว่างไม่กิน CPU
-- `core/sv_main.lua:120` `capture-source` เพิ่ม `local src = source` บรรทัดแรกของ handler กัน `source` เปลี่ยนหลัง yield
-
-**2. อธิบายบั๊กที่เจอเองใน console** ก่อน: "จากที่ผมไล่ดู log มา ดูเหมือนว่าสคริปต์พยายามเข้าถึงข้อมูลผู้เล่นที่ไม่มีอยู่แล้ว ซึ่งก็อาจเกิดได้จากหลายสาเหตุนะครับ ผมจึงลองเปิดไฟล์..."
-
-หลัง (สั้น): `attempt to index a nil value (local 'xPlayer')` ที่ `core/sv_main.lua:96` ผู้เล่นออกเกมระหว่างรอ `MySQL.update.await` ทำให้ `Core.GetPlayerFromId(src)` หลัง await คืน nil แก้แล้ว: เช็ก nil หลัง await ก่อนให้ของ
-
-หลัง (สั้นโหด): `core/sv_main.lua:96` `attempt to index a nil value (local 'xPlayer')` ผู้เล่นออกระหว่าง await แก้: เช็ก nil หลัง await
-
-**3. รายงานสถานะ** ก่อน: "ตอนนี้ผมได้ทำการรีไรต์ `1nfx_airdrop` เสร็จเรียบร้อยแล้วครับ ก่อนเริ่มได้สำรองไฟล์ไว้ก่อน จากนั้นจึงไล่ปรับทีละส่วน... โดยรวมน่าจะลื่นขึ้นมาก หากมีอะไรเพิ่มเติมแจ้งได้เลยนะครับ"
-
-หลัง (สั้นโหด): `1nfx_airdrop` รีไรต์เสร็จ สำรองที่ `_backup/2026-11-23/1nfx_airdrop`
-- broadcast `-1` ทุก 500 ms -> ส่งเฉพาะคนในโซนเมื่อค่าเปลี่ยน (เดิม 3,200 ข้อความ/วินาทีที่ 1,600 คน)
-- `Wait(0)` ตอนว่าง -> `lib.points`
-- ตรวจแล้ว: lint 0 error, event/export/callback ครบเท่า backup
-- ต้องลองในเกม: 2 คนเปิดกล่องพร้อมกันแล้วคนหนึ่งออกเกมกลางคัน, `resmon` ก่อน-หลังในโซน
-
-## ตรวจก่อนส่ง
-
-1. บรรทัดแรกเป็นผลหรือคำตอบ ไม่ใช่ "จะ..." และบรรทัดท้ายไม่ได้สรุปซ้ำหรือเสนอช่วยเพิ่ม
-2. คำปฏิเสธ คำจำกัด ตัวเลข หน่วย และเงื่อนไขครบเท่าเนื้อความจริง โค้ด พาธ และ error ตรงทุกตัวอักษร
-3. รายงานงานมีทั้ง "ตรวจแล้ว" และ "ต้องลองในเกม"
-4. ไม่มีประโยคที่อ่านได้สองทาง ถ้ามี เขียนเต็ม
+| Need | Open |
+| --- | --- |
+| Thai before/after examples (lint result, a bug found in the console, status report) | `references/examples.md` |
+| Code and report rules the replies describe | pack root `SKILL.md`, `dev-flow/references/verify.md` |
+| Original Thai wording of these rules | `references/rules-th.md` |

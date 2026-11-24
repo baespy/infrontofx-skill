@@ -71,5 +71,6 @@
 ### Linter crashes on paths with brackets
 
 - Date: 2026-11-23
+- Game build: any
 - Symptom: `lint-resource.mjs` crashes when given an absolute path that contains `[...]`.
 - Fix: run it from the category folder with the bare resource name, or with a relative path from `mainserver`.

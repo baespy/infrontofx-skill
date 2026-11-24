@@ -29,11 +29,14 @@ class QALimits:
             "fold_deg": 120.0,
             "fold_area_fail": 0.001,
             "fold_count_fail": 24,
+            "fold_crease_slack_deg": 45.0,
+            "fold_agree_deg": 60.0,
             "split_share_warn": 0.02,
             "split_share_fail": 0.10,
             "soft_split_deg": 45.0,
             "dihedral_p90_warn": 30.0,
             "dihedral_p90_fail": 45.0,
+            "dihedral_detail_p50_deg": 12.0,
             "over30_warn": 0.12,
             "over30_fail": 0.25,
             "over45_warn": 0.06,
@@ -67,6 +70,10 @@ class QALimits:
             "lump_fine_fail": 1.6,
             "lump_coarse_warn": 1.6,
             "lump_coarse_fail": 3.0,
+            "lump_fine_warn_high": 0.65,
+            "lump_fine_fail_high": 1.4,
+            "lump_coarse_warn_high": 1.25,
+            "lump_coarse_fail_high": 2.8,
             "max_tris": 0,
         }
         if target == "map":
@@ -384,13 +391,14 @@ class EdgeGraph:
 
 
 class SmoothnessAnalyzer:
-    def __init__(self, arrays, graph, limits, report, target, hints):
+    def __init__(self, arrays, graph, limits, report, target, hints, reference=None):
         self.arrays = arrays
         self.graph = graph
         self.limits = limits
         self.report = report
         self.target = target
         self.hints = hints
+        self.reference = reference
         self.toy = target != "map"
         self.panel_cache = None
 
@@ -515,10 +523,14 @@ class SmoothnessAnalyzer:
         return g.dihedral[g.smooth & ~g.degenerate]
 
     def check_dihedral(self):
-        values = self.smooth_dihedrals()
+        g = self.graph
+        keep = g.smooth & ~g.degenerate
+        values = g.dihedral[keep]
         if len(values) == 0:
             self.report.add("WARN", "dihedral", "no smooth edges to measure")
             return
+        lengths = g.length[keep]
+        total = max(float(lengths.sum()), 1e-30)
         stats = {
             "p50": round(float(np.percentile(values, 50)), 2),
             "p90": round(float(np.percentile(values, 90)), 2),
@@ -526,44 +538,75 @@ class SmoothnessAnalyzer:
             "over20": round(float((values > 20).mean()), 4),
             "over30": round(float((values > 30).mean()), 4),
             "over45": round(float((values > 45).mean()), 4),
+            "p50_length": round(Statistics.weighted_percentile(values, lengths, 0.5), 2),
+            "p90_length": round(Statistics.weighted_percentile(values, lengths, 0.9), 2),
+            "over20_length": round(float(lengths[values > 20].sum()) / total, 4),
+            "over30_length": round(float(lengths[values > 30].sum()) / total, 4),
+            "over45_length": round(float(lengths[values > 45].sum()) / total, 4),
         }
-        self.put("smooth_dihedral", stats)
-        level_p90 = QAReport.grade(stats["p90"], self.limits["dihedral_p90_warn"], self.limits["dihedral_p90_fail"])
-        level_30 = QAReport.grade(stats["over30"], self.limits["over30_warn"], self.limits["over30_fail"])
-        level_45 = QAReport.grade(stats["over45"], self.limits["over45_warn"], None)
         order = ["OK", "WARN", "FAIL"]
-        level = order[max(order.index(level_p90), order.index(level_30), order.index(level_45))]
+        level_edge = self.dihedral_level(stats["p90"], stats["over30"], stats["over45"])
+        level_length = self.dihedral_level(stats["p90_length"], stats["over30_length"], stats["over45_length"])
+        detail = stats["p50_length"] <= self.limits["dihedral_detail_p50_deg"] and order.index(level_length) < order.index(level_edge)
+        level = level_length if detail else level_edge
+        stats["gate"] = "length" if detail else "edge"
+        self.put("smooth_dihedral", stats)
         if not self.toy and level == "FAIL":
             level = "WARN"
-        self.report.add(level, "dihedral", "smooth-edge angle p50 {p50:.1f} p90 {p90:.1f} max {max:.1f} deg; {o20:.1%} over 20, {o30:.1%} over 30, {o45:.1%} over 45 (target p90 <= 30, <= 12% over 30, <= 6% over 45)".format(p50=stats["p50"], p90=stats["p90"], max=stats["max"], o20=stats["over20"], o30=stats["over30"], o45=stats["over45"]))
+        note = ""
+        if detail:
+            note = "; the per-edge {} comes from short edges (small details such as letters): the length-weighted median edge turns {:.1f} deg (<= {:.0f}), so the length-weighted grade applies".format(level_edge, stats["p50_length"], self.limits["dihedral_detail_p50_deg"])
+        self.report.add(level, "dihedral", "smooth-edge angle p50 {p50:.1f} p90 {p90:.1f} max {max:.1f} deg; {o20:.1%} over 20, {o30:.1%} over 30, {o45:.1%} over 45 per edge; weighted by edge length p50 {l50:.1f} p90 {l90:.1f}, {l30:.1%} of the length over 30, {l45:.1%} over 45 (target p90 <= 30, <= 12% over 30, <= 6% over 45){note}".format(p50=stats["p50"], p90=stats["p90"], max=stats["max"], o20=stats["over20"], o30=stats["over30"], o45=stats["over45"], l50=stats["p50_length"], l90=stats["p90_length"], l30=stats["over30_length"], l45=stats["over45_length"], note=note))
+
+    def dihedral_level(self, p90, over30, over45):
+        order = ["OK", "WARN", "FAIL"]
+        levels = [QAReport.grade(p90, self.limits["dihedral_p90_warn"], self.limits["dihedral_p90_fail"]), QAReport.grade(over30, self.limits["over30_warn"], self.limits["over30_fail"]), QAReport.grade(over45, self.limits["over45_warn"], None)]
+        return order[max(order.index(level) for level in levels)]
+
+    def fold_area_share(self, edges):
+        g = self.graph
+        a = self.arrays
+        smaller = np.where(a.poly_area[g.face_a] <= a.poly_area[g.face_b], g.face_a, g.face_b)
+        faces = np.unique(smaller[edges])
+        area = float(a.poly_area[faces].sum()) if len(faces) else 0.0
+        return area / max(a.total_area, 1e-30), len(faces)
 
     def check_folds(self):
         g = self.graph
-        a = self.arrays
         flipped = (~g.consistent) & ~g.degenerate
         sharp_fold = g.consistent & (g.dihedral > self.limits["fold_deg"]) & ~g.degenerate
         smooth_fold = sharp_fold & ~g.split
         split_fold = sharp_fold & g.split
-        bad = smooth_fold | flipped
-        smaller = np.where(a.poly_area[g.face_a] <= a.poly_area[g.face_b], g.face_a, g.face_b)
-        fold_faces = np.unique(smaller[bad])
-        fold_area = float(a.poly_area[fold_faces].sum()) if len(fold_faces) else 0.0
-        share = fold_area / max(a.total_area, 1e-30)
+        crease = np.zeros(len(smooth_fold), dtype=bool)
+        if self.reference is not None and smooth_fold.any():
+            crease = CreaseProbe(self.reference, self.arrays, g, self.limits).creases(smooth_fold)
+        decimation = smooth_fold & ~crease
+        bad = decimation | flipped
+        share_all = self.fold_area_share(smooth_fold | flipped)[0]
+        share, face_count = self.fold_area_share(bad)
         count = int(bad.sum())
         self.put("fold_edges_smooth", int(smooth_fold.sum()))
         self.put("fold_edges_split", int(split_fold.sum()))
         self.put("flipped_edges", int(flipped.sum()))
-        self.put("fold_area_share", round(share, 6))
+        self.put("fold_area_share", round(share_all, 6))
+        self.put("fold_reference", "high" if self.reference is not None else "none")
+        self.put("fold_edges_crease", int(crease.sum()))
+        self.put("fold_edges_counted", count)
+        self.put("fold_area_share_counted", round(share, 6))
+        excused = ""
+        if crease.any():
+            excused = "; {} more smooth edges over {:.0f} deg follow a crease the high-poly turns by as well (designed, not counted; all folds {} on {:.3%} of the surface)".format(int(crease.sum()), self.limits["fold_deg"], int((smooth_fold | flipped).sum()), share_all)
         if count == 0:
-            text = "no smooth folds over {:.0f} deg and no flipped neighbours".format(self.limits["fold_deg"])
+            text = "no smooth folds over {:.0f} deg {}and no flipped neighbours".format(self.limits["fold_deg"], "that the high-poly lacks " if self.reference is not None else "") + excused
             if split_fold.any():
                 self.report.add("WARN", "folds", text + "; {} hard edges over {:.0f} deg (knife edges or folds)".format(int(split_fold.sum()), self.limits["fold_deg"]))
             else:
                 self.report.add("OK", "folds", text)
             return
-        worst = float(g.dihedral[smooth_fold].max()) if smooth_fold.any() else 180.0
+        worst = float(g.dihedral[decimation].max()) if decimation.any() else 180.0
         level = "FAIL" if share > self.limits["fold_area_fail"] or count > self.limits["fold_count_fail"] else "WARN"
-        self.report.add(level, "folds", "{} smooth folds over {:.0f} deg and {} flipped neighbours on {} faces (worst {:.0f} deg, folded faces {:.3%} of the surface; fail above {:.2%} or {} edges): re-decimate or fix before the normal transfer".format(int(smooth_fold.sum()), self.limits["fold_deg"], int(flipped.sum()), len(fold_faces), worst, share, self.limits["fold_area_fail"], self.limits["fold_count_fail"]))
+        source = " that the high-poly lacks" if self.reference is not None else ""
+        self.report.add(level, "folds", "{} smooth folds over {:.0f} deg{} and {} flipped neighbours on {} faces (worst {:.0f} deg, folded faces {:.3%} of the surface; fail above {:.2%} or {} edges): re-decimate or fix before the normal transfer{}".format(int(decimation.sum()), self.limits["fold_deg"], source, int(flipped.sum()), face_count, worst, share, self.limits["fold_area_fail"], self.limits["fold_count_fail"], excused))
 
     def check_sagitta(self):
         g = self.graph
@@ -678,6 +721,21 @@ class SmoothnessAnalyzer:
         np.add.at(normals, g.loop_start_weld, a.corner_normal)
         return normals / np.maximum(np.linalg.norm(normals, axis=1), 1e-30)[:, None]
 
+    def high_samples(self, zone, facing):
+        if self.reference is None or not zone.any():
+            return None
+        g = self.graph
+        members = np.flatnonzero(zone)
+        sample = HighSurfaceSample(self.reference, g.weld_co[members], facing[members])
+        known = np.zeros(g.n_weld, dtype=bool)
+        point = np.zeros((g.n_weld, 3))
+        normal = np.zeros((g.n_weld, 3))
+        known[members] = sample.known
+        point[members] = sample.point
+        normal[members] = sample.normal
+        self.put("lumpiness_high_lookup", {"vertices": int(len(members)), "found": int(sample.known.sum()), "reoriented": int(sample.moved)})
+        return {"known": known, "point": point, "normal": normal}
+
     def check_lumpiness(self):
         g = self.graph
         a = self.arrays
@@ -685,28 +743,46 @@ class SmoothnessAnalyzer:
         touched = np.zeros(g.n_weld, dtype=bool)
         touched[g.loop_start_weld[designed[labels][a.loop_poly]]] = True
         probe = LumpinessProbe(g, a, self.limits)
+        geometric = g.vertex_normals()
         fine_zone = self.smooth_zone(self.limits["lump_fine_deg"]) & ~touched
-        fine = probe.measure(fine_zone, self.limits["lump_fine_deg"], self.shading_normals(), "field")
-        coarse = probe.measure(self.smooth_zone(self.limits["lump_coarse_deg"]) & ~touched, self.limits["lump_coarse_deg"], g.vertex_normals(), "quadric")
+        coarse_zone = self.smooth_zone(self.limits["lump_coarse_deg"]) & ~touched
+        high = self.high_samples(fine_zone | coarse_zone, geometric)
+        fine, fine_high = probe.measure_pair(fine_zone, self.limits["lump_fine_deg"], self.shading_normals(), "field", None if high is None else (high["normal"], high["known"]))
+        coarse, coarse_high = probe.measure_pair(coarse_zone, self.limits["lump_coarse_deg"], geometric, "quadric", None if high is None else (high["point"], high["known"]))
         self.put("lumpiness_deg", {"shading_wobble": fine, "surface_roughness": coarse})
+        self.put("lumpiness_gate", "vs_high" if (fine_high is not None or coarse_high is not None) else "absolute")
+        if high is not None:
+            self.put("lumpiness_vs_high_deg", {"shading_wobble": fine_high, "surface_roughness": coarse_high})
         if fine is None and coarse is None:
             self.report.add("INFO", "lumpiness", "no large smooth organic regions to measure (flat panels and hard edges excluded)")
             return
+        gate_fine = fine_high if fine_high is not None else fine
+        gate_coarse = coarse_high if coarse_high is not None else coarse
+        suffix_fine = "_high" if fine_high is not None else ""
+        suffix_coarse = "_high" if coarse_high is not None else ""
         order = ["OK", "WARN", "FAIL"]
-        level_fine = QAReport.grade(fine["p50"], self.limits["lump_fine_warn"], self.limits["lump_fine_fail"]) if fine is not None else "OK"
-        level_coarse = QAReport.grade(coarse["p50"], self.limits["lump_coarse_warn"], self.limits["lump_coarse_fail"]) if coarse is not None else "OK"
+        level_fine = QAReport.grade(gate_fine["p50"], self.limits["lump_fine_warn" + suffix_fine], self.limits["lump_fine_fail" + suffix_fine]) if gate_fine is not None else "OK"
+        level_coarse = QAReport.grade(gate_coarse["p50"], self.limits["lump_coarse_warn" + suffix_coarse], self.limits["lump_coarse_fail" + suffix_coarse]) if gate_coarse is not None else "OK"
         level = order[max(order.index(level_fine), order.index(level_coarse))]
         parts = []
-        if fine is not None:
-            parts.append("shading wobble median {:.2f} (p75 {:.2f}, p90 {:.2f}) deg over {:.0%} of the surface (target median <= {:.1f})".format(fine["p50"], fine["p75"], fine["p90"], fine["coverage"], self.limits["lump_fine_warn"]))
-        if coarse is not None:
-            parts.append("surface roughness median {:.2f} (p75 {:.2f}, p90 {:.2f}) deg over {:.0%} (target median <= {:.1f})".format(coarse["p50"], coarse["p75"], coarse["p90"], coarse["coverage"], self.limits["lump_coarse_warn"]))
+        if gate_fine is not None:
+            parts.append("shading wobble{} median {:.2f} (p75 {:.2f}, p90 {:.2f}) deg over {:.0%} of the surface (target median <= {:.2f})".format(" vs high-poly" if fine_high is not None else "", gate_fine["p50"], gate_fine["p75"], gate_fine["p90"], gate_fine["coverage"], self.limits["lump_fine_warn" + suffix_fine]))
+        if gate_coarse is not None:
+            parts.append("surface roughness{} median {:.2f} (p75 {:.2f}, p90 {:.2f}) deg over {:.0%} (target median <= {:.2f})".format(" vs high-poly" if coarse_high is not None else "", gate_coarse["p50"], gate_coarse["p75"], gate_coarse["p90"], gate_coarse["coverage"], self.limits["lump_coarse_warn" + suffix_coarse]))
+        absolute = []
+        if fine is not None and fine_high is not None:
+            absolute.append("wobble {:.2f}".format(fine["p50"]))
+        if coarse is not None and coarse_high is not None:
+            absolute.append("roughness {:.2f}".format(coarse["p50"]))
         hints = []
         if level_coarse != "OK":
-            hints.append("'playdough' lumps in the surface itself: smooth the source, raise voxel resolution or decimate less")
+            hints.append("the low-poly surface is lumpier than its high-poly: decimate less, raise the budget or check the source voxel size" if coarse_high is not None else "'playdough' lumps in the surface itself: smooth the source, raise voxel resolution or decimate less")
         if level_fine != "OK":
-            hints.append("uneven shading normals (lumps or ripples; Weighted Normal run after triangulation ripples on curves): transfer normals from a smooth high-poly, keep curved parts plain smooth")
-        self.report.add(level, "lumpiness", "; ".join(parts) + ("" if not hints else " (" + "; ".join(hints) + ")"))
+            hints.append("shading normals ripple against the high-poly's (Weighted Normal after triangulation or a broken transfer): transfer normals from the high-poly as the last step" if fine_high is not None else "uneven shading normals (lumps or ripples; Weighted Normal run after triangulation ripples on curves): transfer normals from a smooth high-poly, keep curved parts plain smooth")
+        text = "; ".join(parts)
+        if absolute:
+            text += "; old absolute medians (design curvature included) {} deg".format(", ".join(absolute))
+        self.report.add(level, "lumpiness", text + ("" if not hints else " (" + "; ".join(hints) + ")"))
 
     def check_split_ratio(self):
         a = self.arrays
@@ -739,6 +815,9 @@ class LumpinessProbe:
         self.limits = limits
 
     def measure(self, zone, cap_deg, normals, mode):
+        return self.measure_pair(zone, cap_deg, normals, mode, None)[0]
+
+    def measure_pair(self, zone, cap_deg, normals, mode, reference):
         g = self.graph
         a = self.arrays
         keep = zone[g.u] & zone[g.w] & g.smooth & (g.dihedral < cap_deg)
@@ -747,7 +826,7 @@ class LumpinessProbe:
         region_area = np.bincount(labels, weights=vertex_area * zone, minlength=int(labels.max()) + 1 if len(labels) else 0)
         member = zone & (region_area >= self.limits["lump_region_share"] * max(a.total_area, 1e-30))[labels]
         if member.sum() < 40:
-            return None
+            return None, None
         members = np.flatnonzero(member)
         neighbours = 12 if mode == "field" else 18
         centres, table = self.neighbour_table(g.weld_co[members], neighbours)
@@ -766,11 +845,32 @@ class LumpinessProbe:
             residual = self.field_residual(mask, x, y, (normals[other] * frame_t[:, None, :]).sum(axis=2), (normals[other] * frame_b[:, None, :]).sum(axis=2))
         else:
             residual = self.quadric_residual(mask, x, y, (offset * centre_normal[:, None, :]).sum(axis=2))
+        difference = None
+        if reference is not None:
+            field, known = reference
+            mask_high = mask & known[other]
+            if mode == "field":
+                delta = normals[other] - field[other]
+                difference = self.field_residual(mask_high, x, y, (delta * frame_t[:, None, :]).sum(axis=2), (delta * frame_b[:, None, :]).sum(axis=2))
+            else:
+                delta = g.weld_co[other] - field[other]
+                difference = self.quadric_residual(mask_high, x, y, (delta * centre_normal[:, None, :]).sum(axis=2))
+        stride = len(members) / max(len(centres), 1)
+        absolute = self.summary(residual, vertex_area[own], stride)
+        if absolute is None or difference is None:
+            return absolute, None
+        relative = self.summary(np.where(np.isfinite(difference) & np.isfinite(residual), np.minimum(difference, residual), np.nan), vertex_area[own], stride)
+        unclipped = self.summary(difference, vertex_area[own], stride)
+        if relative is not None and unclipped is not None:
+            relative["difference_p50"] = unclipped["p50"]
+        return absolute, relative
+
+    def summary(self, residual, area, stride):
         good = np.isfinite(residual)
         if good.sum() < 20:
             return None
-        weights = vertex_area[own][good]
-        coverage = float(weights.sum() / max(a.total_area, 1e-30)) * (len(members) / max(len(centres), 1))
+        weights = area[good]
+        coverage = float(weights.sum() / max(self.arrays.total_area, 1e-30)) * stride
         if coverage < self.limits["lump_min_coverage"]:
             return None
         values = np.degrees(residual[good])
@@ -936,6 +1036,45 @@ class HighPolyReference:
         normal = a.corner_normal[loops[:, 0]] * b0[:, None] + a.corner_normal[loops[:, 1]] * b1[:, None] + a.corner_normal[loops[:, 2]] * b2[:, None]
         return normal / np.maximum(np.linalg.norm(normal, axis=1), 1e-30)[:, None]
 
+    def face_normals(self, triangle):
+        return self.arrays.poly_normal[self.arrays.tri_poly[triangle]]
+
+
+class HighSurfaceSample:
+    def __init__(self, reference, points, facing):
+        location, triangle, distance = reference.nearest(points)
+        location, triangle, distance, moved = reference.oriented(points, facing, location, triangle, distance)
+        self.known = np.isfinite(distance)
+        self.moved = moved
+        self.point = np.where(self.known[:, None], location, 0.0)
+        self.normal = np.zeros((len(points), 3))
+        if self.known.any():
+            self.normal[self.known] = reference.normals_at(location[self.known], triangle[self.known])
+
+
+class CreaseProbe:
+    def __init__(self, reference, arrays, graph, limits):
+        self.reference = reference
+        self.arrays = arrays
+        self.graph = graph
+        self.limits = limits
+
+    def creases(self, candidates):
+        g = self.graph
+        a = self.arrays
+        edges = np.flatnonzero(candidates)
+        count = len(edges)
+        faces = np.concatenate([g.face_a[edges], g.face_b[edges]])
+        triangle, distance = self.reference.nearest(a.poly_centroid[faces])[1:]
+        found = np.isfinite(distance)
+        high_normal = self.reference.face_normals(np.where(found, triangle, 0))
+        agree = EdgeGraph.angle_deg(a.poly_normal[faces], high_normal) <= self.limits["fold_agree_deg"]
+        turn = EdgeGraph.angle_deg(high_normal[:count], high_normal[count:])
+        designed = found[:count] & found[count:] & agree[:count] & agree[count:] & (turn >= g.dihedral[edges] - self.limits["fold_crease_slack_deg"])
+        result = np.zeros(len(candidates), dtype=bool)
+        result[edges[designed]] = True
+        return result
+
 
 class HighPolyComparison:
     def __init__(self, arrays, reference, limits, report, target):
@@ -950,15 +1089,21 @@ class HighPolyComparison:
             self.check_normals()
             self.check_deviation()
 
-    def check_alignment(self):
+    def alignment(self):
         low_min, low_max = self.arrays.bounds()
         high_min, high_max = self.reference.arrays.bounds()
         size = float(np.linalg.norm(low_max - low_min))
         shift = float(max(np.abs(low_min - high_min).max(), np.abs(low_max - high_max).max()))
+        return size, shift, shift <= max(0.02, 0.25 * size)
+
+    def matched(self):
+        return self.alignment()[2]
+
+    def check_alignment(self):
+        size, shift, matched = self.alignment()
         self.report.metrics["high_poly"] = {"file": self.reference.path, "object": self.reference.object_name, "tris": int(len(self.reference.arrays.tri_verts)), "bbox_shift_mm": round(shift * 1000.0, 2)}
         level = "OK" if shift <= max(0.005, 0.02 * size) else "WARN"
-        matched = shift <= max(0.02, 0.25 * size)
-        note = "" if level == "OK" else (" (high-poly not aligned with the low-poly?)" if matched else " (a different shape: normal error and deviation skipped)")
+        note = "" if level == "OK" else (" (high-poly not aligned with the low-poly?)" if matched else " (a different shape: normal error, deviation and the high-poly references of folds and lumpiness skipped)")
         self.report.add(level, "high_poly", "{} :: {} ({} tris), bounding boxes differ by {:.1f} mm{}".format(os.path.basename(self.reference.path), self.reference.object_name, len(self.reference.arrays.tri_verts), shift * 1000.0, note))
         return matched
 
@@ -1427,9 +1572,9 @@ class SculptValidator:
         if self.options.high:
             candidates.append(self.options.high)
         if path:
-            candidates.append(os.path.join(os.path.dirname(path), stem + "_high.blend"))
-            if ob.name != stem:
-                candidates.append(os.path.join(os.path.dirname(path), ob.name + "_high.blend"))
+            names = [stem] if ob.name == stem else [stem, ob.name]
+            candidates.extend(os.path.join(os.path.dirname(path), name + "_high.blend") for name in names)
+            candidates.extend(os.path.join(os.path.dirname(path), "_high", name + "_high.blend") for name in names)
         for candidate in candidates:
             if candidate and os.path.isfile(candidate):
                 return HighPolyReference.load(candidate, wanted, path or bpy.data.filepath)
@@ -1470,8 +1615,13 @@ class SculptValidator:
             if arrays.n_polys == 0:
                 report.add("FAIL", "mesh", "mesh has no faces")
             else:
-                SmoothnessAnalyzer(arrays, graph, limits, report, target, self.hints_for(ob)).run()
-                self.compare_high(report, arrays, limits, target, path, stem, ob)
+                comparison, note = self.high_comparison(report, arrays, limits, target, path, stem, ob)
+                aligned = comparison.reference if comparison is not None and comparison.matched() else None
+                SmoothnessAnalyzer(arrays, graph, limits, report, target, self.hints_for(ob), aligned).run()
+                if comparison is not None:
+                    comparison.run()
+                else:
+                    report.add(*note)
         except Exception as error:
             report.add("FAIL", "exception", "{}: {}".format(type(error).__name__, error))
         finally:
@@ -1497,21 +1647,25 @@ class SculptValidator:
             hints["normals"] = ob["sculpt_forge_normals"]
         return hints
 
-    def compare_high(self, report, arrays, limits, target, path, stem, ob):
+    def high_comparison(self, report, arrays, limits, target, path, stem, ob):
         if self.options.no_high:
-            report.add("INFO", "high_poly", "high-poly comparison disabled (--no-high)")
-            return
+            return None, ("INFO", "high_poly", "high-poly comparison disabled (--no-high)")
         try:
             reference = self.high_reference(path, stem, ob)
         except Exception as error:
-            report.add("WARN", "high_poly", "could not load the high-poly: {}: {}".format(type(error).__name__, error))
-            return
+            return None, ("WARN", "high_poly", "could not load the high-poly: {}: {}".format(type(error).__name__, error))
         if reference is None:
-            report.add("INFO", "high_poly", "no {}_high.blend next to the file: normal error and surface deviation skipped".format(stem or ob.name))
-        elif reference.object_name == ob.name and os.path.abspath(reference.path) == os.path.abspath(path or ""):
-            report.add("INFO", "high_poly", "drawable is its own high-poly reference: skipped")
+            return None, ("INFO", "high_poly", "no {}_high.blend next to the file or in _high/: normal error, surface deviation and the high-poly references of folds and lumpiness skipped".format(stem or ob.name))
+        if reference.object_name == ob.name and os.path.abspath(reference.path) == os.path.abspath(path or ""):
+            return None, ("INFO", "high_poly", "drawable is its own high-poly reference: skipped")
+        return HighPolyComparison(arrays, reference, limits, report, target), None
+
+    def compare_high(self, report, arrays, limits, target, path, stem, ob):
+        comparison, note = self.high_comparison(report, arrays, limits, target, path, stem, ob)
+        if comparison is not None:
+            comparison.run()
         else:
-            HighPolyComparison(arrays, reference, limits, report, target).run()
+            report.add(*note)
 
     def emit(self, report):
         self.reports.append(report)

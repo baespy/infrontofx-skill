@@ -1,0 +1,6 @@
+---
+description: infrontofx FiveM skill pack. Route every task to the matching skill folder and follow its SKILL.md.
+alwaysApply: true
+---
+
+Follow the routing table and house rules in @AGENTS.md. Pick the skill folder that matches the task, read its SKILL.md before acting, then only the references it routes to.

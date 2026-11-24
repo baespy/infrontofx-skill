@@ -20,7 +20,7 @@ Select-String -LiteralPath "<project>\server.cfg" -SimpleMatch $name
 
 ## แผนต่อหนึ่ง resource
 
-เลือกระดับการแก้ตามหัวข้อ "ระดับการแก้" ใน `SKILL.md` ของ infrontofx resource ที่มีไฟล์ `.fxap` (escrow) หรือถูก obfuscate ห้ามแตะทั้งไฟล์และ manifest
+เลือกระดับการแก้ตามตาราง Choose ใน `SKILL.md` ของ infrontofx (ฉบับเต็มคือหัวข้อ Edit levels ใน `references/house-standard.md` ของ infrontofx) resource ที่มีไฟล์ `.fxap` (escrow) หรือถูก obfuscate ห้ามแตะทั้งไฟล์และ manifest
 
 ```text
 resource: <resource>
@@ -57,7 +57,7 @@ backup: _backup/<YYYY-MM-DD>/<resource>
 
 ## ทำตามแผน
 
-1. ทำทุกขั้นต่อเนื่อง ไม่หยุดถามระหว่างขั้นหรือระหว่าง resource ยกเว้นเข้ากรณี "หยุดถามเมื่อ" ใน SKILL.md ของ dev-flow
+1. ทำทุกขั้นต่อเนื่อง ไม่หยุดถามระหว่างขั้นหรือระหว่าง resource ยกเว้นเข้ากรณี "Stop and ask only when" ใน Hard rules ของ SKILL.md ของ dev-flow
 2. จบขั้นไหน รันตัวตรวจของขั้นนั้นทันที ผ่านแล้วจึงไปขั้นถัดไป
 3. จบขั้นสำคัญ จด checkpoint บรรทัดเดียวลง `PROGRESS.md` เช่น `<resource>: ขั้น 3/6 เสร็จ (backup _backup/<YYYY-MM-DD>/<resource>, lint 0 error)`
 4. หลัง context ถูกบีบอัดหรือเริ่มเซสชันใหม่ เชื่อ `PROGRESS.md` มากกว่าความจำ ขั้นที่จดว่าเสร็จแล้วไม่ทำซ้ำ

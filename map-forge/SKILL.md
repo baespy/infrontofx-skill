@@ -1,85 +1,72 @@
 ---
 name: map-forge
-description: ออกแบบ ปั้น วางผัง ตรวจ และ export แมพ FiveM ประสิทธิภาพสูง (144-200 FPS) สไตล์สตูดิโอระดับโปรดักชัน เช่น Sky AFK Zone, Spawn/Select Lobby, Airdrop/Warzone Arena, Garage/Town Hub, Rebel/Outpost และอาคาร/MLO ด้วย Blender 4.2.3 + Blender 5.3 MCP + Sollumz 2.9 + PyMateria GEN8 (`.ydr`, `.ytd`, `.ytyp`, `.ymap`, `.ybn`, `_manifest.ymf`) พร้อมมาตรฐาน RAGE PBR shader (`normal_spec.sps`, `glass_env.sps`, `water_fountain.sps`, `emissive*.sps`), RAGE Vertex Color (`#FF00FF` แยกแสงกลางวัน/กลางคืน), ฝังไฟ `Drawable.lights`, และคลัง prop แท้ของ GTA V (ต้นไม้ พุ่มดอกไม้ ไฟถนน ม้านั่ง รั้ว) เพื่อคุม VRAM ต่ำสุดและสมจริงที่สุด ใช้เมื่อผู้ใช้ขอปั้นแมพ, ทำแมพ FiveM, ทำโซน AFK บนฟ้า, ทำ Lobby, ทำ Airdrop/Warzone, ทำ Garage/โรงพยาบาล/เมือง, วาง YMAP/YBN/YTYP, แก้แมพตกพื้น/สว่างเกินตอนกลางคืน/กระตุก, หรือวิเคราะห์โครงสร้างแมพ (FiveM map, custom map, YMAP, YTYP, YBN, YDR, YTD, MLO, Sollumz, PyMateria, RAGE vertex color, Blender MCP)
+description: Designs, builds, checks and exports 144-200 FPS FiveM maps (Sky AFK, lobby, warzone, garage hub, outpost, MLO) with shared PBR .ytd, day/night vertex colour, embedded lights and real GTA V props. Use for ปั้นแมพ, ทำแมพ, ymap, ybn, ytyp, MLO, afk zone, or maps players fall through, glowing at night or stuttering. Not for single props (use prop-forge) or smooth curved pieces (use sculpt-forge).
 ---
 
 # Map Forge
 
-สร้างแมพ FiveM คุณภาพระดับสตูดิโอที่ **สมจริง คมชัด ลื่นระดับ 144-200 FPS และคุมขนาดไฟล์/VRAM ต่ำสุด** โดยใช้หลัก **Clean Hero Architecture Shell + World-Scale Tiled PBR + RAGE Day/Night Vertex Color + Embedded Lights + Native GTA V Prop Dressing**
+Studio-grade FiveM maps: realistic, sharp, 144-200 FPS, minimal disk and VRAM. Formula: clean hero shell + world-scale tiled PBR + RAGE day/night vertex colour + embedded lights + real GTA V props. Budgets come from binary analysis of 12 production maps in 6 types; no mesh, texture or logo of another map is in this skill. Paths are relative to this folder.
 
-มาตรฐานและตัวเลขงบทั้งหมดใน skill นี้ถอดบทเรียนเชิงวิศวกรรมจากการวิเคราะห์ binary ของแมพโปรดักชัน 12 ชุด ครอบคลุม 6 ประเภท (Sky AFK, Spawn Lobby, Airdrop/Warzone, Garage/Hub, Rebel/Outpost, Hospital/MLO) ไม่มี mesh, texture หรือโลโก้ของแมพอื่นอยู่ใน skill นี้
-
-## กฎทองของแมพระดับสตูดิโอ (สรุป 6 ข้อที่เปลี่ยนจากงานดู "กาก/การ์ตูน" เป็นงานโปร)
-
-1. **แยกหน้าที่ชัดเจน (Hero Shell 5-15% + Native GTA V Props 85-95%):** ปั้น `.ydr` เองเฉพาะโครงสร้างสถาปัตยกรรมหลัก (พื้นลาน ขอบทาง บันได ศาลา หลังคา ซุ้ม ป้ายแบรนด์ น้ำพุ) ส่วนต้นไม้ พุ่มไม้ ดอกไม้ โคมไฟถนน ม้านั่ง ถังขยะ เสาจราจร รั้ว ให้ใช้ **prop แท้ของ GTA V** วางใน `.ymap` (ได้ใบไม้สมจริง, ลมพัด, ไฟถนนเปิดอัตโนมัติตอนกลางคืน และ **กิน VRAM เพิ่ม 0 MB**)
-2. **ห้ามใช้ Smart-UV Single Atlas กับลานกว้าง:** ลาน 60-120 เมตรที่ยัดลง atlas เดียวจะได้ความละเอียดแค่ ~10 px/m (ดูเป็นพลาสติกเบลอ/วุ้น) ให้ใช้ **World-Scale Tiled PBR** (`1 UV = 1.5–4.0 เมตร`) คู่ `normal_spec.sps` (Diffuse + DirectX `-Y` Normal + Specular) เพื่อความคมระดับ 250-500 px/m
-3. **เทคนิค micro-swatch + Shared YTD คุม VRAM 0.6–5 MB:** สีเรียบ/ขอบเหล็ก/trim ใช้ swatch เล็ก `4x4`–`32x32` px, พื้นผิว tile ใช้ `256x256` หรือ `512x512` (สูงสุด `1024x1024` เฉพาะโลโก้หลักหรือพื้นฮีโร่), เข้ารหัส **PCA DXT1 (4 bpp)** สำหรับผิวทึบและ **DXT5 (8 bpp)** เฉพาะแผ่น alpha/decal รวมลง `.ytd` เดียว
-4. **RAGE Vertex Color (`Color 1`) แยกแสงกลางวัน/กลางคืน (`#FF00FF`):** ใน GTA V ช่อง `R` = แสงฟ้ากลางวัน (Natural Ambient + AO), `G` = แสงไฟประดิษฐ์กลางคืน (Artificial Ambient), `B` = Indirect/General AO — ผนัง/พื้นกลางแจ้ง **ต้องตั้ง `G = 0`** (ค่าฐาน `(255, 0, 255, 255)` แล้วคูณ Cycles AO ลง `R` กับ `B`) เพื่อให้กลางวันมีมิติเงาซอกและกลางคืนมืดสมจริงไม่เรืองแสงเป็นพลาสติก
-5. **แสงจริงตอนกลางคืน:** ฝังไฟ `Drawable.lights` (`POINT` อบอุ่น / `SPOT` ยิงป้าย / 12-tri invisible emitter) พร้อม `time_flags = NIGHT` คู่กับเสาไฟ GTA V (`prop_streetlight_11c`, `prop_wall_light_15a`, `prop_ind_light_03c`)
-6. **กันตกพื้น 100% สำหรับ Sky Map:** ทำ Dual Collision ทั้ง embedded `BoundGeometryBVH` ใน `.ydr` และ **Static World `.ybn`** พิกัดโลกจริง ผูกใน `.ymap` ด้วย `content_flags = 65` (`HAS_ENTITIES_HD | HAS_PHYSICS`) และ `physics_dictionaries = [ybn_name]`
-
-## ขั้นตอนการทำงาน
-
-1. **รับโจทย์และเลือก Archetype:** ระบุประเภทแมพ (Sky AFK / Spawn Lobby / Airdrop-Warzone / Garage-Hub / Rebel-Outpost / City-MLO), แบรนด์และโทนสี (เช่น `billie-ui` หรือ `1nfx-ui`), พิกัดโลก `(x, y, z)`, จุดวาร์ป/ขอบเขตโซน และงบเป้าหมายจาก `references/studio-benchmarks.md`
-2. **ออกแบบภาพคอนเซปต์ (ก่อนปั้นทุกครั้งเมื่อเป็นแมพใหม่):** เจนภาพ 2 มุม (Overview 3/4 + Player Eye-Level POV) ให้ผู้ใช้ตรวจและอนุมัติโทน/ผังก่อนเริ่มปั้น 3D
-3. **วางสเปกผังแมพ (`map-spec.json`):** คัดลอก `templates/map-spec.example.json` ไปไว้ `work/<map>/source/map-spec.json` กำหนดพิกัด `anchor`, รายการชิ้นสถาปัตยกรรม (modular หรือ hero shell), ตำแหน่ง prop GTA V จาก `references/gta-prop-catalog.md`, ตำแหน่งไฟ `Drawable.lights`, และ `vanilla_ytyps`
-4. **ปั้นสถาปัตยกรรมและเตรียม PBR + RAGE Vertex Color:**
-   - ปั้นด้วย Blender 4.2.3 CLI (บันทึกเป็น `BLENDER-v402` เพื่อให้เปิดได้ทั้ง 4.2.3 และ 5.3)
-   - สร้างทรงสถาปัตยกรรมจริง (เสา คาน บัวพื้น โครงถัก หลังคา กันสาด บันได รั้ว ขอบกระบะต้นไม้) ไม่ใช่กล่องเปล่าหรือก้อนการ์ตูน
-   - วาง World-Scale Tiled UV (`"UVMap 0"`), ตั้ง material shader + พารามิเตอร์ตาม `references/shaders-lighting-vcol.md`, อบ Cycles AO ลง `"Color 1"` โดยคง `G = 0` สำหรับผิวนอกอาคาร (หรือไล่ `G` เฉพาะใต้โคมไฟ/ในร่ม)
-   - สร้างกล่องชนแยก `<id>_col_0` ที่พอดีระดับพื้นจริง (tolerance `< 0.02m` ที่จุดวาร์ป)
-5. **ตรวจหน้าตา 6 มุม (Visual QA):** เรนเดอร์ด้วย Blender 4.2.3 หรือเปิดตรวจแบบสดด้วย Steam Blender 5.3 MCP ตาม `references/antigravity.md` อย่างน้อย 6 มุม: Overview 3/4, Top-Down Layout, Player POV ที่จุดวาร์ป, Hero Structure Close-up, Seating/Walkway Detail, และ Underside/Edge Check — เปิดดูภาพจริงทุกใบก่อนผ่าน
-6. **Export เป็นไฟล์เกม GEN8 ไบนารี:** รัน `scripts/blender/export_map.py` (ไม่ใส่ `--factory-startup` เพื่อให้ Sollumz + PyMateria โหลด) ได้ `.ydr`, shared `.ytd`, static world `.ybn`, `.ytyp`, `.ymap`, `_manifest.ymf` และโฟลเดอร์ resource พร้อม `fxmanifest.lua`
-7. **ตรวจ binary ครบวงจร:** รัน `scripts/blender/inspect_map.py` บนโฟลเดอร์ `stream/` จนผ่าน `MAP_INSPECT_PASS fail=0` ตรวจครบ: RSC7 header, FVF (`TEXTURE0`/`TANGENT0`/`DIFFUSE` ช่อง R/G/B), YTD VRAM & mipmaps, YBN floor Z & CollisionFlags, YMAP `content_flags`/quaternions/extents, `_manifest.ymf`
-8. **ส่งมอบและ QA ในเกม:** วาง resource (ห้ามแตะ/ลบ resource ที่มี `.fxap` เองโดยไม่ให้ผู้ใช้ยืนยัน), สำรอง config ก่อนแก้, รายงานผลแยกชัดเจนระหว่างสิ่งที่ตรวจแล้วใน Blender/PyMateria กับสิ่งที่รอผู้ใช้เทสในเซิร์ฟเวอร์จริง
-
-## คำสั่ง
+## Quick path
 
 ```powershell
-$blender = 'C:\Tools\blender-4.2.3-windows-x64\blender.exe'
-$skill   = '<project>\.claude\skills\infrontofx\map-forge'
-
-# 1. Export แมพทั้งชุดจาก map-spec.json + โฟลเดอร์ build/props/*.blend + build/textures/*.png
-& $blender -b -P "$skill\scripts\blender\export_map.py" -- --spec work\my_map\source\map-spec.json --props work\my_map\build\props --textures work\my_map\build\textures --out work\my_map\my_map_pkg
-
-# 2. ตรวจและวิเคราะห์ binary แมพใดก็ได้ (ทั้งแมพที่ปั้นเองหรือแมพในโปรเจกต์)
-& $blender -b -P "$skill\scripts\blender\inspect_map.py" -- --dir work\my_map\my_map_pkg\stream --spec work\my_map\source\map-spec.json
-
-# 3. ตรวจเฉพาะโฟลเดอร์ stream (ไม่ต้องมี spec ก็ตรวจงบ VRAM/tris/vcol/lights/YBN/YMAP ได้)
-& $blender -b -P "$skill\scripts\blender\inspect_map.py" -- --dir work\my_map\my_map_pkg\stream --json work\my_map\build\inspect_report.json
-
-# 4. ซิงก์ skill ไป .agents\skills\map-forge เมื่อมีการแก้ไข
-& "$skill\scripts\sync-antigravity.ps1"
+$blender = '<blender-4.2.3>\blender.exe'
+$mf = '<project>\.claude\skills\infrontofx\map-forge\scripts\blender'
+& $blender -b -P "$mf\export_map.py" -- --spec work\<map>\source\map-spec.json --props work\<map>\build\props --textures work\<map>\build\textures --out work\<map>\<map>_pkg
+& $blender -b -P "$mf\inspect_map.py" -- --dir work\<map>\<map>_pkg\stream --spec work\<map>\source\map-spec.json
 ```
 
-## เลือกอ่าน (อ่านเฉพาะไฟล์ที่เกี่ยวข้องกับงาน)
+1. Brief: map type (Sky AFK, Spawn Lobby, Airdrop/Warzone, Garage/Hub, Rebel/Outpost, City/MLO), brand and palette, world coordinates `(x, y, z)`, warp points, zone bounds, target budgets from `references/studio-benchmarks.md`.
+2. New map: concept images from 2 views (3/4 overview, player eye level); the owner approves look and layout before any 3D.
+3. Copy `templates/map-spec.example.json` to `work/<map>/source/map-spec.json`: `anchor`, architecture pieces (modular or hero shell), GTA V props from `references/gta-prop-catalog.md`, `Drawable.lights`, `vanilla_ytyps`.
+4. Build with the Blender 4.2.3 CLI (saves `BLENDER-v402`, opens in 4.2.3 and 5.3): real architecture (columns, beams, plinths, trusses, roofs, awnings, stairs, fences, planter rims), no bare boxes or cartoon lumps. World-scale tiled UV on `"UVMap 0"`, shaders per `references/shaders-lighting-vcol.md`, Cycles AO baked into `"Color 1"` with `G = 0` outdoors (raise `G` only under lamps or indoors). Separate collider `<id>_col_0` on the real floor (under 0.02 m off at warp points).
+5. Visual QA in at least 6 views (3/4 overview, top-down, player POV at the warp, hero close-up, seating or walkway detail, underside and edges), rendered in 4.2.3 or live in Steam Blender 5.3 MCP per `references/antigravity.md`; open every image.
+6. Export without `--factory-startup` (Sollumz and PyMateria must load) -> `.ydr`, shared `.ytd`, static world `.ybn`, `.ytyp`, `.ymap`, `_manifest.ymf`, resource folder with `fxmanifest.lua` -> `MAP_EXPORT_PASS ydr_ok=<n> fail=0`.
+7. Inspect `stream/` until `MAP_INSPECT_PASS fail=0` (RSC7 headers, FVF `TEXTURE0`/`TANGENT0`/`DIFFUSE`, YTD VRAM and mips, YBN floor Z and `CollisionFlags`, YMAP `content_flags`, quaternions, extents, `_manifest.ymf`).
+8. Deliver: place the resource, back up config first, report Blender/PyMateria checks apart from what waits for the owner's server test. Skill edited: `scripts/sync-antigravity.ps1`.
 
-| งาน | อ่าน |
+## Choose
+
+| Situation | Use |
 | --- | --- |
-| งบ tris, VRAM, disk, โครงสร้าง 6 ประเภทแมพ, Single-Shell vs Modular vs MLO, Pattern E ลานเกาะโค้งออร์แกนิกสำหรับวางชุด prop แบรนด์, จุดที่ทำให้แมพดูแพง vs ดูถูก | `references/studio-benchmarks.md` |
-| สูตร RAGE Shaders (15 shader หลัก + ค่าพารามิเตอร์จริง), RAGE Vertex Color (`#FF00FF`), DirectX `-Y` Normal, ไฟฝัง `Drawable.lights` และ 12-tri light emitter | `references/shaders-lighting-vcol.md` |
-| คลัง prop แท้ GTA V ที่ผ่านการใช้งานจริง (ต้นไม้ พุ่มดอกไม้ ไฟถนน ม้านั่ง รั้ว หิน เฟอร์นิเจอร์), ระยะฝังพื้น Z, `_manifest.ymf` และข้อควรระวัง `h4_*` Cayo DLC | `references/gta-prop-catalog.md` |
-| ไปป์ไลน์ Export/Collision/YMAP/YTYP/YBN/YMF/MLO, Quaternion กลับด้านของ GTA V, Shared YTD DXT1/DXT5, การติดตั้ง FiveM และ QA | `references/pipeline.md` |
-| การใช้ Antigravity + Blender MCP (4.2.3 vs 5.3 `BLENDER17`), กฎ `-LiteralPath`, เช็กลิสต์ตรวจภาพ 6 มุม | `references/antigravity.md` |
-| texture PBR และ HDRI ฟรี CC0 จาก Poly Haven: เลือก, แปลง Normal เป็น DirectX `-Y`, roughness เป็น spec, ย่อ pow2, เข้ารหัส DDS, รวมลง Shared `.ytd` | `references/polyhaven-cc0.md` |
-| ชิ้นฮีโร่ที่ต้องโค้งเนียน (ขอบลานโค้งมน, บันไดโค้งจมูกมน, ราวกวาดโค้ง, ซุ้มโค้ง, กระถาง, เกาะออร์แกนิก) | skill `sculpt-forge` ของ infrontofx (ไฟล์ `sculpt-forge/SKILL.md` ในโฟลเดอร์แม่) แล้วกลับมา export ด้วย `scripts/blender/export_map.py` |
+| layout | patterns in `references/studio-benchmarks.md`: single hero shell + vanilla dressing (fastest), modular kit + shared PBR YTD, multi-YMAP + MLO, enclosed sky arena, organic island plaza for themed props |
+| model or place | model only the hero shell (5-15%: plaza, rims, stairs, pavilion, roof, arch, brand sign, fountain); trees, bushes, flowers, street lamps, benches, bins, bollards, fences are GTA V props in the `.ymap` (85-95%, 0 MB extra VRAM, wind, auto night lamps) |
+| large floors | world-scale tiled PBR (`1 UV = 1.5-4.0 m`) with `normal_spec.sps` (diffuse, DirectX `-Y` normal, specular) for 250-500 px/m; never one smart-UV atlas on a 60-120 m plaza (~10 px/m, blurry plastic) |
+| texture sizes | swatches `4x4`-`32x32` for flat colour and trim, tiles `256` or `512`, `1024` only for the main logo or hero floor; PCA DXT1 opaque, DXT5 only alpha or decals; one shared `.ytd` (0.6-5 MB VRAM) |
+| vertex colour `Color 1` | R daylight ambient + AO, G night artificial light, B indirect AO; outdoor base `(255, 0, 255, 255)`, AO multiplied into R and B |
+| night light | `Drawable.lights` (warm `POINT`, `SPOT` on signs, 12-tri invisible emitter) with `time_flags = NIGHT`, plus GTA lamps `prop_streetlight_11c`, `prop_wall_light_15a`, `prop_ind_light_03c` |
+| sky map (no falling) | embedded `BoundGeometryBVH` in the `.ydr` and a static world `.ybn`; `.ymap` `content_flags = 65` (HAS_ENTITIES_HD + HAS_PHYSICS), `physics_dictionaries = [ybn_name]` |
+| free textures and HDRI | `scripts/blender/fetch_polyhaven.py` (`--dry-run` first) per `references/polyhaven-cc0.md` |
+| curved hero pieces (round rims, arc stairs, sweeping rails, arches, planters, islands) | `sculpt-forge`, then `export_map.py` here |
+| single props | `prop-forge` |
 
-## เครื่องมือ
+## Hard rules
 
-| ไฟล์ | หน้าที่ |
+- **Golden rules**: the model/place split, tiled PBR, texture tiers, `G = 0` outdoors, night lights and sky-map dual collision in Choose are the studio standard (full text in `references/details.md`).
+- **100% original**: never copy meshes, textures, `.ydr`, `.ytd`, logos or layouts from other studios' maps; use only engineering principles and standard proportions.
+- **Never touch `.fxap`**: never edit, delete or try to open a resource with `.fxap`; if the map overlaps one, ask the owner to move or disable it in `server.cfg`.
+- **Blender**: build and export with the 4.2.3 CLI; Windows paths with `[ ]` use `-LiteralPath` (`references/antigravity.md`).
+- **Source**: edit only `.claude/skills/infrontofx/map-forge`, never `.agents/skills/map-forge`; sync after edits.
+- **Honest report**: `MAP_INSPECT_PASS fail=0` and EEVEE renders prove file structure and first look, not a FiveM test; say it is not walked in game until the owner tests and confirms.
+- **Lua** (warp points, AFK zones): root `SKILL.md` only: OOP module table, no comments, no file-level `local function`, 4 spaces, double quotes, trailing commas.
+
+## Done when
+
+- [ ] New map: concept approved; budgets from `references/studio-benchmarks.md` met
+- [ ] Six QA views opened and clean
+- [ ] `MAP_EXPORT_PASS ... fail=0` and `MAP_INSPECT_PASS fail=0`; no outdoor `G > 40` warning
+- [ ] Collider within 0.02 m of the floor at warp points; sky maps have both collisions
+- [ ] Resource placed, config backed up, no `.fxap` touched
+- [ ] Report splits Blender/PyMateria checks from the owner's in-game test; skill edits synced
+
+## References
+
+| Need | Open |
 | --- | --- |
-| `scripts/blender/export_map.py` | ส่งออกแมพ FiveM GEN8 อัตโนมัติจาก `map-spec.json` + `.blend` + `.png`: เข้ารหัส Shared `.ytd` (PCA DXT1/DXT5 + กลับช่อง G ของ Normal เป็น DirectX `-Y`), แปลง PBR เป็น Sollumz shader (`normal_spec.sps`/`default.sps`/`emissive.sps`/`emissivenight.sps`/`glass_env.sps`/`cutout.sps`/`water_fountain.sps`), ฝัง `Drawable.lights`, ฝัง collision + สร้าง Static World `.ybn`, สร้าง `.ytyp`, `.ymap` (ผสม custom + vanilla GTA V props), `_manifest.ymf` และ `fxmanifest.lua` |
-| `scripts/blender/inspect_map.py` | เครื่องมือตรวจและวิเคราะห์ binary แมพ FiveM ด้วย PyMateria: เช็ก RSC7, นับ tris/geoms/FVF/`TANGENT0`/`DIFFUSE` (เตือนทันทีถ้าแมพกลางแจ้งมี `G > 40` หรือ tris ทะลุงบ), เช็ก VRAM/mips/format ของ `.ytd`, ตรวจระดับพื้น Z และ `CollisionFlags` ของ `.ybn`, ตรวจ `content_flags`/quaternion/streaming extents ของ `.ymap`, ตรวจ `_manifest.ymf` และสรุปผล `MAP_INSPECT_PASS fail=0` |
-| `scripts/blender/dds_codec.py` | ตัวเข้ารหัส DDS แบบ vectorized PCA DXT1 (BC1, 4 bpp) / DXT5 (BC3, 8 bpp) พร้อม linear mipmaps, RGB bleed กันขอบดำ และ unsharp mip |
-| `scripts/blender/fetch_polyhaven.py` | ค้นหาและดึง texture CC0 จาก Poly Haven ด้วย Python ของ Blender (`--dry-run` ดูอย่างเดียว) แปลงเป็นรูปแบบที่ shader GTA V ต้องการ และจด manifest แหล่งที่มา |
-| `scripts/sync-antigravity.ps1` | ซิงก์ skill จาก `.claude/skills/infrontofx/map-forge` ไป `.agents/skills/map-forge` (`-Check`, `-Force`) |
-| `templates/map-spec.example.json` | เทมเพลตสเปกผังแมพ (Sky Plaza + Vanilla Props + Embedded Lights) |
-| `templates/fxmanifest.lua` | เทมเพลต `fxmanifest.lua` มาตรฐาน `this_is_a_map "yes"` + `DLC_ITYP_REQUEST` |
-
-## กฎที่ห้ามข้าม
-
-- **ต้นฉบับ 100%:** ห้ามคัดลอก mesh, texture, `.ydr`, `.ytd`, โลโก้ หรือเลย์เอาต์ตรงๆ จากแมพของสตูดิโออื่นเด็ดขาด ใช้ได้เฉพาะหลักวิศวกรรมและสัดส่วนมาตรฐาน
-- **ห้ามแตะ `.fxap`:** ห้ามแก้ไข ลบ หรือพยายามแกะ resource ใดที่มี `.fxap` โดยเด็ดขาด หากต้องเปลี่ยนแมพในจุดที่มี resource `.fxap` อยู่เดิม ให้แจ้งผู้ใช้ย้าย/ปิดใน `server.cfg` เอง
-- **แยกงานซิงก์ให้ถูกที่:** ต้นฉบับของ skill นี้อยู่ที่ `.claude/skills/infrontofx/map-forge` เท่านั้น ห้ามแก้สำเนาใน `.agents/skills/map-forge` โดยตรง แก้เสร็จต้องรัน `scripts/sync-antigravity.ps1`
-- **รายงานตามจริง:** `MAP_INSPECT_PASS fail=0` และภาพเรนเดอร์ Blender EEVEE ยืนยันโครงสร้างไฟล์และหน้าตาเบื้องต้น แต่ **ไม่ใช่** การทดสอบในเซิร์ฟเวอร์ FiveM จริง ต้องแจ้งผู้ใช้เสมอว่ายังไม่ได้ลองเดินในเกมจริงจนกว่าผู้ใช้จะเทสและยืนยัน
-- **กฎ Lua (ถ้ามีสคริปต์เสริม เช่น จุดวาร์ป/โซน AFK):** เขียนตาม `../SKILL.md` ของ `infrontofx` เท่านั้น (OOP module table, ไม่มี comment, ไม่มี `local function` ระดับไฟล์, 4 spaces, double quotes, trailing comma)
+| Budgets per map type, layout patterns, shell vs modular vs MLO, what looks expensive or cheap | `references/studio-benchmarks.md` |
+| 15 RAGE shaders with real values, vertex colour `#FF00FF`, DirectX `-Y` normals, `Drawable.lights`, 12-tri emitter | `references/shaders-lighting-vcol.md` |
+| Real GTA V props, Z offsets, `_manifest.ymf`, `h4_*` Cayo caution | `references/gta-prop-catalog.md` |
+| Export, collision, YMAP/YTYP/YBN/YMF, MLO, inverted quaternions, shared YTD, install, QA, proven log | `references/pipeline.md` |
+| Antigravity + Blender MCP (4.2.3 vs 5.3 `BLENDER17`), `-LiteralPath`, 6-view checklist | `references/antigravity.md` |
+| Poly Haven CC0 PBR and HDRI: choose, convert normals, roughness to spec, pow2, DDS, shared `.ytd` | `references/polyhaven-cc0.md` |
+| Golden rules in full, commands, tool catalog, original Thai steps and rules | `references/details.md` |

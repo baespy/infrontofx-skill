@@ -1,6 +1,23 @@
 # infrontofx Agent Guide
 
-ทุกครั้งที่สร้าง แก้ รีไรต์ รีวิว ดีบัก หรือ optimize resource FiveM Lua และ NUI/DUI ให้ทำตาม `SKILL.md` ในชุดนี้ ซึ่งเป็นแหล่งความจริงเดียวและชี้ไปยังไฟล์ตามงาน
+ทุกครั้งที่สร้าง แก้ รีไรต์ รีวิว ดีบัก หรือ optimize resource FiveM Lua และ NUI/DUI ให้ทำตาม `SKILL.md` ในชุดนี้ ซึ่งเป็นแหล่งความจริงเดียวและชี้ไปยังไฟล์ตามงาน ตาราง Auto-route บนสุดของ `SKILL.md` บอกว่างานไหนต้องโหลด skill ไหน (รวมลำดับต่อกัน) ให้เลือกเองโดยไม่ต้องรอเจ้าของสั่ง
+
+## Auto-route for any AI (Claude, GPT/Codex, Gemini, Cursor, Copilot)
+
+Pick the row that matches the task and read that folder's `SKILL.md` before acting; open only the references it routes to.
+
+| Task signal | Skill folder |
+| --- | --- |
+| Lua, NUI `html/`, `fxmanifest.lua`, config (เขียนใหม่, รีไรต์, optimize, แยกสคริป) | `SKILL.md` (root), then `dev-flow` to verify before done |
+| New system or unclear request (ออกแบบระบบ, วางแผน); bug, error, F8 or server log (บั๊ก, ไม่ทำงาน); review or audit (รีวิว, ตรวจงาน); handoff | `dev-flow` |
+| Smooth or organic props, puffy signs, drips (ปั้นเนียน) | `sculpt-forge`, then `prop-forge` to export |
+| Boxy archetype props, ytyp, stream, spawn code (ปั้น prop) | `prop-forge` |
+| Maps, ymap, ybn, ytd, lighting (ปั้นแมพ) | `map-forge`, plus `sculpt-forge` for curved hero pieces |
+| Weapon skins, `.ypt` ptfx, hit or kill screens (สกินอาวุธ) | `weapon-forge` |
+| Support or welfare posters (โปสเตอร์) | `poster-forge` |
+| Owner asks for short replies (ตอบสั้น) | `terse` |
+
+Claude Code applies the same table automatically through the plugin hook `hooks/hooks.json` (data in `hooks/skill-routes.tsv`; keep both in step). Entry files for other tools: `GEMINI.md` and `gemini-extension.json` (Gemini CLI, Antigravity), `.cursor/rules/infrontofx.mdc` (Cursor), `.github/copilot-instructions.md` (Copilot); Codex and other agents read this file.
 
 ## กฎที่ห้ามผ่อน
 
@@ -20,11 +37,11 @@
 
 ## แผนที่ repo
 
-- `SKILL.md` กฎหลักและตัวเลือกเส้นทาง
+- `SKILL.md` ตาราง Auto-route, Quick path, Choose, Hard rules, Done when และ References
 - `NUI_DUI.md`, `TOOLING.md` UI และเครื่องมือเสริม
 - `skills/common/` กฎ Lua (style, architecture, config, core-api, events, runtime, security, performance, networking, database, natives, 1nfx-lib, debugging)
 - `skills/ui/` NUI bridge, design system, vanilla, React/Vite, Vue/Svelte, DUI
-- `references/` API ของ Core (ESX-compatible), pNotify, infrontofx-fivem
+- `references/` API ของ Core (ESX-compatible), pNotify, infrontofx-fivem และ `references/house-standard.md` กฎฉบับเต็มพร้อมตัวอย่างที่ย้ายออกจาก `SKILL.md`
 - `rules/contracts.md` กติกาข้าม resource
 - `memory/` ข้อควรระวังและงานวิจัยที่เรียนรู้มา (ใส่ Date และ Game build ทุกรายการ)
 - `checklists/` เช็กลิสต์สร้างใหม่และรีวิว
@@ -43,4 +60,5 @@
 - ใช้แพตเทิร์นเดิมของ resource ถ้าไม่ขัดกับกฎข้างบน
 - รัน `node scripts/lint-resource.mjs <resource>` หลังแก้ ต้องไม่มี error
 - ข้อเท็จจริงที่เรียนรู้ใหม่ให้เพิ่มใน `memory/` ไม่ใช่ `skills/`
-- รัน `node scripts/validate-skill.mjs` ก่อนเผยแพร่การเปลี่ยนแปลง
+- `SKILL.md` ทุกไฟล์เป็นตัวชี้ทางสั้นๆ ตามลำดับ Quick path, Choose, Hard rules, Done when, References เป็นภาษาอังกฤษ (ศัพท์ของเจ้าของเป็นภาษาไทย) รายละเอียดยาวอยู่ใน `references/` ของ skill นั้น งบ: description ไม่เกิน 450 ตัวอักษร, `SKILL.md` ราก 10 KB, sub-skill 8 KB
+- รัน `node scripts/validate-skill.mjs` ก่อนเผยแพร่การเปลี่ยนแปลง (ตรวจงบข้างบนและหัวข้อ Quick path / Done when ด้วย)

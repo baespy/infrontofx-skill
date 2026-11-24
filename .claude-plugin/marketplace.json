@@ -1,12 +1,23 @@
 {
     "name": "infrontofx",
-    "owner": { "name": "baespy" },
+    "owner": {
+        "name": "baespy"
+    },
     "plugins": [
         {
             "name": "infrontofx-skill",
             "source": "./",
-            "description": "infrontofx FiveM toolkit: Lua + NUI/DUI standard, dev-flow, terse, poster-forge, weapon-forge, prop-forge, map-forge, sculpt-forge.",
-            "skills": ["./", "./poster-forge", "./weapon-forge", "./prop-forge", "./map-forge", "./sculpt-forge", "./dev-flow", "./terse"],
+            "description": "infrontofx FiveM toolkit with automatic skill routing: Lua/NUI standard, dev-flow, terse, poster, weapon, prop, sculpt and map forges.",
+            "skills": [
+                "./",
+                "./poster-forge",
+                "./weapon-forge",
+                "./prop-forge",
+                "./map-forge",
+                "./sculpt-forge",
+                "./dev-flow",
+                "./terse"
+            ],
             "strict": false
         }
     ]

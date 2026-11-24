@@ -66,6 +66,13 @@ const REQUIRED = [
     "sculpt-forge/scripts/blender/sculpt_sweep.py",
     "dev-flow/SKILL.md",
     "terse/SKILL.md",
+    "hooks/hooks.json",
+    "hooks/skill-router.sh",
+    "hooks/skill-routes.tsv",
+    "GEMINI.md",
+    "gemini-extension.json",
+    ".cursor/rules/infrontofx.mdc",
+    ".github/copilot-instructions.md",
 ];
 const FORBIDDEN = [
     "skills/common/fc-adapters.md",
@@ -148,6 +155,44 @@ for (const path of ["SKILL.md", ...SUB_SKILLS.map((sub) => `${sub}/SKILL.md`)]) 
         }
         if (/\s#/.test(field[2]) || /:\s/.test(field[2])) {
             failures.push(`${path} frontmatter ${field[1]} has an unquoted " #" or ": " that YAML cuts or rejects`);
+        }
+    }
+}
+
+const DESCRIPTION_LIMIT = 450;
+const ROOT_LIMIT = 10 * 1024;
+const SUB_LIMIT = 8 * 1024;
+for (const path of ["SKILL.md", ...SUB_SKILLS.map((sub) => `${sub}/SKILL.md`)]) {
+    if (!existsSync(join(ROOT, path))) {
+        continue;
+    }
+    const raw = readFileSync(join(ROOT, path));
+    const limit = path === "SKILL.md" ? ROOT_LIMIT : SUB_LIMIT;
+    if (raw.length > limit) {
+        failures.push(`${path} is ${raw.length} bytes; the budget is ${limit}, move details into references/`);
+    }
+    const text = raw.toString("utf8").replace(/\r\n/g, "\n");
+    const header = /^---\n([\s\S]*?)\n---\n/.exec(text);
+    const description = header ? /^description:\s?(.*)$/m.exec(header[1]) : null;
+    const length = description ? [...description[1].trim()].length : 0;
+    if (length > DESCRIPTION_LIMIT) {
+        failures.push(`${path} description is ${length} characters; the budget is ${DESCRIPTION_LIMIT}`);
+    }
+    for (const section of ["Quick path", "Done when"]) {
+        if (!new RegExp(`^## ${section}\\s*$`, "m").test(text)) {
+            failures.push(`${path} needs a "## ${section}" section`);
+        }
+    }
+}
+
+const firstSection = /^## (.+)$/m.exec(skill);
+if (!firstSection || firstSection[1].trim() !== "Auto-route") {
+    failures.push("SKILL.md must open with the \"## Auto-route\" table");
+} else {
+    const route = skill.slice(firstSection.index).split(/^## /m)[1];
+    for (const sub of SUB_SKILLS) {
+        if (!route.includes(sub)) {
+            failures.push(`SKILL.md Auto-route must name ${sub}`);
         }
     }
 }
@@ -253,6 +298,59 @@ try {
 const openai = read("agents/openai.yaml");
 if (!openai.includes("display_name:") || !openai.includes("$infrontofx")) {
     failures.push("agents/openai.yaml needs display_name and a default_prompt mentioning $infrontofx");
+}
+
+if (existsSync(join(ROOT, "hooks/skill-routes.tsv"))) {
+    const agents = existsSync(join(ROOT, "AGENTS.md")) ? read("AGENTS.md") : "";
+    const routeLines = read("hooks/skill-routes.tsv").replace(/\r\n/g, "\n").split("\n").filter((line) => line.trim());
+    for (const [index, line] of routeLines.entries()) {
+        const cells = line.split("\t");
+        if (cells.length !== 4 || !cells[0] || !cells[1]) {
+            failures.push(`hooks/skill-routes.tsv line ${index + 1} must have 4 tab-separated fields: skill, why, thai, english`);
+            continue;
+        }
+        if (cells[0] !== "infrontofx" && !SUB_SKILLS.includes(cells[0])) {
+            failures.push(`hooks/skill-routes.tsv line ${index + 1} routes to unknown skill ${cells[0]}`);
+        }
+        if (cells[0] !== "infrontofx" && !agents.includes(`\`${cells[0]}\``)) {
+            failures.push(`AGENTS.md auto-route table must mention ${cells[0]} like hooks/skill-routes.tsv`);
+        }
+        for (const pattern of [cells[2], cells[3]]) {
+            try {
+                if (pattern) {
+                    new RegExp(pattern);
+                }
+            } catch (error) {
+                failures.push(`hooks/skill-routes.tsv line ${index + 1} has an invalid pattern: ${error.message}`);
+            }
+        }
+    }
+    if (/\r/.test(read("hooks/skill-router.sh")) || /\r/.test(read("hooks/skill-routes.tsv"))) {
+        failures.push("hooks/skill-router.sh and hooks/skill-routes.tsv must use LF line endings (bash breaks on CRLF)");
+    }
+}
+
+try {
+    const hooks = JSON.parse(read("hooks/hooks.json"));
+    const command = hooks.hooks?.UserPromptSubmit?.[0]?.hooks?.[0]?.command || "";
+    if (!command.includes("${CLAUDE_PLUGIN_ROOT}/hooks/skill-router.sh")) {
+        failures.push("hooks/hooks.json must run ${CLAUDE_PLUGIN_ROOT}/hooks/skill-router.sh on UserPromptSubmit");
+    }
+} catch (error) {
+    failures.push(`hooks/hooks.json invalid: ${error.message}`);
+}
+
+try {
+    const gemini = JSON.parse(read("gemini-extension.json"));
+    const plugin = JSON.parse(read(".claude-plugin/plugin.json"));
+    if (!gemini.contextFileName || !existsSync(join(ROOT, gemini.contextFileName))) {
+        failures.push("gemini-extension.json contextFileName must point at an existing file");
+    }
+    if (gemini.version !== plugin.version) {
+        failures.push(`gemini-extension.json version ${gemini.version} must match .claude-plugin/plugin.json version ${plugin.version}`);
+    }
+} catch (error) {
+    failures.push(`gemini-extension.json invalid: ${error.message}`);
 }
 
 const lint = spawnSync(process.execPath, [join(ROOT, "scripts/lint-resource.mjs"), join(ROOT, "templates/resource")], { encoding: "utf8" });

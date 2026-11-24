@@ -8,6 +8,7 @@ import sys
 import tempfile
 import time
 
+import bmesh
 import bpy
 import numpy as np
 from mathutils import Euler, Vector, geometry
@@ -1038,17 +1039,170 @@ class PanelNormals:
         return {"panels": int(len(np.unique(labels[big[labels]]))), "loops": int(change.sum()), "panel_share": round(float(areas[big[labels]].sum() / max(areas.sum(), 1e-12)), 4)}
 
 
+class PlanarHold:
+    settings = ("hold_angle", "hold_area", "hold_share", "hold_reach", "hold_tilt", "hold_flat")
+    needs = ("reduce", "protection", "clean_collapse", "snap_role_lines", "relabel_faces", "discard")
+    hold_angle = 2.0
+    hold_area = 0.01
+    hold_share = 0.15
+    hold_reach = 0.02
+    hold_tilt = 1.0
+    hold_flat = None
+    hold_pins = None
+    hold_count = -1
+
+    @staticmethod
+    def compatible(engine):
+        cls = getattr(engine, "SculptBuilder", None)
+        return cls is not None and hasattr(engine, "MeshArrays") and all(hasattr(cls, name) for name in PlanarHold.needs)
+
+    def planar_enough(self, face):
+        if self.hold_flat is None:
+            return True
+        n = np.array(face.normal[:], np.float64)
+        co = np.array([v.co[:] for v in face.verts], np.float64)
+        return float(np.abs((co - co.mean(axis=0)) @ n).max()) <= float(self.hold_flat)
+
+    def protection(self, me, points, radius, detail_owners):
+        base = np.asarray(super().protection(me, points, radius, detail_owners), np.int64)
+        if self.hold_pins is None or len(self.hold_pins) == 0 or len(me.vertices) != self.hold_count:
+            return base
+        return np.union1d(base, self.hold_pins)
+
+    @staticmethod
+    def thin(points, cap):
+        if len(points) <= cap:
+            return np.arange(len(points))
+        lo = points.min(axis=0)
+        step = max(float((points.max(axis=0) - lo).max()), 1e-6) / 1024.0
+        first = np.arange(len(points))
+        for _ in range(40):
+            cells = np.floor((points - lo) / step).astype(np.int64)
+            first = np.unique(cells, axis=0, return_index=True)[1]
+            if len(first) <= cap:
+                break
+            step *= 1.3
+        return np.sort(first)
+
+    def snap_boundary(self, owners):
+        verts = []
+        inward = []
+        normal = []
+        for v, loops in owners.items():
+            if len(loops) != 1:
+                continue
+            loop = loops[0]
+            n = np.array(loop.face.normal[:], np.float64)
+            t = np.array(loop.link_loop_next.vert.co[:], np.float64) - np.array(loop.link_loop_prev.vert.co[:], np.float64)
+            d = np.cross(n, t)
+            length = float(np.linalg.norm(d))
+            if length < 1e-9:
+                continue
+            verts.append(v)
+            inward.append(d / length)
+            normal.append(n)
+        if not verts:
+            return 0
+        steps = np.linspace(0.0, 1.0, 9)
+        start = np.array([v.co[:] for v in verts], np.float64)
+        inward = np.array(inward)
+        normal = np.array(normal)
+        probe = start[:, None, :] + inward[:, None, :] * (self.hold_reach * steps)[None, :, None]
+        flat = self.probe_field.project(probe.reshape(-1, 3).astype(np.float32), self.voxel * 0.5, 2, 4.0 * self.voxel).reshape(len(verts), len(steps), 3).astype(np.float64)
+        tilt = np.degrees(np.arccos(np.clip((self.probe_field.normals(flat.reshape(-1, 3).astype(np.float32), self.voxel * 0.5).reshape(len(verts), len(steps), 3) * normal[:, None, :]).sum(axis=2), -1.0, 1.0)))
+        off_plane = np.abs(((flat - start[:, None, :]) * normal[:, None, :]).sum(axis=2))
+        good = (tilt <= self.hold_tilt) & (off_plane <= max(0.002, 0.4 * self.voxel))
+        pick = np.where(good.any(axis=1), good.argmax(axis=1), -1)
+        moved = 0
+        for i, v in enumerate(verts):
+            if pick[i] > 0:
+                v.co = flat[i, pick[i]].tolist()
+                moved += 1
+        return moved
+
+    def planar_hold(self, ob, limit):
+        bm = bmesh.new()
+        bm.from_mesh(ob.data)
+        before = len(bm.faces)
+        bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(self.hold_angle), use_dissolve_boundaries=False, verts=bm.verts[:], edges=bm.edges[:], delimit={"MATERIAL"})
+        ngons = [f for f in bm.faces if len(f.verts) > 3]
+        held = set()
+        owners = {}
+        regions = 0
+        for face in ngons:
+            if face.calc_area() >= self.hold_area and self.planar_enough(face):
+                regions += 1
+                held.update(face.verts)
+                for loop in face.loops:
+                    owners.setdefault(loop.vert, []).append(loop)
+        snapped = self.snap_boundary(owners) if self.hold_reach > 0.0 else 0
+        if ngons:
+            bmesh.ops.triangulate(bm, faces=ngons, quad_method="BEAUTY", ngon_method="BEAUTY")
+        bm.verts.index_update()
+        bm.verts.ensure_lookup_table()
+        index = np.array(sorted(v.index for v in held if v.is_valid), np.int64)
+        if len(index):
+            coords = np.array([bm.verts[int(i)].co[:] for i in index], np.float64).reshape(-1, 3)
+            index = index[PlanarHold.thin(coords, max(16, int(self.hold_share * limit)))]
+        after = len(bm.faces)
+        bm.to_mesh(ob.data)
+        bm.free()
+        ob.data.update()
+        self.hold_pins = index
+        self.hold_count = len(ob.data.vertices)
+        return {"faces_before": before, "faces_after": after, "regions": regions, "pins": int(len(index)), "snapped": int(snapped)}
+
+    def reduce(self, high, owners):
+        arrays = self.engine.MeshArrays
+        poly_tris = sum(arrays.tris(part["mesh"]) for part in self.poly_parts)
+        limit = max(500, int((self.budget - poly_tris) * 0.985))
+        high.data.calc_loop_triangles()
+        areas = np.empty(len(high.data.loop_triangles), np.float32)
+        high.data.loop_triangles.foreach_get("area", areas)
+        area = float(areas.sum())
+        stage_target = int(limit * self.stage_ratio)
+        stage, stage_report = self.clean_collapse(high, stage_target, 2.5 * math.sqrt(2.0 * area / max(1, stage_target)), np.zeros(0, np.int64), 1)
+        hold = self.planar_hold(stage, limit)
+        detail_owners = np.array([i for i, o in enumerate(self.owners) if o["detail"]], np.int64)
+        if len(detail_owners):
+            centres = arrays.polygon_vectors(stage.data, "center")
+            share = float(np.isin(self.probe_field.owners(centres), detail_owners).mean())
+            if share > self.detail_share:
+                self.warnings.append("detail nodes cover {:.0%} of the surface (> {:.0%}); detail density not protected".format(share, self.detail_share))
+                detail_owners = np.zeros(0, np.int64)
+        low, report = self.clean_collapse(stage, limit, 2.5 * math.sqrt(2.0 * area / max(1, limit)), detail_owners, 3)
+        self.hold_pins = None
+        self.hold_count = -1
+        report["role_line_snapped"] = self.snap_role_lines(low.data, high) if self.crisp_roles else 0
+        report["role_faces_relabelled"] = self.relabel_faces(low.data) if self.crisp_roles else 0
+        report["stage"] = stage_report
+        report["planar_hold"] = hold
+        self.log.append("planar_hold " + json.dumps(hold))
+        self.discard(stage)
+        low.name = self.id
+        low.data.name = self.id
+        self.clock.mark("reduce")
+        return low, report
+
+
 class SignsBuilder:
     @staticmethod
-    def create(engine, prop_id, panel_tilt=9.0, **kwargs):
-        if panel_tilt is None or panel_tilt <= 0.0:
+    def create(engine, prop_id, panel_tilt=9.0, hold=None, **kwargs):
+        bases = (engine.SculptBuilder,)
+        attrs = {"engine": engine}
+        if hold is not None and PlanarHold.compatible(engine):
+            bases = (PlanarHold, engine.SculptBuilder)
+            attrs.update({key: value for key, value in hold.items() if key in PlanarHold.settings})
+        if panel_tilt is not None and panel_tilt > 0.0:
+            attrs.update({"transfer_normals": SignsBuilder.transfer_normals, "panel_tilt": float(panel_tilt)})
+        if len(bases) == 1 and "panel_tilt" not in attrs:
             return engine.SculptBuilder(prop_id, **kwargs)
-        cls = type("SignsSculptBuilder", (engine.SculptBuilder,), {"transfer_normals": SignsBuilder.transfer_normals, "panel_tilt": float(panel_tilt)})
+        cls = type("SignsSculptBuilder", bases, attrs)
         return cls(prop_id, **kwargs)
 
     @staticmethod
     def transfer_normals(builder, low, high):
-        type(builder).__mro__[1].transfer_normals(builder, low, high)
+        builder.engine.SculptBuilder.transfer_normals(builder, low, high)
         builder.log.append({"panel_normals": PanelNormals.flatten(low.data, max_tilt_deg=builder.panel_tilt)})
 
 
@@ -1102,12 +1256,12 @@ class DemoSet:
         "glow": {"color": "#FFF3DC", "finish": "emissive"},
     }
     props = (
-        {"id": "1nfx_sign_word", "recipe": "lobed_plaque_sign", "budget": 3900, "kwargs": {"text": "CAFE", "face_puff": 0.04, "piping_radius": 0.05}},
-        {"id": "1nfx_sign_stop", "recipe": "stop_sign", "budget": 2500, "kwargs": {"text": "BUS", "text_back": False, "face_puff": 0.035}},
-        {"id": "1nfx_sign_arrow", "recipe": "arrow_pillar", "budget": 3700, "kwargs": {"text": "PARK"}},
-        {"id": "1nfx_sign_totem", "recipe": "totem", "budget": 3950, "kwargs": {"text": "INFO"}},
-        {"id": "1nfx_sign_shop", "recipe": "squircle_sign", "budget": 3000, "kwargs": {"text": "MART", "face_puff": 0.04, "rim_radius": 0.048}},
-        {"id": "1nfx_sign_script", "recipe": "script_plaque", "budget": 1950, "kwargs": {"word": "hello"}},
+        {"id": "1nfx_sign_word", "recipe": "lobed_plaque_sign", "budget": 3900, "kwargs": {"text": "CAFE", "piping_radius": 0.05}, "hold": {}},
+        {"id": "1nfx_sign_stop", "recipe": "stop_sign", "budget": 2500, "kwargs": {"text": "BUS", "text_back": False}, "hold": {}},
+        {"id": "1nfx_sign_arrow", "recipe": "arrow_pillar", "budget": 3700, "kwargs": {"text": "PARK"}, "hold": {"hold_reach": 0.0, "hold_share": 0.08}},
+        {"id": "1nfx_sign_totem", "recipe": "totem", "budget": 3950, "kwargs": {"text": "INFO"}, "hold": {"hold_reach": 0.0, "hold_share": 0.08, "hold_flat": 0.001}},
+        {"id": "1nfx_sign_shop", "recipe": "squircle_sign", "budget": 3000, "kwargs": {"text": "MART", "rim_radius": 0.048}, "hold": {}},
+        {"id": "1nfx_sign_script", "recipe": "script_plaque", "budget": 1950, "kwargs": {"word": "hello"}, "hold": {}},
     )
 
     def __init__(self, engine, recipes, out_dir, set_name="1nfx_sign", voxel=0.005):
@@ -1119,7 +1273,7 @@ class DemoSet:
 
     def build(self, spec, budget=None):
         started = time.perf_counter()
-        b = SignsBuilder.create(self.engine, spec["id"], budget=int(budget or spec["budget"]), lod_dist=120.0, set_name=self.set_name, archetype="sign", palette=dict(self.palette), default_role="cream", voxel=float(spec.get("voxel", self.voxel)), colliders="auto")
+        b = SignsBuilder.create(self.engine, spec["id"], hold=spec.get("hold"), budget=int(budget or spec["budget"]), lod_dist=120.0, set_name=self.set_name, archetype="sign", palette=dict(self.palette), default_role="cream", voxel=float(spec.get("voxel", self.voxel)), colliders="auto")
         parts = getattr(self.recipes, spec["recipe"])(b, **spec["kwargs"])
         result = b.build(self.out_dir)
         result["seconds"] = round(time.perf_counter() - started, 2)

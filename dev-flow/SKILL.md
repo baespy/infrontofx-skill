@@ -1,71 +1,76 @@
 ---
 name: dev-flow
-description: วินัยการทำงานโค้ด FiveM ของเซิร์ฟเวอร์ คิดก่อนเขียน เขียนน้อยที่สุดที่ทำงานได้ แก้เฉพาะจุดโดยคงสัญญา export/event/payload/DB เดิมทุกตัว และทำงานตามเป้าที่ตรวจได้ มีโหมดคิดก่อนทำพร้อมสเปก วางแผนทีละ resource ดีบักหาต้นเหตุ ตรวจหลักฐานก่อนบอกว่าเสร็จ รีวิว/ออดิตที่ล่าโค้ดให้ลบ และสรุปส่งต่อข้ามเซสชัน ใช้เมื่อผู้ใช้พิมพ์ "ออกแบบระบบใหม่", "วางแผน", "บั๊ก", "error", "ดีบัก", "ไม่ทำงาน", "รีวิว", "audit", "ตรวจงาน", "ก่อนส่งงาน", "สรุปส่งต่อ", "handoff" หรือส่ง log/F8 มาให้ดู และทุกครั้งก่อนรายงานว่างานเสร็จ
+description: FiveM work discipline - think first, plan per resource, debug to the root cause, verify with fresh evidence, review, audit, hand off. Use for บั๊ก, error, ไม่ทำงาน, F8 or server logs, ออกแบบระบบใหม่, วางแผน, รีวิว, audit, ตรวจงาน, สรุปส่งต่อ, handoff, and before saying any code task is done. Not for code style (use infrontofx) or 3D assets (use the forge skills).
 ---
 
 # Dev Flow
 
-ไฟล์นี้คุมวิธีทำงาน ส่วนหน้าตาโค้ด (OOP, ไม่มี comment, ไม่มี `FC`, ใช้ `1nfx_lib` และ `1nfx_core`) ยังเป็นของ `SKILL.md` ที่รากของ infrontofx ใช้สองไฟล์คู่กันเสมอ ห้ามใช้ไฟล์นี้แทน
-พาธที่ขึ้นต้นด้วย `references/` อยู่ในโฟลเดอร์ dev-flow ส่วนไฟล์ที่เขียนว่า "ของ infrontofx" และพาธที่ขึ้นต้นด้วยชื่อ sub-skill อื่น เช่น `prop-forge/` อยู่ที่รากของชุด
+How to work. How code looks stays in the pack root `SKILL.md` (OOP, no comments, no `FC`, `1nfx_lib`, `1nfx_core`); always use both. `references/` paths are in this folder; `SKILL.md`, `checklists/`, `skills/`, `scripts/` and other sub-skills are at the pack root.
 
-## ข้อตกลงกับเจ้าของ
+## Quick path
 
-| เรื่อง | ทำอย่างไร |
-| --- | --- |
-| การถาม | งานแก้ทั่วไป บั๊ก perf และช่องโหว่ ทำเลยแล้วรายงานทีหลัง ถามเฉพาะกรณีในหัวข้อ "หยุดถามเมื่อ" |
-| ขอบเขต | ทีละ resource สำรองไปที่ `<project>/_backup/<YYYY-MM-DD>/<resource>` ก่อนแตะไฟล์แรก (โปรเจกต์ไม่มี git) |
-| โค้ดที่ส่ง | ไม่มี comment ทุกภาษา เป็น OOP บน `1nfx_lib` และ `1nfx_core` ตามกฎของ infrontofx |
-| ผลงาน | ตรวจขั้นสุดท้ายคือในเกม รายงานแยก "ตรวจแล้ว" กับ "ต้องลองในเกม" ทุกครั้ง |
-| ประสิทธิภาพ | ออกแบบเผื่อ 1,600 คนพร้อมกัน งาน perf วัดก่อนและหลังในสถานการณ์เดียวกัน |
-| รายงาน | ภาษาไทย สั้น บรรทัดแรกคือผล |
+1. Pick the mode in Choose. Small edit (text, one value, one line): read, edit, lint, report with the verify template; skip the rest.
+2. Read the real code and grep every caller first (exports, events, callbacks, NUI actions, DB, `Config` keys, state bags).
+3. Write the goal as checkable lines `step -> check: <command or observation that can fail>`; loop until each passes.
+4. Back up to `<project>/_backup/<YYYY-MM-DD>/<resource>` before the first edit; one resource at a time (no git).
+5. Edit with the least code (Hard rules), only lines the task needs.
+6. After the last edit run `references/verify.md` checks: `node scripts/lint-resource.mjs <resource>` -> `0 error(s)` and exit 0; contract diff vs backup -> no `<=` line; methods block -> no own method missing; perf work -> before/after numbers.
+7. Report in Thai, first line = result, template in `references/verify.md`, always with ตรวจแล้ว and ต้องลองในเกม.
+8. Append to `PROGRESS.md` per `references/handoff.md`; if the owner said to keep going, open the next resource at once.
 
-## หลัก 4 ข้อ
+## Choose
 
-1. **คิดก่อนเขียน** อ่านโค้ดจริงและ grep หาผู้เรียกทุกตัวก่อนแก้ ข้อเท็จจริงหาเอง การตัดสินใจที่เปลี่ยนสิ่งที่จะสร้างเป็นของเจ้าของ ถามได้ไม่เกิน 3 ข้อ นอกนั้นเขียนสมมติฐานบรรทัดละข้อแล้วทำต่อ โจทย์ที่อ่านได้สองทางให้วางทั้งสองทางพร้อมผลที่ผู้เล่นเห็น ห้ามเลือกเงียบๆ
-2. **โค้ดน้อยที่สุดที่ทำงานได้** หยุดที่ขั้นแรกที่พอ: ไม่ต้องมีเลย -> มีใน `1nfx_lib`, `1nfx_core` หรือ resource อื่นแล้ว -> native หรือ state bag ทำได้ -> บรรทัดเดียวพอ -> จึงเขียนเอง ไม่สร้าง abstraction ที่ใช้ที่เดียว ตัวห่อบรรทัดเดียว key ใน `Config` ที่ไม่มีใครปรับ หรือโหมด preview/mock ถ้า 200 บรรทัดเขียนเหลือ 50 ได้ ให้เขียนใหม่ ส่วนที่ห้ามตัดเพื่อให้สั้น: การตรวจฝั่ง server, throttle, การล้างตอน stop และ drop, secret ฝั่ง server, การเขียน DB ที่กันของหาย และทุกอย่างที่เจ้าของขอ
-3. **แก้เฉพาะจุด คงสัญญาทุกตัว** ทุกบรรทัดที่เปลี่ยนต้องชี้กลับไปที่โจทย์ได้ สัญญาที่ห้ามเปลี่ยน: ชื่อและลำดับพารามิเตอร์ของ export, ชื่อ event, ชื่อ `lib.callback` และคำสั่ง, key ใน `Config`, `action` และรูป `data` ของ NUI, ตารางและคอลัมน์ DB, key ของ state bag ระดับการแก้ดูจากคำของเจ้าของ: "แก้บั๊ก" แตะเฉพาะเส้นทางที่พัง ของอื่นที่เจอจดไว้ท้ายรายงาน "รีไรต์" หรือ "optimize" ใช้มาตรฐานเต็มของ infrontofx (ล้าง comment ลบของตายหลัง grep) โดยสัญญายังเหมือนเดิม
-4. **ทำตามเป้าที่ตรวจได้** ก่อนเริ่ม เปลี่ยนงานเป็นเงื่อนไขที่ล้มได้จริง เขียนเป็นบรรทัด `ขั้น -> ตรวจ: ...` แล้วทำซ้ำจนผ่าน ไม่มีหลักฐานสดหลังการแก้ครั้งสุดท้าย ห้ามพูดว่าเสร็จ
-
-## โหมดงาน
-
-| เจ้าของพิมพ์ หรือสถานการณ์ | ทำ | อ่าน |
+| Owner types, or situation | Do | Read |
 | --- | --- | --- |
-| "ออกแบบระบบใหม่", ระบบหรือ feature ใหม่, โจทย์กำกวม | อ่านก่อนถาม เขียนสเปก ซักตัวเองเงียบๆ | `references/think-first.md` |
-| "วางแผน", งานหลายไฟล์หรือหลาย resource, รีไรต์ resource ใหญ่ | แผนต่อ resource ขั้นที่ตรวจได้ ทำตามแผนแบบมี checkpoint | `references/plan.md` |
-| "บั๊ก", "error", "ดีบัก", "ไม่ทำงาน", log หรือภาพ F8 ที่ส่งมา | ทำอาการซ้ำ หาต้นเหตุ แก้ที่ต้นเหตุ | `references/debug.md` |
-| "ตรวจงาน", "ก่อนส่งงาน", ก่อนพูดว่าเสร็จ ผ่าน แก้แล้ว หรือเร็วขึ้น | หลักฐานสด รายการสัญญาเทียบ backup วัดก่อน-หลัง แม่แบบรายงาน | `references/verify.md` |
-| "รีวิว", "audit", ตรวจทั้งโฟลเดอร์, ได้ผลรีวิวจากที่อื่นมา | รีวิวเทียบ backup ออดิตทั้งโฟลเดอร์ บัญชีหนี้เทคนิค รับรีวิว | `references/review-audit.md` |
-| "สรุปส่งต่อ", "handoff", จบเซสชัน, context ใกล้เต็ม | บันทึกลง `PROGRESS.md` และแยกสิ่งที่ควรไป `memory/` | `references/handoff.md` |
+| ออกแบบระบบใหม่, new system or feature, unclear task | read before asking, write a spec, silent self-check | `references/think-first.md` |
+| วางแผน, many files or resources, big rewrite | plan per resource, checkable steps, checkpoints | `references/plan.md` |
+| บั๊ก, error, ดีบัก, ไม่ทำงาน, log or F8 screenshot | reproduce, find the root cause, fix there | `references/debug.md` |
+| ตรวจงาน, ก่อนส่งงาน, before saying done, passed, fixed or faster | fresh evidence, contract diff, before/after, report template | `references/verify.md` |
+| รีวิว, audit, whole folder, review received from elsewhere | review vs backup, folder audit, debt ledger, take review | `references/review-audit.md` |
+| สรุปส่งต่อ, handoff, session end, context nearly full | write `PROGRESS.md`, pick what goes to `memory/` | `references/handoff.md` |
 
-งานใหญ่เดินตามลำดับ think-first (เมื่อเป็นของใหม่หรือกำกวม) -> plan -> ทำทีละขั้น -> verify -> handoff เจอบั๊กระหว่างทางให้แทรก debug งานเล็ก (แก้ข้อความ ค่าเดียว บรรทัดเดียว) ข้ามพิธี อ่าน แก้ lint แล้วรายงานตามแม่แบบใน verify
+- Big task order: think-first (new or unclear) -> plan -> step by step -> verify -> handoff. A bug on the way inserts debug.
+- Edit depth follows the owner's word: "แก้บั๊ก" touches only the broken path and lists other findings at the end of the report; "รีไรต์" or "optimize" applies the full infrontofx standard (strip comments, delete dead code after grep) with contracts unchanged.
 
-## หยุดถามเมื่อ
+## Hard rules
 
-1. จะลบหรือล้างข้อมูลที่ย้อนไม่ได้ (`DROP`, `TRUNCATE`, wipe ตาราง, ลบโฟลเดอร์) ของที่เลิกใช้ให้ย้ายไป `_backup` แทนการลบ
-2. ต้องเปลี่ยนสัญญาในหลักข้อ 3 เพราะไม่มีทางอื่น
-3. มีผลนอกเครื่อง เช่น restart เซิร์ฟเวอร์จริงขณะมีผู้เล่น หรือ push ขึ้นที่สาธารณะ
-4. เป็นงานที่เจ้าของต้องทำเอง เช่น เปลี่ยน token หรือ webhook ที่หลุด (บอกแค่ตำแหน่ง ห้ามคัดลอกค่า)
-5. สองทางให้ผลที่ผู้เล่นเห็นต่างกัน และทั้งโค้ด `memory/` และ `PROGRESS.md` ตัดสินให้ไม่ได้ หรือแก้ล้มครบสามครั้งจนทุกทางที่เหลือเป็นการเดา
+- **Asking**: normal edits, bugs, perf and vulnerabilities are done first and reported after. Ask only in the Stop list.
+- **Think first**: find facts yourself; decisions that change what gets built belong to the owner. At most 3 questions; otherwise write assumptions one per line and continue. If the task reads two ways, show both with what players would see; never pick silently.
+- **Least code**: stop at the first rung that works - nothing needed -> already in `1nfx_lib`, `1nfx_core` or another resource -> a native or state bag -> one line -> write it yourself. No single-use abstraction, one-line wrapper, `Config` key nobody tunes, preview or mock mode. If 200 lines can be 50, rewrite. Never cut to look short: server checks, throttles, stop and drop cleanup, server-side secrets, DB writes that prevent loss, anything the owner asked for.
+- **Surgical**: every changed line traces to the task. Contracts never change: export names and parameter order, event names, `lib.callback` names and commands, `Config` keys, NUI `action` and `data` shape, DB tables and columns, state bag keys.
+- **Evidence**: never say done without fresh evidence from after the last edit. Another agent's report is a claim; open the files and run the checks yourself.
+- **Code**: no comments in any language; OOP on `1nfx_lib` and `1nfx_core` per the root rules.
+- **Scale**: design for 1,600 players at once; perf work is measured before and after in the same scenario.
+- **Results**: the final test is in game; every report separates ตรวจแล้ว from ต้องลองในเกม.
+- **Report**: Thai, short, first line is the result. Own decisions go at the end as `ตัดสินใจเอง: <what> เพราะ <why> ถ้าผิดเสีย <cost>`.
 
-นอกจากนี้ตัดสินเอง จดเป็น `ตัดสินใจเอง: <อะไร> เพราะ <เหตุผล> ถ้าผิดเสีย <อะไร>` แล้วรวมไว้ท้ายรายงาน
+**Stop and ask only when**
+1. Data loss cannot be undone (`DROP`, `TRUNCATE`, wiping a table, deleting a folder). Retired files go to `_backup` instead of being deleted.
+2. A contract must change and there is no other way.
+3. It acts outside this machine: restarting the live server with players on it, pushing to a public place.
+4. Only the owner can do it, e.g. rotating a leaked token or webhook (give the location, never copy the value).
+5. Two options change what players see and code, `memory/` and `PROGRESS.md` cannot decide; or three fixes failed and every option left is a guess.
 
-## จบงานทุกครั้ง
+## Done when
 
-1. รันตัวตรวจใน `references/verify.md` หลังการแก้ครั้งสุดท้าย แล้วรายงานตามแม่แบบในไฟล์นั้น
-2. จดความคืบหน้าลง `PROGRESS.md` ของเจ้าของตาม `references/handoff.md`
-3. ถ้าเจ้าของสั่งให้ไล่ต่อไว้แล้ว เปิด resource ถัดไปทันทีโดยไม่รอ
+- [ ] The mode's reference was followed (small edits excepted)
+- [ ] Checks re-ran after the last edit; full output and exit code read
+- [ ] Every claim carries numbers (`lint 0 error(s), 2 warning(s)`)
+- [ ] Report follows the template; ตรวจแล้ว and ต้องลองในเกม present; own decisions listed
+- [ ] `PROGRESS.md` updated
+- [ ] Next resource opened when the owner already said to keep going
 
-## ไฟล์ของ infrontofx ที่ใช้คู่กัน
+## References
 
-เปิดจากรากของชุด ไม่คัดลอกเนื้อหามาไว้ที่นี่
-
-| ต้องการ | ไฟล์ของ infrontofx |
+| Need | Open |
 | --- | --- |
-| กฎโค้ด ขั้นตอนต่อ resource ระดับการแก้ | `SKILL.md` |
-| สร้าง resource ใหม่ | `checklists/new-resource.md` |
-| เช็กลิสต์รีวิวรายข้อ | `checklists/review.md` |
-| ตารางอาการกับต้นเหตุ และเครื่องมือดีบัก | `skills/common/debugging.md` |
-| ลำดับการ optimize และวิธีวัด | `skills/common/performance.md` |
-| lint resource | `scripts/lint-resource.mjs` |
-| ตรวจชุด skill | `scripts/validate-skill.mjs` |
-| ประหยัด token และที่เก็บความจำ | `TOOLING.md` |
+| Mode details | `references/think-first.md`, `references/plan.md`, `references/debug.md`, `references/verify.md`, `references/review-audit.md`, `references/handoff.md` |
+| Code rules, per-resource steps, edit levels | pack root `SKILL.md` |
+| New resource; review checklist | `checklists/new-resource.md`; `checklists/review.md` |
+| Symptom to cause, debug tools | `skills/common/debugging.md` |
+| Optimize order and measuring | `skills/common/performance.md` |
+| Lint a resource; validate the pack | `scripts/lint-resource.mjs`; `scripts/validate-skill.mjs` |
+| Token saving and memory | `TOOLING.md` |
+| Original Thai wording of these rules | `references/rules-th.md` |
+
+Open pack-root files from the root; never copy their content here.

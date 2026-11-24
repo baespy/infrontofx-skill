@@ -1,0 +1,11 @@
+sculpt-forge	smooth sculpt	ปั้นเนียน|เนียน|ทรงพอง|ตัวอักษรพอง|ป้ายพอง|หยดสไลม์|สไลม์|ออร์แกนิก|มาสคอต|ฟิกเกอร์|ราวโค้ง|บันไดโค้ง|ซุ้มโค้ง	sculpt|sdf|fillet|smooth|puffy|organic|mascot|designer toy
+prop-forge	prop build and export	ปั้น prop|พร็อพ|ตู้เซฟ|ตู้ atm|โต๊ะคราฟ|หีบ	props?|ytyp|ydr|atm|marker
+map-forge	map	แมพ|แผนที่|ลานจอด|ไฟถนน	maps?|ymap|ybn|ytd|mlo|afk zone|lobby|warzone|plaza
+weapon-forge	weapon skin or ptfx	สกินอาวุธ|อาวุธ|ปืน|เอฟเฟกต์|พาร์ทิเคิล	weapons?|ptfx|ypt|particles?
+poster-forge	poster	โปสเตอร์|สวัสดิการ|แจกของ	posters?|welfare
+dev-flow	debug	บั๊ก|บัค|เออเร่อ|ไม่ทำงาน|พัง|แครช	bugs?|errors?|crash|crashes|f8|traceback|nil value|logs?
+dev-flow	review or audit	รีวิว|ตรวจงาน|ตรวจโค้ด|ออดิต	review|audit
+dev-flow	design or plan	ออกแบบระบบ|ระบบใหม่|วางแผน|สเปก	plan|spec
+dev-flow	handoff	สรุปส่งต่อ|ส่งต่องาน	handoff
+infrontofx	code standard	เขียนใหม่|รีไรต์|แยกสคริป|สคริป|สร้าง resource|ทำ ui|ทำเมนู	rewrite|optimi[sz]e|resources?|lua|fxmanifest|nui|dui|html|ui|config|events?|exports?|callbacks?|1nfx_[a-z0-9_]+
+terse	short replies	ตอบสั้น|โหมดสั้น|สั้นโหด	terse|caveman

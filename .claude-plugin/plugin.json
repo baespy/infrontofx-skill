@@ -1,10 +1,19 @@
 {
     "name": "infrontofx-skill",
-    "version": "4.0.1",
-    "description": "infrontofx FiveM toolkit: Lua + NUI/DUI standard (OOP, no comments, no FC), dev-flow work discipline, terse replies, poster-forge, weapon-forge, prop-forge, map-forge and sculpt-forge smooth sculpting.",
+    "version": "4.1.0",
+    "description": "infrontofx FiveM toolkit with automatic skill routing (Claude Code hook; AGENTS.md/GEMINI.md for GPT, Gemini, Cursor, Copilot): Lua + NUI/DUI standard, dev-flow, terse, poster-forge, weapon-forge, prop-forge, sculpt-forge and map-forge.",
     "author": {
         "name": "baespy"
     },
     "license": "MIT",
-    "skills": ["./", "./poster-forge", "./weapon-forge", "./prop-forge", "./map-forge", "./sculpt-forge", "./dev-flow", "./terse"]
+    "skills": [
+        "./",
+        "./poster-forge",
+        "./weapon-forge",
+        "./prop-forge",
+        "./map-forge",
+        "./sculpt-forge",
+        "./dev-flow",
+        "./terse"
+    ]
 }

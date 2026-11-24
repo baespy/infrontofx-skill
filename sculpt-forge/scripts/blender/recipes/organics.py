@@ -154,39 +154,62 @@ class OrganicsRecipes:
     def cloud_lobes(width, depth, height, rng, flat=0.1):
         lobes = []
         floor = float(flat) * height
-        front = ((-0.36, 0.22), (-0.18, 0.33), (0.03, 0.45), (0.23, 0.35), (0.38, 0.24))
-        for u, k in front:
-            r = height * k * rng.uniform(0.98, 1.02)
-            z = max(floor + 0.86 * r, height - r) if k >= 0.45 else floor + 0.86 * r
-            lobes.append({"loc": (u * width, -0.05 * depth + rng.uniform(-0.015, 0.015) * depth, z), "radii": (r, min(r, 0.44 * depth), r), "tier": 1})
-        for u, k in ((-0.09, 0.3), (0.14, 0.31)):
-            r = height * k * rng.uniform(0.98, 1.02)
-            lobes.append({"loc": (u * width, 0.16 * depth, floor + 0.92 * r), "radii": (1.05 * r, min(r, 0.4 * depth), r), "tier": 2})
+        span = height - floor
+        tiers = (
+            (1, -0.14, 0.82, ((-0.36, 0.2, 0.14), (-0.13, 0.27, 0.2), (0.12, 0.25, 0.18), (0.36, 0.2, 0.13))),
+            (2, -0.04, 0.85, ((-0.22, 0.27, 0.52), (0.03, 0.33, None), (0.25, 0.25, 0.49))),
+            (3, 0.24, 0.9, ((-0.2, 0.26, 0.29), (0.15, 0.25, 0.27))),
+        )
+        for tier, v, squash, row in tiers:
+            for u, k, seat in row:
+                r = height * k * rng.uniform(0.98, 1.02)
+                z = height - r if seat is None else floor + seat * span
+                lobes.append({"loc": (u * width, v * depth + rng.uniform(-0.01, 0.01) * depth, z), "radii": (r, min(squash * r, 0.46 * depth), r), "tier": tier})
         return lobes
 
-    def cloud(self, center=(0.0, 0.0, 0.0), size=(1.9, 1.05, 0.95), roles=("snow",), gradient="x", crease=0.22, flat=0.1, seed=None, fillet=0.0, collide=False, name="cloud"):
+    @staticmethod
+    def lobe_role(roles, gradient, loc, width, height):
+        if gradient == "x":
+            return OrganicsRecipes.band_role(roles, loc[0] / width + 0.5)
+        if gradient == "z":
+            return OrganicsRecipes.band_role(roles, loc[2] / height)
+        return OrganicsRecipes.band_role(roles, 0.5)
+
+    def cloud(self, center=(0.0, 0.0, 0.0), size=(1.7, 0.85, 1.15), roles=("snow",), gradient="x", crease=0.2, flat=0.1, seed=None, fillet=0.0, collide=False, name="cloud", minis=0, mini_roles=None):
         rng = self.rng(seed)
         width, depth, height = (float(v) for v in size)
         cx, cy, cz = (float(v) for v in center)
         lobes = OrganicsRecipes.cloud_lobes(width, depth, height, rng, flat)
         k = float(crease) * float(np.mean([lobe["radii"][2] for lobe in lobes]))
         nodes = []
+        floor = float(flat) * height
         with self.b.group(name, fillet=fillet) as group:
-            core = self.b.ellipsoid((0.42 * width, 0.34 * depth, 0.2 * height), loc=(cx, cy + 0.03 * depth, cz + (float(flat) + 0.12) * height), role=OrganicsRecipes.band_role(roles, 0.5), collide=collide)
+            core = self.b.ellipsoid((0.42 * width, 0.36 * depth, 0.3 * height), loc=(cx, cy + 0.04 * depth, cz + floor + 0.1 * height), role=OrganicsRecipes.band_role(roles, 0.5), collide=collide)
             for lobe in lobes:
                 lx, ly, lz = lobe["loc"]
-                if gradient == "x":
-                    u = lx / width + 0.5
-                elif gradient == "z":
-                    u = lz / height
-                else:
-                    u = 0.5
-                nodes.append(self.b.ellipsoid(lobe["radii"], loc=(cx + lx, cy + ly, cz + lz), role=OrganicsRecipes.band_role(roles, u), fillet=k))
+                nodes.append(self.b.ellipsoid(lobe["radii"], loc=(cx + lx, cy + ly, cz + lz), role=OrganicsRecipes.lobe_role(roles, gradient, lobe["loc"], width, height), fillet=k))
             if flat:
-                self.b.cut(point=(cx, cy, cz + flat * height), normal=(0.0, 0.0, -1.0), fillet=0.6 * flat * height)
-        lo = (cx - 0.5 * width, cy - 0.5 * depth, cz + float(flat) * height)
+                self.b.cut(point=(cx, cy, cz + floor), normal=(0.0, 0.0, -1.0), fillet=0.6 * floor)
+        puffs = []
+        spots = ((0.55, -0.08, 0.6, 0.26), (-0.56, -0.04, 0.5, 0.21))
+        for index in range(min(int(minis), len(spots))):
+            u, v, w, s = spots[index]
+            puffs.append(self.cloud_puff((cx + u * width, cy + v * depth, cz + w * height), s * width, roles=mini_roles or roles, crease=crease, seed=rng.randint(0, 9999), name="{}_mini{}".format(name, index)))
+        lo = (cx - 0.5 * width, cy - 0.5 * depth, cz + floor)
         hi = (cx + 0.5 * width, cy + 0.5 * depth, cz + height)
-        return {"group": group, "core": core, "lobes": nodes, "bounds": (lo, hi), "fillet": k}
+        return {"group": group, "core": core, "lobes": nodes, "bounds": (lo, hi), "fillet": k, "minis": puffs}
+
+    def cloud_puff(self, center=(0.0, 0.0, 0.0), width=0.34, roles=("snow",), crease=0.2, seed=None, name="cloud_puff"):
+        rng = self.rng(seed)
+        cx, cy, cz = (float(v) for v in center)
+        w = float(width)
+        nodes = []
+        with self.b.group(name, fillet=0.0) as group:
+            base = self.b.ellipsoid((0.4 * w, 0.26 * w, 0.13 * w), loc=(cx, cy, cz + 0.13 * w), role=OrganicsRecipes.band_role(roles, 0.5))
+            for u, v, k, seat in ((-0.24, -0.06, 0.22, 1.0), (0.25, -0.04, 0.2, 1.0), (0.0, 0.0, 0.28, 1.3), (0.03, 0.16, 0.22, 1.1)):
+                r = w * k * rng.uniform(0.97, 1.03)
+                nodes.append(self.b.sphere(r, loc=(cx + u * w, cy + v * w, cz + seat * r), role=OrganicsRecipes.band_role(roles, 0.5), fillet=float(crease) * 0.22 * w))
+        return {"group": group, "base": base, "lobes": nodes, "bottom": cz, "width": w}
 
     def cloud_skirt(self, center=(0.0, 0.0, 0.0), radius=0.5, height=0.22, roles=("snow",), gradient=None, count=None, crease=0.3, seed=None, fillet=0.0, collide=False, name="cloud_skirt"):
         rng = self.rng(seed)
@@ -715,7 +738,7 @@ class OrganicsDemo:
         "gold": {"color": "#D9A441", "finish": "gloss"},
     }
     props = (
-        {"id": "1nfx_org_cloud", "kind": "cloud", "archetype": "cloud", "budget": 2950, "voxel": 0.0045, "lod": 150.0, "ao": 0.24, "seed": 7},
+        {"id": "1nfx_org_cloud", "kind": "cloud", "archetype": "cloud", "budget": 2500, "voxel": 0.0045, "lod": 150.0, "ao": 0.24, "seed": 7},
         {"id": "1nfx_org_plant", "kind": "plant", "archetype": "plant", "budget": 4200, "voxel": 0.005, "lod": 120.0, "ao": 0.18, "seed": 3},
         {"id": "1nfx_org_pastry", "kind": "pastry", "archetype": "pastry_stand", "budget": 4200, "voxel": 0.005, "lod": 120.0, "ao": 0.18, "seed": 5},
         {"id": "1nfx_org_chibi", "kind": "chibi", "archetype": "figure", "budget": 6000, "voxel": 0.005, "lod": 150.0, "ao": 0.2, "seed": 11},
@@ -740,8 +763,8 @@ class OrganicsDemo:
         return self.sf.SculptBuilder(spec["id"], budget=int(round(spec["budget"] * self.budget_scale)), lod_dist=spec["lod"], set_name=self.set_name, archetype=spec["archetype"], voxel=float(self.voxel or spec["voxel"]), palette=self.palette, default_role="cream", ao_distance=spec["ao"])
 
     def make_cloud(self, recipes, b):
-        recipes.cloud(size=(1.9, 1.05, 0.95), roles=("pink", "snow", "sky"), gradient="x")
-        b.collider((0.0, 0.0, 0.5), (1.72, 0.86, 0.8))
+        recipes.cloud(size=(1.7, 0.85, 1.15), roles=("snow",), gradient=None, crease=0.24, minis=2)
+        b.collider((0.0, 0.0, 0.6), (1.6, 0.8, 0.95))
 
     def make_plant(self, recipes, b):
         recipes.potted_plant()

@@ -25,13 +25,14 @@ recipe เรียกได้จาก Python เท่านั้น (CLI �
 
 | ส่วน | ทำงานอย่างไร |
 | --- | --- |
-| `SignsBuilder.create(engine, prop_id, panel_tilt=9.0, **kwargs)` | สร้าง subclass ของ `SculptBuilder` ที่รัน `PanelNormals.flatten` หลังโอน normals: หาแผงแบน (หน้าติดกันเอียงกัน ≤ 0.75°, พื้นที่ ≥ 0.003 m² หรือ 0.2% ของผิว) แล้วดึง corner normal ที่เอียงจากแผง ≤ `panel_tilt` ให้ตรงกับแผง หน้าป้ายจึงแบนคมขึ้น ส่ง `panel_tilt=0` ได้ `SculptBuilder` ธรรมดา kwargs อื่นส่งต่อให้ `SculptBuilder` ทั้งหมด |
+| `SignsBuilder.create(engine, prop_id, panel_tilt=9.0, hold=None, **kwargs)` | สร้าง subclass ของ `SculptBuilder` ที่รัน `PanelNormals.flatten` หลังโอน normals: หาแผงแบน (หน้าติดกันเอียงกัน ≤ 0.75°, พื้นที่ ≥ 0.003 m² หรือ 0.2% ของผิว) แล้วดึง corner normal ที่เอียงจากแผง ≤ `panel_tilt` ให้ตรงกับแผง หน้าป้ายจึงแบนคมขึ้น ส่ง `panel_tilt=0` และ `hold=None` ได้ `SculptBuilder` ธรรมดา `hold` (dict) ต่อ `PlanarHold` เข้าไปด้วย kwargs อื่นส่งต่อให้ `SculptBuilder` ทั้งหมด |
+| `PlanarHold` (`hold={...}`) | ตัวเดียวกับ `PlanarHoldMixin` ของ cabinets: หลังย่อขั้นแรก (stage) รวมหน้าที่เอียงกัน ≤ `hold_angle` 2° เป็น n-gon, แผงที่ใหญ่ ≥ `hold_area` 0.01 m² ถูกตรึง vertex ขอบแผง (สุ่มให้ไม่เกิน `hold_share` 15% ของงบ) และเมื่อ `hold_reach` > 0 (ค่าเริ่ม 0.02) เลื่อนขอบแผงเข้าไปถึงจุดที่ผิวแบนจริง (`hold_tilt` 1°) แล้วจึงย่อขั้นสุดท้าย หน้าแผ่นจึงไม่เหลือสามเหลี่ยมยาวที่แผ่เป็นพัดจากโคนตัวอักษร `hold_flat` (m) ตรึงเฉพาะ n-gon ที่แบนไม่เกินค่านี้ key ที่รับ: `hold_angle`, `hold_area`, `hold_share`, `hold_reach`, `hold_tilt`, `hold_flat` ถ้า engine ไม่มี method ที่ต้องใช้ (`reduce`, `protection`, `clean_collapse`, `snap_role_lines`, `relabel_faces`, `discard`) จะข้ามไปเอง |
 | `Field2D(blend, offset)` | outline 2D แบบ SDF หลายรูป union กันด้วย smooth-min `blend` (ลอนหัวเมฆหลอมกับตัวแผ่นแบบมน) `grown(d)` ขยายทั้ง field (ใช้ทำแผ่น outline ของคำ), `contour(-inset)` หาเส้นที่ห่างขอบเท่ากัน (ใช้เป็นเส้นทาง piping) |
 | `slab(b, field, depth, edge, puff, ...)` | ยืด `Field2D` เป็นแผ่น SDF ผ่าน `primitive("extrude", ...)` ของ engine `edge` = รัศมีขอบแผ่น, `puff` = โดมหน้า |
 | `layered_word(...)` | คำพองสามชั้น: แผ่น outline = ตัวอักษรขยาย `outline` × cap height ยื่น `plate_proud` แล้วตัวอักษรยื่นต่อ `letter_proud` ทั้งสองชั้นฝังลงชั้นล่าง `embed` |
 | `Frame(origin, rot)` | วางทั้งป้ายด้วย `base` และหมุนด้าน (`turned(180)` ใช้ทำด้านหลัง) |
 | `roles` | dict ทับ role ต่อส่วน key ตาม `SignsRecipes.families` เช่น lobed: `plaque`, `outline`, `letters`, `piping`, `post`, `foot` |
-| `face_puff` | ค่าเริ่ม 0.0 หน้าแผ่นแบน ใส่ค่าบวกเพื่อโดมหน้าแผ่น |
+| `face_puff` | ค่าเริ่ม 0.0 หน้าแผ่นแบน ใส่ค่าบวกเพื่อโดมหน้าแผ่น demo ไม่ใช้แล้วเพราะ `hold` ทำหน้าแผ่นเรียบโดยไม่ต้องโป่ง |
 | `ground=True` | `cut` ใต้ z = 0 fillet 0.012 ฐานเรียบวางพื้นได้ |
 | `collide=True` | กล่องชนตั้งเองตามตัวป้ายและเสา (ไม่พึ่ง `colliders="auto"`) |
 | `PartStats.tris(b, prop_id, parts)` | นับ tris ต่อส่วนหลัง build ใช้ดูว่าชิ้นไหนกินงบ (demo พิมพ์เป็น `SIGNS_PARTS`) |
@@ -130,6 +131,7 @@ if __name__ == "__main__":
 - `EngineLoader(engine_dir=None)` หา `sculpt_forge.py` จากอาร์กิวเมนต์, env `SCULPT_FORGE_DIR` หรือโฟลเดอร์แม่ของ recipe ตามลำดับ
 - ผ่าน MCP: โหลดด้วย `runpy.run_path(r"<skill>\sculpt-forge\scripts\blender\recipes\signs.py", run_name="signs_recipes")` ห้ามใช้ `run_name="__main__"` (จะรัน demo ทั้งชุด) ส่งฟอนต์เป็นพาธเต็ม และ build ซ้ำด้วย CLI 4.2.3 ก่อน export ถ้าฉากเป็น 5.x
 - ป้ายหลายชิ้นในสคริปต์เดียวกันใช้ `set_name` และ palette ชุดเดียวกัน ถ้า role ต่างกันในโฟลเดอร์เดียว engine เขียน `<set>_pal_<sha8>.png` เพิ่ม (วัดแล้ว) ชุดจะมี palette หลายแผ่น
+- ตัวอย่างนี้ไม่ได้ส่ง `hold` จึงยังมีเงาพัดบนหน้าแผ่น ป้ายจริงให้ส่ง `hold={}` แบบ demo ป้ายที่มีเสาเหลี่ยม ฐานขั้น หรือกรอบจอให้ใช้ `hold={"hold_reach": 0.0, "hold_share": 0.08}` (ค่าใน `DemoSet.props` หัวข้อ 7)
 
 ## 6. demo CLI
 
@@ -161,20 +163,30 @@ $work    = '<project>\work\signs'
 
 ## 7. demo ที่วัดแล้ว
 
-Blender 4.2.3, 2026-11-24, voxel 0.005, `lod_dist` 120, set `1nfx_sign`, engine ที่มี `SurfaceRefiner` รันตระกูลเดียว `-t 6` ด้วย `run_seq.ps1`
+Blender 4.2.3, 2026-11-24, voxel 0.005, `lod_dist` 120, set `1nfx_sign`, engine ที่มี `SurfaceRefiner`, ประตู QA v2 (`references/qa.md` หัวข้อ 3.1) รันตระกูลเดียว `-t 10` ด้วย `run_seq.ps1` คอลัมน์ `hold` คือค่า `"hold"` ใน `DemoSet.props`
 
-| id | recipe | ขนาด (m) | tris / งบ | tris/m² | วินาที | `SCULPT_QA` | `validate_prop` |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `1nfx_sign_word` | `lobed_plaque_sign` CAFE, `face_puff` 0.04, `piping_radius` 0.05 | 1.90 × 0.33 × 2.13 | 3,820 / 3,900 | 663 | 15.4 | fail=0 warn=6 | 0 / 0 |
-| `1nfx_sign_stop` | `stop_sign` BUS, `text_back=False`, `face_puff` 0.035 | 0.78 × 0.54 × 2.94 | 2,448 / 2,500 | 703 | 9.5 | fail=0 warn=4 (`deviation` p95 2.98 mm WARN) | 0 / 0 |
-| `1nfx_sign_arrow` | `arrow_pillar` PARK | 1.31 × 0.70 × 2.55 | 3,624 / 3,700 | 688 | 7.1 | fail=0 warn=6 | 0 / 0 |
-| `1nfx_sign_totem` | `totem` INFO | 1.06 × 0.56 × 2.14 | 3,870 / 3,950 | 674 | 6.9 | fail=0 warn=2 | 0 / 0 |
-| `1nfx_sign_shop` | `squircle_sign` MART, `face_puff` 0.04, `rim_radius` 0.048 | 1.08 × 0.46 × 1.44 | 2,940 / 3,000 | 656 | 16.3 | fail=0 warn=6 | 0 / 0 |
-| `1nfx_sign_script` | `script_plaque` hello | 1.31 × 0.36 × 0.72 | 1,910 / 1,950 | 666 | 15.0 | fail=1 warn=6: `lumpiness` roughness 3.30° | 0 / 0 |
+| id | recipe | `hold` | ขนาด (m) | tris / งบ | tris/m² | วินาที | `SCULPT_QA` | `validate_prop` |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `1nfx_sign_word` | `lobed_plaque_sign` CAFE, `piping_radius` 0.05 | `{}` | 1.90 × 0.33 × 2.13 | 3,820 / 3,900 | 662 | 17.9 | fail=0 warn=3 (`folds` 4 ขอบ, `normal_error`, `deviation` p95 1.42 mm) | 0 / 0 |
+| `1nfx_sign_stop` | `stop_sign` BUS, `text_back=False` | `{}` | 0.78 × 0.54 × 2.94 | 2,448 / 2,500 | 697 | 12.6 | fail=0 warn=3 (`dihedral` p90 43.5°, `normal_error`, `deviation` p95 2.58 mm) | 0 / 0 |
+| `1nfx_sign_arrow` | `arrow_pillar` PARK | `{"hold_reach": 0.0, "hold_share": 0.08}` | 1.31 × 0.70 × 2.55 | 3,624 / 3,700 | 689 | 8.6 | fail=0 warn=3 (`folds` 11 ขอบ 0.013%, `normal_error`, `deviation` p95 1.06 mm) | 0 / 0 |
+| `1nfx_sign_totem` | `totem` INFO | `{"hold_reach": 0.0, "hold_share": 0.08, "hold_flat": 0.001}` | 1.06 × 0.56 × 2.14 | 3,864 / 3,950 | 673 | 11.6 | fail=0 warn=1 (`normal_error`) | 0 / 0 |
+| `1nfx_sign_shop` | `squircle_sign` MART, `rim_radius` 0.048 | `{}` | 1.08 × 0.46 × 1.44 | 2,940 / 3,000 | 662 | 19.2 | fail=0 warn=4 (`dihedral` p90 36.5°, `folds` 2 ขอบ, `normal_error`, `deviation` p95 1.93 mm) | 0 / 0 |
+| `1nfx_sign_script` | `script_plaque` hello | `{}` | 1.31 × 0.36 × 0.72 | 1,910 / 1,950 | 665 | 16.8 | fail=0 warn=5 (`split_edges` 3.9%, `dihedral` p90 37.5°, `folds` 3 ขอบ, `normal_error`, `deviation` p95 1.25 mm) | 0 / 0 |
 
-ทั้งชุด `SCULPT_QA fail=1 warn=30` (ก่อนแก้ fail=4: คำ, ซุ้มรถเมล์, ร้าน, ตัวเขียน), `validate_prop` ทุกไฟล์ fail=0 warn=0, render 6/6 ค่าเริ่มของ builder ยังเป็น `face_puff` 0.0 demo ส่ง `face_puff` และท่อหนาขึ้นผ่าน kwargs ของ `DemoSet.props`
+ทั้งชุด `SCULPT_QA fail=0 warn=19` (ก่อน `hold` ด้วยประตู v2 fail=0 warn=25, ประตูเดิม fail=1 warn=30), `validate_prop` ทุกไฟล์ fail=0 warn=0, render 6/6 WARN `flat_panels` (เงาพัดสามเหลี่ยมรอบตัวอักษร) หายจากทุกชิ้น ค่าเริ่มของ builder ยังเป็น `face_puff` 0.0 และ demo ไม่ส่ง `face_puff` แล้ว
 
 การแก้ที่วัดแล้ว:
+
+| เปลี่ยน | ผล |
+| --- | --- |
+| `hold={}` ทุกชิ้น (word/shop/stop ไม่ใส่ `face_puff`) | เงาพัดบนหน้าแผ่นหายทุกป้าย: word warn 5 → 3, shop 5 → 4, stop 4 → 3, script 5 → 5 (`flat_panels` หาย แทนด้วย `dihedral`) แต่ arrow และ totem ได้ `deviation` FAIL p95 4.7 / 4.4 mm (pins ขอบแผงของเสาเหลี่ยม ฐานขั้น และกรอบจอแย่งงบชิ้นเล็ก) |
+| arrow / totem `hold_reach` 0 | totem ผ่าน (warn 1) แต่มีสามเหลี่ยมมืดบนแผ่น sticker, arrow ยัง FAIL `deviation` 4.60 mm |
+| arrow `hold_share` 0.05 + `hold_area` 0.05 | fail=0 แต่มีสามเหลี่ยมมืดบนหัวเสาใต้ป้าย |
+| arrow / totem `hold_reach` 0 + `hold_share` 0.08 (totem + `hold_flat` 0.001) | ผ่านและภาพเรียบ: arrow warn 3 `deviation` 1.06 mm, totem warn 1 (ค่า demo) |
+| shop `panel_tilt` 25 | `normal_error` p99 18.9° FAIL จึงไม่ใช้ |
+
+แถวล่างวัดด้วยประตูเดิมก่อนมี `hold`:
 
 | เปลี่ยน | ผล |
 | --- | --- |
@@ -187,19 +199,20 @@ Blender 4.2.3, 2026-11-24, voxel 0.005, `lod_dist` 120, set `1nfx_sign`, engine 
 | script `rim_radius` 0.056, `tube_radius` 0.024, `thickness` 0.1, `face_puff` 0.04/0.06, งบ 2,000 | roughness 3.3-4.5° ยัง FAIL (`face_puff` ทำตัวเขียนลอย/จม `deviation` 3.8-4.8 mm) |
 | script `panel_tilt` 20 (ดึง normals หน้าแผ่นให้แบนแรงขึ้น) | หน้าแผ่นหายคลื่นแต่ `normal_error` p99 15.6° FAIL จึงไม่ใช้ |
 
-งบต่อส่วน (`SIGNS_PARTS`) บอกว่างบไปอยู่ที่ไหน: ป้ายเมฆ แผ่น 1,282 / piping 938 / ตัวอักษร 513 + outline 369 / ฐานเสา 505 / เสา 213, totem ตัว 834 / sticker 748 + รูป 269 / ท่อทอง 653 / ตัวอักษร 534 + outline 223 ท่อหนึ่งเส้นรอบป้ายกินงบ 17-25%
+งบต่อส่วน (`SIGNS_PARTS`) บอกว่างบไปอยู่ที่ไหน: ป้ายเมฆ แผ่น 1,273 / piping 926 / ตัวอักษร 531 + outline 320 / ฐานเสา 507 / เสา 263, totem ตัว 957 / sticker 727 + รูป 432 / ท่อทอง 402 / ตัวอักษร 516 + outline 220 ท่อหนึ่งเส้นรอบป้ายกินงบ 10-25%
 
-งบ demo ตั้งไว้ราว 655-705 tris/m² (เพดานงานนี้ ~700) ซึ่งพอสำหรับคำที่มีเส้นตรงเยอะเมื่อหน้าแผ่นโป่งและท่อหนา ≥ 4.8 cm คำที่มีตัวโค้งมาก (S, O, C) หรือชิ้นย่อยเยอะ ลองโป่งหน้าแผ่นและขยายท่อก่อนเพิ่มงบ
+งบ demo ตั้งไว้ราว 660-700 tris/m² (เพดานงานนี้ ~700) พอเมื่อใส่ `hold` ให้หน้าแผ่นเรียบและท่อหนา ≥ 4.8 cm คำที่มีตัวโค้งมาก (S, O, C) หรือชิ้นย่อยเยอะ ใส่ `hold` และขยายท่อก่อนเพิ่มงบ
 
 ## 8. ข้อผิดพลาดที่พบบ่อย
 
 | เห็นอะไร | key ที่ขึ้น | สาเหตุ | แก้ |
 | --- | --- | --- | --- |
-| clay: รอยทแยงเป็นพัดหรือกากบาทบนหน้าแผ่นเรียบ (ใต้เส้นแบ่งของ squircle, หน้า script, หน้าซุ้ม) zebra: แถบแผ่เป็นรัศมีจากมุมแผง | `flat_panels` WARN (tilt mean 15-41°) | แผ่นแบนใหญ่เหลือสามเหลี่ยมใหญ่ไม่กี่ชิ้น normals ที่โอนมาเอียงที่มุม `panel_tilt` 9° ดึงได้เฉพาะมุมที่เอียงไม่เกิน 9° | เพิ่มงบ (SHOP 3,000 → 4,000: tilt mean 38.5° → 14.7° วัดแล้ว) หรือใส่ `face_puff` 0.035-0.04 ให้เงาหมอนดูตั้งใจ (วัดแล้วกับ CAFE, MART, BUS ผ่าน lumpiness/deviation ด้วย) |
-| clay: ตัวอักษรยับ ขอบแผ่นและท่อเป็นปล้อง zebra: แถบหักฟันเลื่อย | `lumpiness` FAIL roughness 3.2-3.9° | ส่วนที่วัด roughness เหลือแค่ขอบมนของแผ่นและท่อขอบบาง (หน้าแบนถูกนับเป็นแผงและตัดทิ้ง) ซึ่งได้ด้านไม่พอที่ ~670 tris/m² | `face_puff` 0.035-0.04 และท่อขอบหนาขึ้น 15-20% ผ่าน (CAFE, MART, BUS วัดแล้ว) ตัวอักษรต้องสูง ≥ ~0.15 m ที่ voxel 5 mm |
+| clay: รอยทแยงเป็นพัดหรือกากบาทบนหน้าแผ่นเรียบ (ใต้เส้นแบ่งของ squircle, หน้า script, หน้าซุ้ม) zebra: แถบแผ่เป็นรัศมีจากมุมแผง | `flat_panels` WARN (tilt mean 15-41°) | แผ่นแบนใหญ่เหลือสามเหลี่ยมใหญ่ไม่กี่ชิ้นที่วิ่งจากโคนตัวอักษรถึงขอบ normals ที่โอนมาเอียงที่มุม | `hold={}` (วัดแล้ว: หายทุกป้ายที่งบเท่าเดิม) ไม่ต้องเพิ่มงบหรือโป่งหน้าแผ่น |
+| สามเหลี่ยมมืดบนแผ่นเล็ก (sticker, หัวเสา) หรือขอบเสาเหลี่ยมและกรอบจอเป็นเหลี่ยมหลังใส่ `hold` | `deviation` FAIL p95 4-5 mm | `hold_reach` เลื่อนขอบแผง และ pins 15% ของงบตรึงแผงเล็กจำนวนมาก ชิ้นย่อยเหลืองบน้อย | `{"hold_reach": 0.0, "hold_share": 0.08}` (+ `hold_flat` 0.001 ถ้าแผงโค้งน้อยๆ ถูกตรึง) วัดแล้วกับ arrow และ totem |
+| clay: ตัวอักษรยับ ขอบแผ่นและท่อเป็นปล้อง zebra: แถบหักฟันเลื่อย | `lumpiness` (ประตูเดิม FAIL roughness 3.2-3.9°) | ประตูเดิมนับความโค้งของท่อขอบและขอบมนเป็นก้อน ประตู v2 วัดเทียบ high แล้วได้ 0.2-0.3° | ถ้า zebra ยังหักจริงบนผิวใหญ่ให้ขยายท่อขอบ 15-20% ตัวอักษรต้องสูง ≥ ~0.15 m ที่ voxel 5 mm |
 | colour: คำที่มีตัวโค้งเป็นเหลี่ยม เส้นสี outline เป็นฟันเลื่อย | `deviation` FAIL, `sagitta` WARN | งบต่อพื้นที่ต่ำ (SHOP ที่ 3,000 = 670 tris/m²: deviation p95 4.83 mm, sagitta p99 5.1 mm) | งบ 4,000 (≈ 890 tris/m²) ผ่าน `fail=0` (วัดแล้ว) |
-| clay: ซุ้มและห่วงของ `stop_sign` เป็นเหลี่ยม | `deviation` p95 ~3.2 mm | 13 ส่วนย่อยแบ่งงบ 2,500 (ท่อขอบสองหน้า, ห่วงป้ายกลม, ดาวสองหน้า) | `face_puff` 0.035 ผ่าน (2.98 mm วัดแล้ว) หรือ `double_sided=False` (2.94 mm แต่หลังป้ายเปล่า) |
-| clay: ท่อตัวเขียนเป็นปล้อง หน้าแผ่น script เป็นคลื่นเป็นพัดจากโคนตัวอักษร | `lumpiness` roughness 3.3°, `split_edges` | ตัวเขียนกินงบ 38% ของชิ้น (ไม่ถูกวัดเพราะมุมสูง) roughness มาจากฐานและท่อขอบ, คลื่นบนหน้าแผ่นคือ normals เอียงจาก fillet โคนตัวอักษรกระจายบนสามเหลี่ยมใหญ่ | ยังไม่มีค่าที่ผ่านภายในเพดานความหนาแน่น (ตารางหัวข้อ 7) อย่าใช้ `face_puff` กับ script (ตัวเขียนลอย) แถบที่วนเป็นระเบียบรอบท่อคือดีไซน์ |
+| clay: ซุ้มและห่วงของ `stop_sign` เป็นเหลี่ยม | `deviation` p95 ~3 mm, `dihedral` p90 43° | 13 ส่วนย่อยแบ่งงบ 2,500 (ท่อขอบสองหน้า, ห่วงป้ายกลม, ดาวสองหน้า) | `hold={}` ได้ 2.58 mm (วัดแล้ว) หรือ `double_sided=False` (2.94 mm แต่หลังป้ายเปล่า) |
+| clay: ท่อตัวเขียนเป็นปล้อง หน้าแผ่น script เป็นคลื่นเป็นพัดจากโคนตัวอักษร | `split_edges`, `dihedral` | ตัวเขียนกินงบ 38% ของชิ้น คลื่นบนหน้าแผ่นคือ normals เอียงจาก fillet โคนตัวอักษรกระจายบนสามเหลี่ยมใหญ่ | `hold={}` ทำหน้าแผ่นเรียบ (วัดแล้ว) อย่าใช้ `face_puff` กับ script (ตัวเขียนลอย) แถบที่วนเป็นระเบียบรอบท่อคือดีไซน์ |
 | คำชนท่อขอบหรือเลยขอบแผ่น | | ไม่ได้ส่ง `max_width` ตอนเรียก `layered_word` เอง | builder สำเร็จรูปคำนวณ `max_width` ให้แล้ว ถ้าเรียกเองให้ใส่ความกว้างภายในท่อขอบลบ 0.1-0.24 m |
 | palette หลายแผ่นในโฟลเดอร์เดียว | | หลายสคริปต์ใช้ `set_name` เดียวกันแต่ role ต่างกัน | หนึ่งชุดหนึ่ง palette (`DemoSet.palette` หรือ dict เดียวกันทุกชิ้น) |
 
@@ -214,4 +227,4 @@ Blender 4.2.3, 2026-11-24, voxel 0.005, `lod_dist` 120, set `1nfx_sign`, engine 
 5. export ด้วย `export_prop.py --format native --max-res 512 --shared-ytd <set>_tex` (ไม่ใส่ `--factory-startup`) ตาม `references/pipeline.md` หัวข้อ 13
 6. รายงานว่ายังไม่ได้ทดสอบในเกมจนกว่าผู้ใช้จะเห็นเอง ดูตอนกลางคืนด้วย: ป้ายสีน้ำตาลมืดต้องมีจุดเรืองแสงหรือตัวสีอ่อน (`references/smooth-craft.md` หัวข้อ 14)
 
-ชิ้นที่ยัง fail ใน demo (`1nfx_sign_script`) ห้ามส่งตามสภาพนั้น แก้ตามตารางหัวข้อ 8 แล้ววัดใหม่ หรือบันทึกเหตุผลว่าเป็นข้อจำกัดของ metric พร้อมภาพ zebra
+ทุกชิ้น demo ผ่าน `SCULPT_QA fail=0` (ประตู v2 + `hold`) WARN ที่เหลือ (`normal_error` ที่ร่องตัวอักษร, `deviation` 1-2.6 mm, `dihedral` ของท่อและห่วงเล็ก, `folds` ไม่กี่ขอบ) อธิบายได้ตามหัวข้อ 8 ชิ้นใหม่ที่ได้ FAIL ห้ามส่งตามสภาพนั้น แก้ตามตารางหัวข้อ 8 แล้ววัดใหม่

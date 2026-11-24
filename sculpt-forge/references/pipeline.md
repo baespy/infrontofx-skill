@@ -362,7 +362,7 @@ grid หนาแน่นใช้ได้ถึงราว 3 m ที่ vox
 | ตัวอักษรเล็กแตกเป็นก้อน | เส้นตัวอักษร < 6-8 voxel หรืองบน้อย | ตัวอักษร ≥ ~0.15 m ที่ 5 mm หรือ `voxel` 0.003-0.004, ใส่ `max_width`, ให้งบตัวอักษร (ป้ายตัวอักษรสูง 0.12 m ที่ 3,000 tris FAIL, ป้ายตัวสูง 0.22 m ที่ 6,000 ผ่าน) |
 | ชิ้นเล็กหรือโพรงหาย | shell ที่เล็กกว่า max(4·voxel, 15 mm) และโพรงภายในถูกทิ้งตอน repair | ขยายชิ้นหรือให้ต่อกับตัวหลัก ลด `voxel` |
 | สามเหลี่ยมกลับด้านจุดเล็กๆ ที่ร่องเว้า | เหลือหลัง repair (kiosk 8, sign 3, หน้าละไม่กี่ mm²) | backface culling ของเกมอาจเห็นเป็นรูเข็มระยะใกล้ เพิ่ม fillet ที่ร่องนั้น |
-| `validate_sculpt` ข้าม `normal_error`/`deviation` | high อยู่ใน `_high/` ไม่ใช่ข้างไฟล์ | ส่ง `--high <out>\_high\<id>_high.blend` ทีละไฟล์ |
+| `validate_sculpt` ข้าม `normal_error`/`deviation` | ไม่พบ `_high/<id>_high.blend` (ถูกย้ายหรือลบ หรือ build ด้วย `keep_high=False`) | รันทั้งโฟลเดอร์ (หา `_high/` เอง) หรือส่ง `--high <ไฟล์>` เมื่อ high อยู่ที่อื่น build ใหม่ด้วย `keep_high=True` |
 | `Warning: Library file, loading empty scene` | ไฟล์ที่เขียนด้วย `libraries.write` (ทาง MCP, `_high`, shell แมพ) ไม่มีข้อมูล UI | ไม่มีผล object โหลดครบ |
 | build ช้าหรือแรมเต็ม | grid ใหญ่ | `voxel` 0.008-0.01 สำหรับชิ้น > 2.5 m, ชิ้น > 3 m ใช้ `SweepBuilder` |
 | `export_prop.py` เปิดไฟล์ไม่ได้ | บันทึกจาก 5.x | build ซ้ำด้วย CLI 4.2.3 |

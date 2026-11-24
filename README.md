@@ -2,7 +2,7 @@
 
 An all-in-one agent skill pack for a FiveM roleplay server (`1nfx_*` resources). It covers writing Lua and NUI/DUI code, building weapon skins, building branded props, building high-FPS maps, and making support posters. It works with Claude Code, Google Antigravity, Codex and other agents that read `SKILL.md` files.
 
-The root `SKILL.md` holds a routing table, so an agent opens only the files a task needs.
+The root `SKILL.md` opens with an auto-routing table (task signal to the skills to load, including chains such as sculpt-forge then prop-forge), so an agent picks the right skills without being told and opens only the files a task needs. Every `SKILL.md` is a short English router in the same order (Quick path, Choose, Hard rules, Done when, References) and keeps long text in its own `references/`. `scripts/validate-skill.mjs` enforces the budgets: descriptions up to 450 characters, the root `SKILL.md` up to 10 KB, each sub-skill up to 8 KB.
 
 | Category | What it does | Start here |
 | --- | --- | --- |
@@ -17,20 +17,19 @@ The root `SKILL.md` holds a routing table, so an agent opens only the files a ta
 
 ## Install
 
-Clone into your project's skills folder:
+Every skill is a plain folder with a `SKILL.md`, so any agent that reads Agent Skills can use it, and every agent gets the same routing table in `AGENTS.md`. You never have to name a skill: the agent picks it from the task.
 
-```bash
-git clone https://github.com/baespy/infrontofx-skill.git .claude/skills/infrontofx
-```
+| Agent | Install | How it picks skills |
+| --- | --- | --- |
+| Claude Code (plugin, recommended) | `/plugin marketplace add baespy/infrontofx-skill`, then `/plugin install infrontofx-skill@infrontofx` | Automatic. The plugin's `UserPromptSubmit` hook (`hooks/hooks.json`) reads each prompt and tells the model which skills to load (about 20-40 tokens, nothing when no rule matches). It needs bash, which Claude Code on Windows already uses through Git Bash |
+| Claude Code (project copy) | `git clone https://github.com/baespy/infrontofx-skill.git .claude/skills/infrontofx` | Skill descriptions. For the hook too, add a `UserPromptSubmit` command hook to `.claude/settings.json` that runs `bash "$CLAUDE_PROJECT_DIR/.claude/skills/infrontofx/hooks/skill-router.sh"` |
+| OpenAI Codex (GPT) | Copy the skill folders into `~/.codex/skills/`, or use the cross-agent installer `npx skills@latest add baespy/infrontofx-skill -a codex` | `AGENTS.md` |
+| Gemini CLI | `gemini extensions install https://github.com/baespy/infrontofx-skill` | `GEMINI.md` (imports `AGENTS.md`) |
+| Google Antigravity | Run each forge's `<forge>/scripts/sync-antigravity.ps1` to copy it into the workspace's `.agents/skills/<name>/` (edit the `.claude/skills` copy, never the `.agents` copy) | `AGENTS.md`, `GEMINI.md` |
+| Cursor | Keep the pack in the workspace | `.cursor/rules/infrontofx.mdc` |
+| GitHub Copilot | Keep the pack in the workspace | `.github/copilot-instructions.md` |
 
-Or add it as a Claude Code plugin (not yet tested end to end):
-
-```text
-/plugin marketplace add baespy/infrontofx-skill
-/plugin install infrontofx-skill@infrontofx
-```
-
-For Google Antigravity, `sync-antigravity.ps1` in `weapon-forge/scripts/`, `prop-forge/scripts/` and `map-forge/scripts/` copies each forge into the workspace's `.agents/skills/<name>/`. Always edit the `.claude/skills` copy and sync afterwards. Do not edit the `.agents` copy.
+The routing rules live in one data file, `hooks/skill-routes.tsv`, and the same table is written out in `AGENTS.md`; `scripts/validate-skill.mjs` checks that the two agree. Check each tool's own docs if an install command has changed.
 
 ---
 
@@ -51,10 +50,10 @@ The house standard for FiveM Lua and NUI/DUI. The goal: every resource behaves e
 
 | Path | Contents |
 | --- | --- |
-| `SKILL.md` | Routing table, principles and owner instructions |
+| `SKILL.md` | Auto-route table, quick path, decisions, hard rules and owner orders |
 | `skills/common/` | Style, architecture, config, core API, events, runtime, security, performance, networking, database, natives, 1nfx_lib, debugging |
 | `skills/ui/`, `NUI_DUI.md` | NUI bridge, 1nfx design system, vanilla, React/Vite, Vue/Svelte, DUI |
-| `references/` | Core (ESX-compatible) API, pNotify, infrontofx FiveM notes |
+| `references/` | Core (ESX-compatible) API, pNotify, infrontofx FiveM notes, the full house-standard text with examples (`references/house-standard.md`) |
 | `rules/contracts.md` | Cross-resource contracts |
 | `memory/` | Gotchas and research learned on the live server (each entry has a date and game build) |
 | `checklists/` | New-resource and review checklists |
