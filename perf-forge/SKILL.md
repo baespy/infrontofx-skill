@@ -64,6 +64,7 @@ Find what players actually feel, fix the biggest measured cause first, prove it 
 | New lib services: adaptive quality, control blocks, frame budget, point broker | `references/shared-services.md` |
 | Streamed memory audit (RSC7 page flags, ytd textures, duplicates) | `scripts/stream-audit.mjs` |
 | Lua levers from the runtime source, with house-style fixes | `references/lua-unconventional.md` |
+| Beyond Lua: engine render switches, significance budgets, protocol bytes, GC and V8, CEF facts | `references/engine-protocol.md` |
 | Measure Lua techniques on the server's own CfxLua | `templates/luabench/` (console `luabench`, F8 `luabench_cl`) |
 | Weighted Lua and NUI hotspot ranking | `scripts/perf-scan.mjs` |
 | OAL readiness per resource (vector args, swizzles, bool out-pointers, DUI) | `scripts/oal-audit.mjs` |

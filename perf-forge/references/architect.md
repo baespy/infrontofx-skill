@@ -1,6 +1,6 @@
 # Architect mode
 
-Optimize the design, not the line. Before touching code, ask whether the work should exist, at what rate, for whom, and in which process. Borrowed from how AAA engines stay fast (Unreal Significance Manager, Animation Budget Allocator, Replication Graph, tick aggregation, LOD) and translated to FiveM APIs that exist, checked against the runtime facts in `references/lua-unconventional.md`. Use for: a system that feels heavy, a new system before it is built, a "rewrite for performance" request, or `/perf-architect`.
+Optimize the design, not the line. Before touching code, ask whether the work should exist, at what rate, for whom, and in which process. Borrowed from how AAA engines stay fast (Unreal Significance Manager, Animation Budget Allocator, Replication Graph, tick aggregation, LOD) and translated to FiveM APIs that exist, checked against the runtime facts in `references/lua-unconventional.md` and `references/engine-protocol.md`. Use for: a system that feels heavy, a new system before it is built, a "rewrite for performance" request, or `/perf-architect`.
 
 ## Contents
 

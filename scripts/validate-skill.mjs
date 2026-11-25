@@ -73,6 +73,7 @@ const REQUIRED = [
     "perf-forge/scripts/nui-idle.cjs",
     "perf-forge/scripts/oal-audit.mjs",
     "perf-forge/references/architect.md",
+    "perf-forge/references/engine-protocol.md",
     "perf-architect/SKILL.md",
     "help-inf-skills/SKILL.md",
     "scripts/list-skills.mjs",
